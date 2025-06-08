@@ -22,6 +22,7 @@ export WAF_STACK="${STACK_PREFIX}-WAF"
 export CDN_STACK="${STACK_PREFIX}-CDN"
 export MONITORING_STACK="${STACK_PREFIX}-Monitoring"
 export APP_STACK="${STACK_PREFIX}-App"
+export AUTH_STACK="${STACK_PREFIX}-Auth"
 
 # Legacy stack names for cleanup/migration
 export LEGACY_STACK="VocalTechniqueTranslatorStack"
@@ -43,4 +44,5 @@ if [ "${1:-}" = "--show-config" ]; then
     echo "   CDN: $CDN_STACK"
     echo "   Monitoring: $MONITORING_STACK"
     echo "   App: $APP_STACK"
+    echo "   Auth: $AUTH_STACK"
 fi

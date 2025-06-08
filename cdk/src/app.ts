@@ -9,6 +9,7 @@ import { WafStack } from './waf-stack';
 import { MonitoringStack } from './monitoring-stack';
 import { AppStack } from './app-stack';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import { AuthStack } from './auth-stack';
 
 const app = new cdk.App();
 
@@ -24,6 +25,9 @@ const usEast1Env = {
   region: 'us-east-1',
   account: process.env.CDK_DEFAULT_ACCOUNT,
 };
+
+// Get environment (development or production)
+const environment = (process.env.ENVIRONMENT || 'development') as 'development' | 'production';
 
 // 1. Foundation Stack - S3 buckets for website and logs
 const foundationStack = new FoundationStack(app, `${stackPrefix}-Foundation`, {
@@ -110,6 +114,21 @@ const appStack = new AppStack(app, `${stackPrefix}-App`, {
 
 // Add dependencies for app deployment (only foundation needed now)
 appStack.addDependency(foundationStack);
+
+// 8. Auth Stack - Cognito User Pool and Authentication
+const authStackName = environment === 'production' 
+  ? `${stackPrefix}-Auth-Prod`
+  : `${stackPrefix}-Auth`;
+
+const authStack = new AuthStack(app, authStackName, {
+  appName: appName,
+  domainName: domainName,
+  environment: environment,
+  env: usEast1Env,
+  description: `Authentication (Cognito) for ${appName} - ${environment}`,
+});
+
+// Auth stack is independent and can be deployed separately
 
 // Add tags to all stacks
 const tags = {

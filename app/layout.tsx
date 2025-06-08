@@ -6,6 +6,8 @@ import AdSenseScript from "@/components/AdSense/AdSenseScript";
 import GoogleCMP from "@/components/GoogleCMP";
 import GoogleConsentInit from "@/components/GoogleConsentInit";
 import ThemeToggle from "@/components/ThemeToggle";
+import { AuthProvider } from "@/lib/auth-context";
+import Navigation from "@/components/Navigation";
 
 // Configure Noto Sans for UI text with phonetic support
 const notoSans = Noto_Sans({
@@ -113,7 +115,12 @@ export default function RootLayout({
         </div>
         
         <ThemeToggle />
-        {children}
+        <AuthProvider>
+          <Navigation />
+          <main className="pt-16">
+            {children}
+          </main>
+        </AuthProvider>
         <GoogleCMP />
       </body>
     </html>

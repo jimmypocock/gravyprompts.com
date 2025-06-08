@@ -398,12 +398,50 @@ Your deployment creates these AWS resources:
 | **CDN** | Content delivery | CloudFront distribution |
 | **App** | Website content | Static files deployment |
 | **Monitoring** | Observability | CloudWatch dashboards, billing alerts |
+| **Auth** | Authentication | Cognito user pools (dev & prod separate) |
 
 **Key Features:**
 - Automatic S3 bucket policy configuration (no manual fixes needed!)
 - All traffic redirects to `https://www.yourdomain.com`
 - Enterprise security headers and WAF protection
 - Automatic billing alerts at $10, $50, and $100
+
+### 🔐 Authentication Setup
+
+#### Deploy Authentication Infrastructure
+
+```bash
+# Deploy development user pool (for local testing)
+npm run deploy:auth
+
+# Deploy production user pool (for real users)
+ENVIRONMENT=production npm run deploy:auth
+```
+
+#### Configure Authentication
+
+1. **After deployment**, update `.env.local` with the Cognito IDs from the output:
+   ```bash
+   # Development User Pool
+   NEXT_PUBLIC_COGNITO_USER_POOL_ID_DEV=us-east-1_XXXXXXXXX
+   NEXT_PUBLIC_COGNITO_CLIENT_ID_DEV=XXXXXXXXXXXXXXXXXXXXXXXXX
+   
+   # Production User Pool  
+   NEXT_PUBLIC_COGNITO_USER_POOL_ID_PROD=us-east-1_XXXXXXXXX
+   NEXT_PUBLIC_COGNITO_CLIENT_ID_PROD=XXXXXXXXXXXXXXXXXXXXXXXXX
+   ```
+
+2. **Environment Detection**:
+   - Local development (`npm run dev`): Uses DEV user pool
+   - Production build: Uses PROD user pool
+   - User pools are completely separate - no data mixing
+
+3. **Features**:
+   - Email/password authentication with verification
+   - MFA support (optional)
+   - Custom user profiles (bio, social links)
+   - Password reset flow
+   - 30-day session persistence
 
 ### Common Commands
 
@@ -416,6 +454,9 @@ npm run deploy:all
 
 # Check deployment status
 npm run status:all
+
+# Deploy auth separately
+npm run deploy:auth
 
 # Enable maintenance mode
 npm run maintenance:on

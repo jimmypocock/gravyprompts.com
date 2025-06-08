@@ -23,6 +23,7 @@
     "deploy:cdn": "./scripts/deploy-cdn.sh --nextjs",
     "deploy:app": "./scripts/deploy-app-content.sh",
     "deploy:monitoring": "./scripts/deploy-monitoring.sh",
+    "deploy:auth": "./scripts/deploy-auth.sh",
     "deploy:all": "./scripts/deploy-all-decoupled.sh --nextjs",
     "deploy:all:decoupled": "./scripts/deploy-all-decoupled.sh --nextjs",
     "status": "./scripts/check-stack-status.sh",
@@ -39,6 +40,7 @@
     "todo:progress": "./scripts/update-todos.sh progress"
   },
   "dependencies": {
+    "aws-amplify": "^6.15.0",
     "gravyjs": "file:./GravyJS",
     "next": "^15.3.2",
     "react": "^19.0.0",

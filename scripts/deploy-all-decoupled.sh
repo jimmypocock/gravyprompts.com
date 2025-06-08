@@ -115,9 +115,16 @@ echo "========================================="
 # Deploy Monitoring
 echo ""
 echo "========================================="
-echo "7/7: Deploying Monitoring Stack"
+echo "7/8: Deploying Monitoring Stack"
 echo "========================================="
 ./scripts/deploy-monitoring.sh $ARGS_WITH_CERT
+
+# Deploy Auth (independent, doesn't need certificate)
+echo ""
+echo "========================================="
+echo "8/8: Deploying Auth Stack"
+echo "========================================="
+./scripts/deploy-auth.sh $ARGS
 
 echo ""
 echo "========================================="
@@ -132,6 +139,7 @@ echo "   WAF:           Rate limiting and security rules"
 echo "   CDN:           CloudFront distribution"
 echo "   App:           Application content deployment"
 echo "   Monitoring:    CloudWatch dashboards and alerts"
+echo "   Auth:          Cognito user pools and authentication"
 echo ""
 echo "🌐 Your site is available at:"
 echo "   https://www.$DOMAIN_NAME"

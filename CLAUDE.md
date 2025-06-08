@@ -49,6 +49,7 @@ The certificate ARN is automatically saved to your `.env` file, preventing accid
 - `npm run deploy:cdn` - Deploy CloudFront distribution
 - `npm run deploy:app` - Deploy application content
 - `npm run deploy:monitoring` - Deploy CloudWatch dashboards and alerts
+- `npm run deploy:auth` - Deploy Cognito authentication (separate dev/prod pools)
 
 ### Monitoring & Maintenance
 - `npm run status:all` - Check all stack deployment status
@@ -79,6 +80,7 @@ The infrastructure uses a decoupled stack architecture (see `cdk/src/ARCHITECTUR
 5. **CDN Stack** - CloudFront distribution with custom domains
 6. **App Stack** - Content deployment and CloudFront invalidation
 7. **Monitoring Stack** - CloudWatch dashboards, SNS alerts, and billing alarms
+8. **Auth Stack** - AWS Cognito user pools for authentication (separate dev/prod)
 
 ### Google Integrations
 - **Google Analytics** with consent management (`components/GoogleAnalytics.tsx`)
@@ -86,10 +88,23 @@ The infrastructure uses a decoupled stack architecture (see `cdk/src/ARCHITECTUR
 - **Cookie Consent Management Platform** (`components/GoogleCMP.tsx`)
 - **Consent Initialization** (`components/GoogleConsentInit.tsx`) - Handles initial consent state setup
 
+### Authentication System
+- **AWS Cognito** integration with separate dev/prod user pools
+- **Custom auth UI** - Login, signup, profile, password reset pages
+- **Protected routes** - Using `ProtectedRoute` component
+- **Auth context** - Global state management with `useAuth` hook
+- **User profiles** - Support for bio, GitHub, Twitter, LinkedIn
+- **Security features** - Email verification, MFA support, 30-day sessions
+
 ## Key Directories
 
 - `app/` - Next.js App Router pages and layouts
+  - `login/`, `signup/`, `profile/`, `forgot-password/` - Auth pages
 - `components/` - Reusable React components
+  - `auth/` - Authentication components (ProtectedRoute)
+  - `Navigation.tsx` - Dynamic nav with auth state
+- `lib/` - Utility functions and contexts
+  - `auth-context.tsx` - Global authentication state management
 - `cdk/` - AWS CDK infrastructure code (separate TypeScript project)
 - `scripts/` - Deployment and maintenance shell scripts
 - `public/` - Static assets including `ads.txt` and `sitemap.xml`

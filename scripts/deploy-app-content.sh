@@ -48,6 +48,15 @@ fi
 
 echo -e "${GREEN}✅ All prerequisite stacks found${NC}"
 
+# Build Next.js application first
+echo "Building Next.js application..."
+cd "$(dirname "$0")/.."
+npm run build
+if [ $? -ne 0 ]; then
+    echo -e "${RED}❌ Next.js build failed${NC}"
+    exit 1
+fi
+
 # Change to CDK directory
 cd "$(dirname "$0")/../cdk"
 
