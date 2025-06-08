@@ -8,7 +8,7 @@ export default function About() {
         <nav className="max-w-6xl mx-auto flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-              Your App
+              Gravy Prompts
             </h1>
           </Link>
           
@@ -19,6 +19,9 @@ export default function About() {
             <Link href="/how-it-works" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
               How it Works
             </Link>
+            <Link href="/editor" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+              Editor Demo
+            </Link>
           </div>
         </nav>
       </header>
@@ -27,51 +30,52 @@ export default function About() {
       <main className="relative z-10 max-w-4xl mx-auto px-6 py-12">
         <div className="glass-card p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            About Your App
+            About Gravy Prompts
           </h1>
 
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Welcome to the about page of your application. This is where you can tell your users 
-              about your mission, vision, and what makes your application special.
+              Gravy Prompts is the ultimate platform for managing, sharing, and discovering AI prompt templates. 
+              We believe that great prompts are the key to unlocking the full potential of AI, and we&apos;re here 
+              to make prompt engineering accessible to everyone.
             </p>
 
             <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Describe your mission here. What problem are you solving? What value do you bring to your users?
-              This template provides a solid foundation for building modern web applications with all the 
-              essential components included.
+              To empower AI users with tools that make prompt creation, management, and sharing effortless. 
+              We&apos;re building a community where the best prompts rise to the top, and everyone can benefit 
+              from collective wisdom.
             </p>
 
-            <h2 className="text-2xl font-bold mb-4">Features Included</h2>
+            <h2 className="text-2xl font-bold mb-4">Key Features</h2>
             <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-2">
-              <li>Next.js 15 with App Router for optimal performance</li>
-              <li>TypeScript for type safety and better development experience</li>
-              <li>Tailwind CSS for rapid UI development</li>
-              <li>Google Analytics integration for user insights</li>
-              <li>Google AdSense setup for monetization</li>
-              <li>Complete AWS CDK infrastructure for production deployment</li>
-              <li>Dark/light theme toggle</li>
-              <li>Responsive design that works on all devices</li>
-              <li>SEO optimization and accessibility features</li>
+              <li>🎯 Smart Template System with dynamic [[variable]] syntax</li>
+              <li>📚 Organized Library with categories, tags, and search</li>
+              <li>🌟 Community Driven platform for sharing and rating prompts</li>
+              <li>🚀 Export Anywhere with rich formatting preserved</li>
+              <li>💾 Cloud Storage to access your prompts from any device</li>
+              <li>🔒 Private & Public options for your prompt templates</li>
+              <li>📊 Analytics to track your most popular prompts</li>
+              <li>🎨 Beautiful Editor with syntax highlighting</li>
+              <li>⚡ Lightning Fast with global CDN distribution</li>
             </ul>
 
-            <h2 className="text-2xl font-bold mb-4">Technology Stack</h2>
+            <h2 className="text-2xl font-bold mb-4">Built for the AI Era</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              This application is built with modern web technologies and follows best practices 
-              for performance, security, and maintainability. The AWS CDK infrastructure ensures 
-              scalable and reliable deployment with features like CDN, monitoring, and security.
+              Gravy Prompts is designed specifically for the age of AI. Whether you&apos;re using ChatGPT, 
+              Claude, Gemini, or any other AI model, our platform helps you create better prompts that 
+              deliver consistent, high-quality results.
             </p>
 
-            <h2 className="text-2xl font-bold mb-4">Get Started</h2>
+            <h2 className="text-2xl font-bold mb-4">Join Our Community</h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Ready to customize this template for your own project? Check out the documentation 
-              to learn how to configure everything for your specific needs.
+              Whether you&apos;re a prompt engineering expert or just getting started with AI, Gravy Prompts 
+              has something for you. Join our growing community and start creating better AI interactions today.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
-              <Link href="/how-it-works" className="btn-primary text-center">
-                View Documentation
+              <Link href="/editor" className="btn-primary text-center">
+                Try the Editor
               </Link>
               <Link 
                 href="/" 

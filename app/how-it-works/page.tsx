@@ -8,7 +8,7 @@ export default function HowItWorks() {
         <nav className="max-w-6xl mx-auto flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-              Your App
+              Gravy Prompts
             </h1>
           </Link>
           
@@ -19,6 +19,9 @@ export default function HowItWorks() {
             <Link href="/how-it-works" className="text-primary font-medium">
               How it Works
             </Link>
+            <Link href="/editor" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
+              Editor Demo
+            </Link>
           </div>
         </nav>
       </header>
@@ -27,116 +30,102 @@ export default function HowItWorks() {
       <main className="relative z-10 max-w-4xl mx-auto px-6 py-12">
         <div className="glass-card p-8 md:p-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            How It Works
+            How Gravy Prompts Works
           </h1>
 
           <div className="prose prose-lg dark:prose-invert max-w-none">
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              This template provides a complete foundation for building modern web applications. 
-              Here&apos;s everything you need to know to get started.
+              Gravy Prompts makes it easy to create, manage, and share AI prompt templates. 
+              Here&apos;s how to get the most out of our platform.
             </p>
 
-            <h2 className="text-2xl font-bold mb-4">Getting Started</h2>
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-              <pre className="text-sm overflow-x-auto">
-                <code>{`# Clone this template
-git clone <your-template-repo>
-cd your-project
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env
-# Edit .env with your values
-
-# Start development server
-npm run dev
-
-# Install CDK dependencies
-npm run cdk:install`}</code>
-              </pre>
+            <h2 className="text-2xl font-bold mb-4">Step 1: Create Your Template</h2>
+            <div className="glass-card p-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Start by creating a prompt template with dynamic variables. Use our [[variable]] syntax 
+                to mark placeholders that can be filled in later.
+              </p>
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                <code className="text-sm">
+                  Write a [[tone]] email to [[recipient]] about [[topic]]. 
+                  Include [[details]] and end with [[call_to_action]].
+                </code>
+              </div>
             </div>
 
-            <h2 className="text-2xl font-bold mb-4">Configuration Steps</h2>
+            <h2 className="text-2xl font-bold mb-4">Step 2: Populate Variables</h2>
+            <div className="glass-card p-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Click &quot;Populate Variables&quot; and fill in the values for each placeholder. The system will 
+                prompt you for each variable one by one.
+              </p>
+              <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-2">
+                <li><strong>[[tone]]</strong> → professional</li>
+                <li><strong>[[recipient]]</strong> → my team</li>
+                <li><strong>[[topic]]</strong> → project deadline</li>
+                <li><strong>[[details]]</strong> → the deadline has been moved to Friday</li>
+                <li><strong>[[call_to_action]]</strong> → please confirm receipt</li>
+              </ul>
+            </div>
+
+            <h2 className="text-2xl font-bold mb-4">Step 3: Copy and Use</h2>
+            <div className="glass-card p-6 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                Once populated, copy your completed prompt with formatting preserved. You can paste it 
+                directly into ChatGPT, Claude, or any AI tool.
+              </p>
+              <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+                <code className="text-sm">
+                  Write a professional email to my team about project deadline. 
+                  Include the deadline has been moved to Friday and end with please confirm receipt.
+                </code>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold mb-4">Advanced Features</h2>
             
-            <h3 className="text-xl font-semibold mb-3">1. Environment Variables</h3>
+            <h3 className="text-xl font-semibold mb-3">📚 Snippet Library</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Update the <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">.env</code> file with your specific values:
+              Access pre-made templates for common use cases like emails, reports, social media posts, 
+              and more. Just select a snippet and customize it for your needs.
             </p>
-            <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-2">
-              <li><strong>NEXT_PUBLIC_GA_MEASUREMENT_ID:</strong> Your Google Analytics measurement ID</li>
-              <li><strong>NEXT_PUBLIC_ADSENSE_CLIENT_ID:</strong> Your Google AdSense client ID</li>
-              <li><strong>AWS credentials:</strong> For CDK deployment</li>
-              <li><strong>DOMAIN_NAME:</strong> Your production domain</li>
-            </ul>
 
-            <h3 className="text-xl font-semibold mb-3">2. Customize Branding</h3>
+            <h3 className="text-xl font-semibold mb-3">🏷️ Custom Variable Delimiters</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Update these files with your brand information:
+              Don&apos;t like [[brackets]]? Change them! Use %%percent%%, @@at@@, or any delimiter that 
+              works for your workflow.
             </p>
-            <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-2">
-              <li><strong>app/layout.tsx:</strong> Update metadata, title, and descriptions</li>
-              <li><strong>app/globals.css:</strong> Customize brand colors in the CSS variables</li>
-              <li><strong>tailwind.config.ts:</strong> Add your brand colors to the theme</li>
-              <li><strong>package.json:</strong> Update name and description</li>
-            </ul>
 
-            <h3 className="text-xl font-semibold mb-3">3. AWS Infrastructure Setup</h3>
+            <h3 className="text-xl font-semibold mb-3">🎨 Rich Text Formatting</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              Deploy your infrastructure with the included CDK stacks:
+              Format your prompts with bold, italic, lists, and links. All formatting is preserved when 
+              you copy and paste.
             </p>
-            <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 mb-6">
-              <pre className="text-sm overflow-x-auto">
-                <code>{`# Deploy all infrastructure (recommended)
-npm run deploy:all
 
-# Or deploy individual stacks
-npm run deploy:foundation
-npm run deploy:cert
-npm run deploy:edge
-npm run deploy:waf
-npm run deploy:cdn
-npm run deploy:app
-npm run deploy:monitoring`}</code>
-              </pre>
-            </div>
-
-            <h2 className="text-2xl font-bold mb-4">Architecture Overview</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              The template includes a complete AWS infrastructure setup:
-            </p>
-            <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-2">
-              <li><strong>Foundation Stack:</strong> Core infrastructure and S3 buckets</li>
-              <li><strong>Certificate Stack:</strong> SSL certificates for your domain</li>
-              <li><strong>Edge Functions Stack:</strong> Lambda@Edge for advanced functionality</li>
-              <li><strong>WAF Stack:</strong> Web Application Firewall for security</li>
-              <li><strong>CDN Stack:</strong> CloudFront distribution for global content delivery</li>
-              <li><strong>App Stack:</strong> Application deployment and hosting</li>
-              <li><strong>Monitoring Stack:</strong> CloudWatch dashboards and alerts</li>
-            </ul>
-
-            <h2 className="text-2xl font-bold mb-4">Development Scripts</h2>
+            <h3 className="text-xl font-semibold mb-3">☁️ Cloud Storage</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-4">
-              The template includes helpful npm scripts for development and deployment:
+              Save your templates to the cloud and access them from any device. Organize with categories 
+              and tags for easy retrieval.
             </p>
+
+            <h2 className="text-2xl font-bold mb-4">Pro Tips</h2>
             <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 mb-6 space-y-2">
-              <li><strong>npm run dev:</strong> Start development server with Turbopack</li>
-              <li><strong>npm run build:</strong> Build the application for production</li>
-              <li><strong>npm run lint:</strong> Run ESLint to check code quality</li>
-              <li><strong>npm run status:</strong> Check the status of all deployed stacks</li>
-              <li><strong>npm run maintenance:on/off:</strong> Toggle maintenance mode</li>
+              <li>Use descriptive variable names like [[customer_name]] instead of just [[name]]</li>
+              <li>Create templates for your most common tasks to save time</li>
+              <li>Share your best templates with the community to help others</li>
+              <li>Rate and review templates to help the best ones rise to the top</li>
+              <li>Export templates in different formats for various AI tools</li>
             </ul>
 
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
-              <Link href="/about" className="btn-primary text-center">
-                Learn More
+              <Link href="/editor" className="btn-primary text-center">
+                Try the Editor Now
               </Link>
               <Link 
-                href="/" 
+                href="/about" 
                 className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-center"
               >
-                Back to Home
+                Learn More About Us
               </Link>
             </div>
           </div>

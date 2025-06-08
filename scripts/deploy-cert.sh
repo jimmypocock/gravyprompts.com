@@ -23,16 +23,47 @@ npm run build
 
 # Deploy only the certificate stack
 echo "☁️  Deploying certificate..."
-npx cdk deploy "$CERTIFICATE_STACK" --require-approval never --context createCertificate=true "$@"
+# If we have an existing certificate ARN, use it
+if [ ! -z "$CERTIFICATE_ARN" ]; then
+    echo "Using existing certificate: $CERTIFICATE_ARN"
+    npx cdk deploy "$CERTIFICATE_STACK" --require-approval never --context certificateArn="$CERTIFICATE_ARN" "$@"
+else
+    echo "Creating new certificate..."
+    npx cdk deploy "$CERTIFICATE_STACK" --require-approval never --context createCertificate=true "$@"
+fi
 
 cd ..
 
 echo "✅ Certificate deployment complete!"
 echo ""
-echo "⚠️  IMPORTANT NEXT STEPS:"
-echo "1. Go to AWS Certificate Manager in the AWS Console"
-echo "2. Find your certificate and copy the CNAME validation records"
-echo "3. Add these CNAME records to your DNS provider"
-echo "4. Wait for validation (5-30 minutes)"
-echo "5. Run 'npm run status' to check when the stack is ready"
-echo "6. Once validated, run 'npm run deploy:all' to deploy the application"
+
+# Try to get certificate details immediately
+CERT_ARN=$(aws cloudformation describe-stacks \
+    --stack-name "$CERTIFICATE_STACK" \
+    --query 'Stacks[0].Outputs[?OutputKey==`CertificateArnForReuse` || OutputKey==`ImportedCertificateArn` || OutputKey==`NewCertificateArn`].OutputValue | [0]' \
+    --output text \
+    --region us-east-1 2>/dev/null)
+
+if [ ! -z "$CERT_ARN" ]; then
+    echo "🔐 Certificate ARN: $CERT_ARN"
+    echo ""
+    
+    # Get validation records
+    echo "⚠️  DNS VALIDATION REQUIRED:"
+    echo "================================="
+    aws acm describe-certificate \
+        --certificate-arn "$CERT_ARN" \
+        --query 'Certificate.DomainValidationOptions[*].[DomainName,ResourceRecord.Name,ResourceRecord.Value]' \
+        --output table \
+        --region us-east-1
+    echo "================================="
+fi
+
+echo ""
+echo "📝 NEXT STEPS:"
+echo "1. Add the CNAME records above to your DNS provider"
+echo "2. Wait for DNS propagation (5-30 minutes)"
+echo "3. Check validation status: npm run check:cert"
+echo "4. Once validated, continue deployment: npm run deploy:all"
+echo ""
+echo "💡 TIP: Keep this terminal open to reference the CNAME records!"

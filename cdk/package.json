@@ -1,7 +1,7 @@
 {
-  "name": "nextjs-aws-template-infrastructure",
+  "name": "gravy-prompts-infrastructure",
   "version": "1.0.0",
-  "description": "CDK infrastructure for NextJS AWS Template",
+  "description": "CDK infrastructure for Gravy Prompts - AI prompt template management platform",
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",

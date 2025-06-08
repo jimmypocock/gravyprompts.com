@@ -398,3 +398,44 @@ textarea, input {
   -ms-user-select: text !important;
   user-select: text !important;
 }
+
+/* GravyJS Custom Styles */
+.gravy-editor {
+  @apply bg-white dark:bg-gray-900 rounded-lg;
+}
+
+.gravy-toolbar {
+  @apply bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2;
+}
+
+.gravy-toolbar button {
+  @apply px-3 py-1.5 mx-0.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors;
+}
+
+.gravy-toolbar button.active {
+  @apply bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700;
+}
+
+.gravy-content {
+  @apply p-4 min-h-[200px] focus:outline-none text-gray-900 dark:text-gray-100;
+}
+
+.gravy-variable {
+  @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1 py-0.5 rounded;
+}
+
+.gravy-variable-populated {
+  @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-1 py-0.5 rounded;
+}
+
+.gravy-snippets-dropdown {
+  @apply absolute z-10 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto;
+}
+
+.gravy-snippet-item {
+  @apply px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer;
+}
+
+.gravy-snippet-item.selected {
+  @apply bg-blue-100 dark:bg-blue-900;
+}

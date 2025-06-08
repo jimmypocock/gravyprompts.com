@@ -20,9 +20,30 @@ This is a production-ready Next.js 15 template with comprehensive AWS infrastruc
 - `npm run build:cdk` - Build CDK TypeScript files
 
 ### Deployment Commands
-- `npm run deploy:all` - Deploy all AWS stacks (recommended)
+
+#### Certificate-First Deployment (Recommended)
+To prevent certificate deletion issues, use this two-step process:
+
+1. **Deploy Certificate First**:
+   ```bash
+   npm run deploy:cert:first  # Creates certificate and saves ARN to .env
+   npm run check:cert         # Check validation status
+   # Add DNS CNAME records as shown
+   # Wait for validation (5-30 minutes)
+   npm run check:cert         # Verify ISSUED status
+   ```
+
+2. **Deploy Everything Else**:
+   ```bash
+   npm run deploy:all         # Deploy all remaining stacks
+   ```
+
+The certificate ARN is automatically saved to your `.env` file, preventing accidental deletion.
+
+#### Individual Stack Commands
 - `npm run deploy:foundation` - Deploy S3 buckets and core infrastructure
 - `npm run deploy:cert` - Deploy SSL certificates
+- `npm run check:cert` - Check certificate validation status
 - `npm run deploy:edge` - Deploy Lambda@Edge functions
 - `npm run deploy:waf` - Deploy Web Application Firewall
 - `npm run deploy:cdn` - Deploy CloudFront distribution

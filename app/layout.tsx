@@ -26,19 +26,22 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Your App Name | Professional Description",
-  description: "Description of your amazing application and what it does for users.",
-  keywords: "your, keywords, here, separated, by, commas",
+  title: "Gravy Prompts | Store, Share & Populate AI Prompt Templates",
+  description: "The ultimate platform for managing AI prompt templates. Store, share, populate variables, and rate prompts to supercharge your AI workflow.",
+  keywords: "AI prompts, prompt templates, prompt management, AI tools, ChatGPT prompts, Claude prompts, prompt engineering, template variables, prompt sharing",
   openGraph: {
-    title: "Your App Name | Professional Description",
-    description: "Description of your amazing application and what it does for users.",
+    title: "Gravy Prompts | Store, Share & Populate AI Prompt Templates",
+    description: "The ultimate platform for managing AI prompt templates. Store, share, populate variables, and rate prompts to supercharge your AI workflow.",
     type: "website",
     locale: "en_US",
+    url: "https://gravyprompts.com",
+    siteName: "Gravy Prompts",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Your App Name | Professional Description",
-    description: "Description of your amazing application and what it does for users.",
+    title: "Gravy Prompts | Store, Share & Populate AI Prompt Templates",
+    description: "The ultimate platform for managing AI prompt templates. Store, share, populate variables, and rate prompts to supercharge your AI workflow.",
+    site: "@gravyprompts",
   },
   robots: {
     index: true,
@@ -75,10 +78,10 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              "name": "Your App Name",
-              "description": "Description of your application and its purpose.",
-              "url": "https://yourdomain.com",
-              "applicationCategory": "WebApplication",
+              "name": "Gravy Prompts",
+              "description": "Store, share, populate, and rate your AI prompt templates. The ultimate prompt management platform for AI enthusiasts and professionals.",
+              "url": "https://gravyprompts.com",
+              "applicationCategory": "ProductivityApplication",
               "operatingSystem": "Web Browser",
               "offers": {
                 "@type": "Offer",
@@ -87,8 +90,15 @@ export default function RootLayout({
               },
               "creator": {
                 "@type": "Organization",
-                "name": "Your Organization Name"
-              }
+                "name": "Gravy Prompts"
+              },
+              "featureList": [
+                "Store and organize prompt templates",
+                "Share prompts with the community",
+                "Populate variables in templates",
+                "Rate and discover top prompts",
+                "Export prompts in multiple formats"
+              ]
             })
           }}
         />

@@ -1,6 +1,6 @@
-# Next.js AWS Template
+# Gravy Prompts
 
-A production-ready Next.js template with comprehensive AWS infrastructure, Google Analytics, Google AdSense, and modern web development tools.
+Store, share, populate, and rate your AI prompt templates. The ultimate prompt management platform for AI enthusiasts and professionals.
 
 ## Features
 
@@ -306,26 +306,42 @@ cp .env.example .env
 npm run cdk:install
 ```
 
-#### Step 2: First Time Deployment
+#### Step 2: Deploy Certificate First (if using custom domain)
 ```bash
-# Deploy everything including new certificate
-npm run deploy:all -- -c createCertificate=true -c notificationEmail=your-email@example.com
+# Deploy certificate and save ARN to .env
+npm run deploy:cert:first
+
+# The script will:
+# 1. Check if a certificate already exists
+# 2. Create a new one if needed
+# 3. Save the ARN to your .env file automatically
+# 4. Show DNS validation records
+
+# Check validation status
+npm run check:cert
+
+# Wait for "Certificate is validated and ready!" message
 ```
 
-**Note:** The deployment will output your CloudFront distribution URL (e.g., `d1234abcd.cloudfront.net`) - save this for DNS setup!
+**Certificate Validation Steps:**
+1. Copy the CNAME records shown after deployment
+2. Add them to your DNS provider (both www and non-www)
+3. Wait 5-30 minutes for DNS propagation
+4. Run `npm run check:cert` to monitor validation
+5. Certificate must show "ISSUED" before proceeding
 
-#### Step 3: Certificate Validation (Required!)
-After deployment starts, you MUST validate your SSL certificate:
+**Important:** The certificate ARN is automatically saved to your `.env` file. This prevents accidental deletion during future deployments.
 
-1. **Open AWS Certificate Manager** in the AWS Console (us-east-1 region)
-2. **Find your certificate** and click on it
-3. **Copy the CNAME records** - you'll see 2 records:
-   - One for `yourdomain.com`
-   - One for `www.yourdomain.com`
-4. **Add BOTH CNAME records to your DNS provider:**
-   - Name: `_abc123def` (use only the prefix part)
-   - Value: `_xyz789.acm-validations.aws.` (use the full value)
-5. **Wait for validation** - Status must show "Issued" for BOTH domains (5-30 minutes)
+#### Step 3: Deploy Everything Else
+```bash
+# Once certificate is validated (or if skipping custom domain)
+npm run deploy:all -- -c notificationEmail=your-email@example.com
+```
+
+**Note:** The deployment will:
+- Ask if you want to use custom domain or CloudFront URL only
+- Check certificate validation status automatically
+- Output your CloudFront distribution URL for DNS setup
 
 ### 📍 DNS Configuration (Post-Deployment)
 
@@ -475,6 +491,27 @@ For advanced topics including:
 - Custom domain configurations
 
 **See the [Complete Deployment Guide](docs/DEPLOYMENT.md)**
+
+### 🔐 Certificate Management Best Practices
+
+**First-Time Deployment:**
+1. Always deploy certificate separately first: `npm run deploy:cert`
+2. Complete DNS validation before deploying other stacks
+3. Save the certificate ARN after validation for future use
+
+**Reusing Certificates:**
+After certificate is validated, save the ARN to `cdk/cdk.json`:
+```json
+{
+  "context": {
+    "certificateArn": "arn:aws:acm:us-east-1:123456789012:certificate/abc-def-ghi"
+  }
+}
+```
+
+This prevents recreating certificates and avoids validation delays.
+
+**See [First Deployment Guide](FIRST_DEPLOYMENT.md) for detailed certificate handling**
 
 ## Development Scripts
 

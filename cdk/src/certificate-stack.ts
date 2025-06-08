@@ -4,46 +4,55 @@ import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 
 export interface CertificateStackProps extends StackProps {
   domainName: string;
+  /**
+   * If provided, imports this certificate ARN.
+   * If not provided, creates a new certificate.
+   * Once created, always provide the ARN to avoid deletion.
+   */
   certificateArn?: string;
-  createCertificate?: boolean;
 }
 
 export class CertificateStack extends Stack {
-  public readonly certificate: acm.ICertificate | undefined;
+  public readonly certificate: acm.ICertificate;
+  public readonly certificateArn: string;
 
   constructor(scope: Construct, id: string, props: CertificateStackProps) {
     super(scope, id, props);
 
     if (props.certificateArn) {
-      // Import existing certificate - DO NOT manage it
+      // Import existing certificate
       this.certificate = acm.Certificate.fromCertificateArn(
         this,
-        'ImportedCertificate',
+        'Certificate',
         props.certificateArn
       );
+      this.certificateArn = props.certificateArn;
       
-      new CfnOutput(this, 'ImportedCertificateArn', {
-        value: this.certificate.certificateArn,
+      new CfnOutput(this, 'CertificateArn', {
+        value: this.certificateArn,
         description: 'Imported Certificate ARN',
         exportName: `${this.stackName}-CertificateArn`,
       });
-    } else if (props.createCertificate) {
+    } else {
       // Create new certificate
-      this.certificate = new acm.Certificate(this, 'Certificate', {
+      const cert = new acm.Certificate(this, 'Certificate', {
         domainName: props.domainName,
         subjectAlternativeNames: [`www.${props.domainName}`],
         validation: acm.CertificateValidation.fromDns(),
       });
       
-      new CfnOutput(this, 'NewCertificateArn', {
-        value: this.certificate.certificateArn,
-        description: 'Certificate ARN - Save this for future deployments',
+      this.certificate = cert;
+      this.certificateArn = cert.certificateArn;
+      
+      new CfnOutput(this, 'CertificateArn', {
+        value: this.certificateArn,
+        description: 'Certificate ARN - SAVE THIS VALUE!',
         exportName: `${this.stackName}-CertificateArn`,
       });
       
-      new CfnOutput(this, 'CertificateArnForReuse', {
-        value: this.certificate.certificateArn,
-        description: 'IMPORTANT: Add this to cdk.json as "certificateArn" to avoid recreating the certificate',
+      new CfnOutput(this, 'IMPORTANT_SAVE_ARN', {
+        value: `SAVE THIS ARN TO YOUR .env FILE: CERTIFICATE_ARN=${this.certificateArn}`,
+        description: 'Action required to prevent certificate deletion on next deployment',
       });
     }
   }
