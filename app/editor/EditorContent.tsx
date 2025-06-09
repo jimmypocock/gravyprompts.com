@@ -51,6 +51,7 @@ export default function EditorContent() {
     if (templateId) {
       loadTemplate();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId]);
 
   const loadTemplate = async () => {
@@ -75,7 +76,7 @@ export default function EditorContent() {
       if (editorRef.current) {
         editorRef.current.setContent(template.content);
       }
-    } catch (err) {
+    } catch {
       alert('Failed to load template');
       router.push('/templates');
     } finally {

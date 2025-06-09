@@ -71,7 +71,31 @@
 
 **Why separate**: Application deployments happen frequently without infrastructure changes.
 
-### 7. Monitoring Stack
+### 7. Auth Stack
+```
+{STACK_PREFIX}-Auth-{ENVIRONMENT}
+├── Cognito User Pool
+├── Cognito User Pool Client
+├── User Pool Domain
+└── Outputs: UserPoolId, ClientId, Domain
+```
+
+**Why separate**: Authentication configuration rarely changes, separate dev/prod pools.
+
+### 8. API Stack
+```
+{STACK_PREFIX}-Api
+├── DynamoDB Tables (templates, template-views)
+├── Lambda Functions (CRUD operations, moderation)
+├── API Gateway REST API
+├── Lambda Layers (shared dependencies)
+└── Outputs: ApiUrl, TableNames
+```
+
+**Dependencies**: Auth Stack (for user validation)
+**Why separate**: API logic updates frequently, database schema is stable.
+
+### 9. Monitoring Stack
 ```
 {STACK_PREFIX}-Monitoring
 ├── CloudWatch Dashboards
@@ -117,6 +141,8 @@
    - Certificate Stack (ACM certificate)
    - Edge Functions Stack (CloudFront functions)
    - WAF Stack (security rules)
+   - Auth Stack (Cognito user pools)
+   - API Stack (Template management API)
    - CDN Stack (CloudFront distribution)
    - App Stack (content deployment)
    - Monitoring Stack (dashboards and alerts)

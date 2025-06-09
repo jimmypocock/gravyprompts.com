@@ -1,6 +1,6 @@
-# First Deployment Guide for Gravy Prompts
+# First Deployment Guide for GravyPrompts
 
-This guide helps you deploy Gravy Prompts for the first time, handling the certificate validation properly.
+This guide helps you deploy GravyPrompts (the AI prompt template management platform) for the first time, including all infrastructure and the template API.
 
 ## Prerequisites
 
@@ -66,8 +66,16 @@ This will deploy:
 - Edge Functions
 - WAF
 - CDN
+- Authentication (Cognito)
+- API (Template management with API Gateway, Lambda, DynamoDB)
 - Application
 - Monitoring
+
+**Important**: When the Auth and API stacks complete, save the outputs:
+- Cognito User Pool ID and Client ID
+- API Gateway URL
+
+You'll need these for your `.env.local` file.
 
 ## Alternative: Deploy Without Custom Domain
 

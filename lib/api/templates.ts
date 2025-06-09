@@ -54,7 +54,7 @@ export interface ListTemplatesParams {
 }
 
 export class TemplateApiError extends Error {
-  constructor(public status: number, message: string, public details?: any) {
+  constructor(public status: number, message: string, public details?: unknown) {
     super(message);
     this.name = 'TemplateApiError';
   }
@@ -75,9 +75,9 @@ class TemplateApi {
   ): Promise<Response> {
     const token = await this.getAuthToken();
     
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
     // For local development, use a mock token
@@ -159,7 +159,11 @@ class TemplateApi {
   async shareTemplate(
     templateId: string,
     data: ShareTemplateRequest
-  ): Promise<any> {
+  ): Promise<{
+    shareUrl?: string;
+    viewers?: string[];
+    message: string;
+  }> {
     const response = await this.fetchWithAuth(`/templates/${templateId}/share`, {
       method: 'POST',
       body: JSON.stringify(data),

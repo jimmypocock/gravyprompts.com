@@ -48,6 +48,7 @@
     "maintenance:on": "./scripts/maintenance-mode.sh on",
     "maintenance:off": "./scripts/maintenance-mode.sh off",
     "maintenance:update": "./scripts/maintenance-mode.sh update",
+    "deploy:force": "./scripts/force-update.sh",
     "todo": "./scripts/update-todos.sh show",
     "todo:add": "./scripts/update-todos.sh add",
     "todo:complete": "./scripts/update-todos.sh complete",

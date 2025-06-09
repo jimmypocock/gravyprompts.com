@@ -13,6 +13,7 @@ export default function Home() {
 
   useEffect(() => {
     loadTemplates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadTemplates = async () => {
@@ -85,7 +86,9 @@ export default function Home() {
                   key={tag}
                   onClick={() => {
                     setSelectedTag(tag);
-                    handleSearch(new Event('submit') as any);
+                    const params = new URLSearchParams();
+                    params.append('tag', tag);
+                    window.location.href = `/templates?${params.toString()}`;
                   }}
                   className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
                 >

@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useTemplateApi, type Template } from '@/lib/api/templates';
 
 export default function TemplatesPage() {
   const { user } = useAuth();
-  const router = useRouter();
   const api = useTemplateApi();
   
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -21,6 +19,7 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     loadTemplates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, selectedTag]);
 
   const loadTemplates = async (append = false) => {
@@ -33,7 +32,7 @@ export default function TemplatesPage() {
         tag: selectedTag || undefined,
         search: searchQuery || undefined,
         limit: 20,
-        nextToken: append ? nextToken : undefined,
+        nextToken: append ? (nextToken || undefined) : undefined,
       });
 
       if (append) {
@@ -61,7 +60,7 @@ export default function TemplatesPage() {
     try {
       await api.deleteTemplate(templateId);
       setTemplates(prev => prev.filter(t => t.templateId !== templateId));
-    } catch (err) {
+    } catch {
       alert('Failed to delete template');
     }
   };

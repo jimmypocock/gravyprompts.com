@@ -218,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('No ID token available');
       }
       return idToken;
-    } catch (err) {
+    } catch {
       throw new Error('Failed to get authentication token');
     }
   };

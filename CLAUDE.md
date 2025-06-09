@@ -11,9 +11,11 @@ This is a production-ready Next.js 15 template with comprehensive AWS infrastruc
 ### Core Development
 - `npm run dev` - Start development server with Turbopack
 - `npm run dev:all` - Start all services (frontend, API, database) for local development
-- `npm run build` - Build for production
+- `npm run build` - Build for production (Note: Static export disabled - see DEPLOYMENT_OPTIONS.md)
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint (check this after code changes)
+
+**IMPORTANT**: This app uses dynamic routes and requires SSR. It cannot be deployed as a static site to S3/CloudFront. See `docs/DEPLOYMENT_OPTIONS.md` for deployment options like Vercel or AWS Amplify.
 
 ### CDK Infrastructure
 - `npm run cdk:install` - Install CDK dependencies

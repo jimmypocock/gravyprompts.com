@@ -31,7 +31,7 @@ export class ApiStack extends Stack {
       partitionKey: { name: 'templateId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-      pointInTimeRecovery: isProd,
+      pointInTimeRecoverySpecification: isProd ? { pointInTimeRecoveryEnabled: true } : undefined,
       stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
     });
 
@@ -122,6 +122,9 @@ export class ApiStack extends Stack {
     // Grant DynamoDB permissions
     this.templatesTable.grantReadWriteData(lambdaRole);
     this.templateViewsTable.grantReadWriteData(lambdaRole);
+    
+    // Grant stream read permissions for the moderation function
+    this.templatesTable.grantStreamRead(lambdaRole);
 
     // Grant Comprehend permissions for content moderation
     lambdaRole.addToPolicy(new iam.PolicyStatement({

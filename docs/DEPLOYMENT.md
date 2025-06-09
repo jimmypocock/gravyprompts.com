@@ -79,8 +79,10 @@ This application uses a decoupled AWS architecture with these stacks:
 | **Edge Functions** | URL handling | CloudFront functions for redirects | 3rd |
 | **WAF** | Security | Rate limiting, geo-blocking | 4th |
 | **CDN** | Content delivery | CloudFront distribution | 5th |
-| **App** | Website content | Static files deployment | 6th |
-| **Monitoring** | Observability | CloudWatch dashboards, billing alerts | 7th |
+| **Auth** | Authentication | Cognito user pools (dev/prod) | 6th |
+| **API** | Template management | API Gateway, Lambda, DynamoDB | 7th |
+| **App** | Website content | Static files deployment | 8th |
+| **Monitoring** | Observability | CloudWatch dashboards, billing alerts | 9th |
 
 ### Key Features
 - **Automatic S3 bucket policy configuration** - No manual fixes needed
@@ -168,17 +170,30 @@ npm run deploy:waf
 # 5. CDN
 npm run deploy:cdn
 
-# 6. Application content
+# 6. Authentication (deploy production pool)
+ENVIRONMENT=production npm run deploy:auth
+# Save the User Pool ID and Client ID from output!
+
+# 7. API (Template management for production)
+ENVIRONMENT=production npm run deploy:api
+# Save the API Gateway URL from output!
+
+# 8. Application content
 npm run deploy:app
 
-# 7. Monitoring (optional)
+# 9. Monitoring (optional)
 npm run deploy:monitoring -- -c notificationEmail=your-email@example.com
 ```
 
 ### Updating Your Site
 
+**Important**: Before building for production, ensure:
+1. `.env.local` has production API URL and Cognito IDs
+2. `next.config.ts` has `output: 'export'` uncommented
+
 For content updates only:
 ```bash
+# Uncomment output: 'export' in next.config.ts first!
 npm run build && npm run deploy:app
 ```
 
@@ -188,6 +203,23 @@ npm run deploy:all
 ```
 
 ## Post-Deployment Configuration
+
+### Configure Environment Variables
+
+After deploying Auth and API stacks, update your `.env.local` file:
+
+```bash
+# Copy the example file
+cp .env.local.example .env.local
+
+# Edit .env.local and add:
+# From Auth stack output:
+NEXT_PUBLIC_COGNITO_USER_POOL_ID_PROD=us-east-1_XXXXXXXXX
+NEXT_PUBLIC_COGNITO_CLIENT_ID_PROD=XXXXXXXXXXXXXXXXXXXXXXXXX
+
+# From API stack output:
+NEXT_PUBLIC_API_URL=https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/production
+```
 
 ### DNS Configuration
 

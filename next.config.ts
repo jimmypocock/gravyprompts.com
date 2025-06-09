@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Commented out for local development with dynamic routes
-  // output: 'export',
+  // output: 'export',  // Disabled - we need SSR for dynamic routes
   images: {
     unoptimized: true,
   },
+  // For production deployment, we'll need different configuration
+  // based on the deployment target (Amplify, Vercel, App Runner, etc.)
 };
 
 export default nextConfig;

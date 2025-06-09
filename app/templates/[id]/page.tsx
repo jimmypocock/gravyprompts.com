@@ -12,7 +12,7 @@ import 'gravyjs/dist/index.css';
 export default function TemplateDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const { user } = useAuth();
+  const { } = useAuth();
   const api = useTemplateApi();
   const editorRef = useRef<GravyJSRef | null>(null);
   
@@ -29,6 +29,7 @@ export default function TemplateDetailPage() {
 
   useEffect(() => {
     loadTemplate();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId, shareToken]);
 
   const loadTemplate = async () => {
@@ -77,8 +78,8 @@ export default function TemplateDetailPage() {
           { variables: result.variables || {} },
           shareToken || undefined
         );
-      } catch (err) {
-        console.error('Failed to track usage:', err);
+      } catch {
+        console.error('Failed to track usage');
       }
     }
   };
@@ -92,8 +93,8 @@ export default function TemplateDetailPage() {
         action: 'generate_link',
         expiresIn: 7,
       });
-      setShareUrl(response.shareUrl);
-    } catch (err) {
+      setShareUrl(response.shareUrl || null);
+    } catch {
       alert('Failed to generate share link');
     } finally {
       setSharing(false);
@@ -114,7 +115,7 @@ export default function TemplateDetailPage() {
         await navigator.clipboard.writeText(text);
         alert('Copied to clipboard!');
       }
-    } catch (error) {
+    } catch {
       // Fallback method
       const tempTextarea = document.createElement('textarea');
       tempTextarea.value = text;
@@ -245,7 +246,6 @@ export default function TemplateDetailPage() {
               className="min-h-[300px]"
               variablePrefix="[["
               variableSuffix="]]"
-              readOnly={!template.isOwner}
             />
           </div>
 

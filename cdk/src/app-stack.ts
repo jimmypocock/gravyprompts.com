@@ -1,4 +1,4 @@
-import { Stack, StackProps, CfnOutput, Fn } from 'aws-cdk-lib';
+import { Stack, StackProps, CfnOutput, Fn, Duration } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
@@ -44,7 +44,10 @@ export class AppStack extends Stack {
       distribution: distribution,
       distributionPaths: ['/*'],
       cacheControl: [
-        s3deploy.CacheControl.fromString('max-age=31536000,public,immutable'),
+        // HTML files should have shorter cache for easier updates
+        s3deploy.CacheControl.setPublic(),
+        s3deploy.CacheControl.maxAge(Duration.minutes(5)),
+        s3deploy.CacheControl.sMaxAge(Duration.hours(1)),
       ],
       prune: true,
       retainOnDelete: false,
