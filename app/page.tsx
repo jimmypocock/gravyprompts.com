@@ -1,55 +1,175 @@
+'use client';
+
 import Link from 'next/link';
+import { useState, useEffect } from 'react';
+import { useTemplateApi, type Template } from '@/lib/api/templates';
 
 export default function Home() {
+  const api = useTemplateApi();
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
+  const loadTemplates = async () => {
+    try {
+      setLoading(true);
+      const response = await api.listTemplates({
+        filter: 'public',
+        limit: 9,
+        sortBy: 'viewCount',
+        sortOrder: 'desc',
+      });
+      setTemplates(response.items);
+    } catch (err) {
+      console.error('Failed to load templates:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Navigate to templates page with search query
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('search', searchQuery);
+    if (selectedTag) params.append('tag', selectedTag);
+    window.location.href = `/templates?${params.toString()}`;
+  };
+
+  // Extract all unique tags from templates
+  const allTags = Array.from(
+    new Set(templates.flatMap(t => t.tags))
+  ).slice(0, 10).sort();
   return (
     <div className="min-h-screen">
-      {/* Header */}
-      <header className="relative z-10 p-6">
-        <nav className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>
-              Gravy Prompts
-            </h1>
-          </div>
-          
-          <div className="hidden md:flex space-x-6">
-            <Link href="/about" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/how-it-works" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-              How it Works
-            </Link>
-            <Link href="/editor" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-              Editor Demo
-            </Link>
-          </div>
-        </nav>
-      </header>
+      {/* Hero Section */}
 
-      {/* Main Content */}
-      <main className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Welcome to Gravy Prompts
+            Create & Share AI Prompt Templates
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            The ultimate platform for managing AI prompt templates. Store, share, populate variables, 
-            and rate prompts to supercharge your AI workflow.
+            Build reusable templates with variables, share with your team, and streamline your AI workflow.
           </p>
           
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 px-4 py-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 text-lg"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
+              >
+                Search
+              </button>
+            </div>
+          </form>
+          
+          {/* Popular Tags */}
+          {allTags.length > 0 && (
+            <div className="flex gap-2 justify-center flex-wrap mb-8">
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => {
+                    setSelectedTag(tag);
+                    handleSearch(new Event('submit') as any);
+                  }}
+                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                >
+                  {tag}
+                </button>
+              ))}
+            </div>
+          )}
+          
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="btn-primary">
-              Start Creating Prompts
-            </button>
             <Link 
-              href="/about" 
+              href="/editor"
+              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
+            >
+              Create Your First Template
+            </Link>
+            <Link 
+              href="/templates" 
               className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              Learn More
+              Browse All Templates
             </Link>
           </div>
         </div>
+      </section>
 
+      {/* Popular Templates Section */}
+      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+        <h2 className="text-3xl font-bold text-center mb-8">Popular Templates</h2>
+        
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : templates.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {templates.map(template => (
+              <Link
+                key={template.templateId}
+                href={`/templates/${template.templateId}`}
+                className="glass-card p-6 hover:shadow-lg transition group"
+              >
+                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition">
+                  {template.title}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  By {template.authorEmail}
+                </p>
+                <div className="flex justify-between items-center text-sm text-gray-500">
+                  <span>{template.variableCount || template.variables?.length || 0} variables</span>
+                  <span>{template.viewCount || 0} views</span>
+                </div>
+                {template.tags.length > 0 && (
+                  <div className="flex gap-2 flex-wrap mt-3">
+                    {template.tags.slice(0, 3).map(tag => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-600 dark:text-gray-400">
+            <p>No templates available yet. Be the first to create one!</p>
+          </div>
+        )}
+        
+        <div className="text-center">
+          <Link
+            href="/templates"
+            className="inline-block px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
+            View All Templates →
+          </Link>
+        </div>
+      </section>
+
+      <main className="relative z-10 max-w-6xl mx-auto px-6 py-12">
         {/* Features Section */}
         <div className="grid md:grid-cols-3 gap-8 mb-16">
           <div className="glass-card p-6">

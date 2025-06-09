@@ -1,0 +1,6 @@
+{
+  "name": "moderation-functions",
+  "version": "1.0.0",
+  "description": "Lambda functions for content moderation",
+  "private": true
+}

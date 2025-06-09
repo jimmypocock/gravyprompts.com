@@ -10,6 +10,7 @@ This is a production-ready Next.js 15 template with comprehensive AWS infrastruc
 
 ### Core Development
 - `npm run dev` - Start development server with Turbopack
+- `npm run dev:all` - Start all services (frontend, API, database) for local development
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint (check this after code changes)
@@ -50,6 +51,7 @@ The certificate ARN is automatically saved to your `.env` file, preventing accid
 - `npm run deploy:app` - Deploy application content
 - `npm run deploy:monitoring` - Deploy CloudWatch dashboards and alerts
 - `npm run deploy:auth` - Deploy Cognito authentication (separate dev/prod pools)
+- `npm run deploy:api` - Deploy API Gateway and Lambda functions for template management
 
 ### Monitoring & Maintenance
 - `npm run status:all` - Check all stack deployment status
@@ -61,6 +63,16 @@ The certificate ARN is automatically saved to your `.env` file, preventing accid
 - `npm run todo:add` - Add a new TODO item
 - `npm run todo:complete` - Mark a TODO item as completed
 - `npm run todo:progress` - Update a TODO item's progress
+
+### Local Development & Testing
+- `npm run local:setup` - Setup local DynamoDB and tables
+- `npm run local:start` - Start local API Gateway
+- `npm run local:stop` - Stop local services
+- `npm run local:test` - Test template API endpoints
+- `npm run local:test:auth` - Test authentication setup
+- `npm run local:test:api` - Comprehensive API tests
+- `npm run local:fix-auth` - Fix local authentication issues
+- `npm run local:logs` - View DynamoDB logs
 
 ## Architecture
 
@@ -81,6 +93,7 @@ The infrastructure uses a decoupled stack architecture (see `cdk/src/ARCHITECTUR
 6. **App Stack** - Content deployment and CloudFront invalidation
 7. **Monitoring Stack** - CloudWatch dashboards, SNS alerts, and billing alarms
 8. **Auth Stack** - AWS Cognito user pools for authentication (separate dev/prod)
+9. **API Stack** - API Gateway, Lambda functions, and DynamoDB for template management
 
 ### Google Integrations
 - **Google Analytics** with consent management (`components/GoogleAnalytics.tsx`)

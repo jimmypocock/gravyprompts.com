@@ -1,0 +1,11 @@
+{
+  "name": "gravyprompts-local-test",
+  "version": "1.0.0",
+  "description": "Local testing utilities for GravyPrompts",
+  "scripts": {
+    "setup": "node setup-local-db.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.540.0"
+  }
+}

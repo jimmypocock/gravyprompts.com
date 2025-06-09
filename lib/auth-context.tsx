@@ -13,6 +13,7 @@ import {
   resendSignUpCode,
   resetPassword,
   confirmResetPassword,
+  fetchAuthSession,
   type SignInInput,
   type SignUpInput,
 } from 'aws-amplify/auth';
@@ -60,6 +61,7 @@ interface AuthContextType {
   forgotPassword: (email: string) => Promise<void>;
   confirmForgotPassword: (email: string, code: string, newPassword: string) => Promise<void>;
   refreshUser: () => Promise<void>;
+  getIdToken: () => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -208,6 +210,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const getIdToken = async (): Promise<string> => {
+    try {
+      const session = await fetchAuthSession();
+      const idToken = session.tokens?.idToken?.toString();
+      if (!idToken) {
+        throw new Error('No ID token available');
+      }
+      return idToken;
+    } catch (err) {
+      throw new Error('Failed to get authentication token');
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
@@ -229,6 +244,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     forgotPassword,
     confirmForgotPassword,
     refreshUser: loadUser,
+    getIdToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

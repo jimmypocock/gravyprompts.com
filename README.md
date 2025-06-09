@@ -2,7 +2,17 @@
 
 Store, share, populate, and rate your AI prompt templates. The ultimate prompt management platform for AI enthusiasts and professionals.
 
-## Features
+## 🎯 Core Features
+
+### Template Management
+- **Create & Edit** - Build reusable templates with [[variables]]
+- **Share** - Generate secure share links for your templates
+- **Populate** - Fill in variables dynamically with GravyJS editor
+- **Discover** - Browse public templates from the community
+- **Track Usage** - See view counts and usage statistics
+- **Content Moderation** - Automatic moderation for public templates
+
+### Technical Features
 
 ### 🚀 Modern Tech Stack
 
@@ -20,6 +30,10 @@ Store, share, populate, and rate your AI prompt templates. The ultimate prompt m
 ### ☁️ AWS Infrastructure
 
 - **Complete CDK setup** with multiple stacks
+- **API Gateway** with Lambda functions for template API
+- **DynamoDB** for template storage with global indexes
+- **AWS Comprehend** for content moderation
+- **Cognito** for user authentication
 - **CloudFront CDN** for global content delivery
 - **S3** for static hosting
 - **Certificate Manager** for SSL
@@ -34,6 +48,32 @@ Store, share, populate, and rate your AI prompt templates. The ultimate prompt m
 - **Beautiful gradient backgrounds** with animated orbs
 - **Glass morphism** design elements
 - **Accessible** and SEO optimized
+
+## 🚀 Quick Start
+
+### Local Development (Recommended)
+
+Run everything with one command:
+```bash
+npm run dev:all
+```
+
+This starts:
+- Local DynamoDB database
+- API Gateway on http://localhost:7429
+- Next.js frontend on http://localhost:6827
+- GravyJS demo on http://localhost:5173
+
+See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed instructions.
+
+### Production Deployment
+
+Deploy to AWS:
+```bash
+npm run deploy:all
+```
+
+See [Deployment Guide](docs/DEPLOYMENT.md) for full instructions.
 
 ## 🖼️ Preview
 

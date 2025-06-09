@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    Environment:
+      Variables:
+        TEMPLATES_TABLE: local-templates
+        TEMPLATE_VIEWS_TABLE: local-template-views
+        ENVIRONMENT: development
+        USER_POOL_ID: local-user-pool
+        IS_LOCAL: 'true'
+        AWS_SAM_LOCAL: 'true'
+
+Resources:
+  TemplatesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: local
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+  CreateTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: create.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates
+            Method: POST
+
+  GetTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: get.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates/{templateId}
+            Method: GET
+
+  ListTemplatesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: list.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates
+            Method: GET
+
+  UpdateTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: update.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates/{templateId}
+            Method: PUT
+
+  DeleteTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: delete.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates/{templateId}
+            Method: DELETE
+
+  ShareTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: share.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates/{templateId}/share
+            Method: POST
+
+  PopulateTemplateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/templates/
+      Handler: populate.handler
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates/{templateId}/populate
+            Method: POST

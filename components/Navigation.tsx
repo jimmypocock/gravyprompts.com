@@ -16,6 +16,12 @@ export default function Navigation() {
             </Link>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link
+                href="/templates"
+                className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-primary"
+              >
+                Templates
+              </Link>
+              <Link
                 href="/editor"
                 className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-primary"
               >

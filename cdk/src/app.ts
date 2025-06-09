@@ -10,6 +10,7 @@ import { MonitoringStack } from './monitoring-stack';
 import { AppStack } from './app-stack';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { AuthStack } from './auth-stack';
+import { ApiStack } from './api-stack';
 
 const app = new cdk.App();
 
@@ -129,6 +130,23 @@ const authStack = new AuthStack(app, authStackName, {
 });
 
 // Auth stack is independent and can be deployed separately
+
+// 9. API Stack - REST API with Lambda and DynamoDB
+const apiStackName = environment === 'production' 
+  ? `${stackPrefix}-API-Prod`
+  : `${stackPrefix}-API`;
+
+const apiStack = new ApiStack(app, apiStackName, {
+  appName: appName,
+  userPool: authStack.userPool,
+  userPoolClient: authStack.userPoolClient,
+  environment: environment,
+  env: usEast1Env,
+  description: `API and database for ${appName} - ${environment}`,
+});
+
+// API stack depends on auth stack
+apiStack.addDependency(authStack);
 
 // Add tags to all stacks
 const tags = {

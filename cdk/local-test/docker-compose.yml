@@ -1,0 +1,36 @@
+services:
+  # Local DynamoDB
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: gravyprompts-dynamodb-local
+    ports:
+      - "8000:8000"
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+
+  # DynamoDB Admin UI (optional but helpful)
+  dynamodb-admin:
+    image: aaronshaf/dynamodb-admin
+    container_name: gravyprompts-dynamodb-admin
+    ports:
+      - "8001:8001"
+    environment:
+      DYNAMO_ENDPOINT: "http://dynamodb-local:8000"
+      AWS_REGION: "us-east-1"
+      AWS_ACCESS_KEY_ID: "local"
+      AWS_SECRET_ACCESS_KEY: "local"
+    depends_on:
+      - dynamodb-local
+
+  # LocalStack for other AWS services (optional)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: gravyprompts-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=cognito-idp,comprehend
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - "./tmp/localstack:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"

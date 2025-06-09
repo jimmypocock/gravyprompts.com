@@ -1,7 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
+# dependencies - exclude ALL node_modules everywhere
+node_modules/
+**/node_modules/
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -35,6 +36,43 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local development
+cdk/local-test/env.json
+cdk/local-test/tmp/
+cdk/local-test/lambda-layer-mount/
+cdk/local-test/.aws-sam/
+cdk/local-test/node_modules/
+cdk/local-test/package-lock.json
+cdk/local-test/run-local-improved.sh
+cdk/local-test/LOCAL_AUTH_README.md
+docker-compose.override.yml
+
+# Lambda files that change during local development
+cdk/lambda/templates/utils.js
+cdk/lambda/templates/utils-local.js
+cdk/lambda/templates/node_modules/
+cdk/lambda/templates/package-lock.json
+
+# Lambda layers
+cdk/lambda-layers/shared/nodejs/node_modules/
+cdk/lambda-layers/shared/nodejs/package-lock.json
+
+# Local DynamoDB data
+dynamodb-local-data/
+
+# Local auth test
+cdk/local-test/test-auth.js
+cdk/local-test/test-api.sh
+
+# Test scripts
+scripts/check-templates.sh
+scripts/test-local-api.sh
+scripts/fix-local-auth.sh
+scripts/cleanup-local.sh
+scripts/test-infrastructure.sh
+scripts/pre-flight-check.sh
+
 
 # CDK
 cdk/node_modules/
