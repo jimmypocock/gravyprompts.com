@@ -1,0 +1,41 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
+
+# Custom build settings for Next.js standalone mode
+buildSpec:
+  version: 1
+  applications:
+    - frontend:
+        phases:
+          preBuild:
+            commands:
+              - npm ci
+          build:
+            commands:
+              - npm run build
+              # Copy standalone files for deployment
+              - cp -r .next/standalone/* .
+              - cp -r public ./public
+              - cp -r .next/static .next/static
+        artifacts:
+          baseDirectory: .
+          files:
+            - '**/*'
+        cache:
+          paths:
+            - node_modules/**/*

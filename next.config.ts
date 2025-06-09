@@ -1,12 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: 'export',  // Disabled - we need SSR for dynamic routes
+  output: 'standalone', // Required for AWS Amplify
   images: {
     unoptimized: true,
   },
-  // For production deployment, we'll need different configuration
-  // based on the deployment target (Amplify, Vercel, App Runner, etc.)
+  // AWS Amplify configuration
+  experimental: {
+    // Ensure server components work properly
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
+  // Environment variables that should be available at build time
+  env: {
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://gravyprompts.com',
+  },
 };
 
 export default nextConfig;

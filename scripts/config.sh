@@ -4,8 +4,13 @@
 # This script sets up stack names and other deployment variables
 # based on environment variables or defaults
 
+# Get the directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 # Load environment variables from .env file if it exists
-if [ -f .env ]; then
+if [ -f "$SCRIPT_DIR/../.env" ]; then
+    export $(cat "$SCRIPT_DIR/../.env" | grep -v '^#' | xargs)
+elif [ -f .env ]; then
     export $(cat .env | grep -v '^#' | xargs)
 fi
 
@@ -13,6 +18,17 @@ fi
 export APP_NAME=${APP_NAME:-"nextjs-app"}
 export DOMAIN_NAME=${DOMAIN_NAME:-"example.com"}
 export STACK_PREFIX=${STACK_PREFIX:-$(echo "$APP_NAME" | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]//g')}
+
+# Environment configuration
+# Map "production" to "Prod" for CDK stack naming
+export RAW_ENVIRONMENT=${ENVIRONMENT:-"development"}
+if [ "$RAW_ENVIRONMENT" = "production" ]; then
+    export ENVIRONMENT="Prod"
+elif [ "$RAW_ENVIRONMENT" = "development" ]; then
+    export ENVIRONMENT="Dev"
+else
+    export ENVIRONMENT="$RAW_ENVIRONMENT"
+fi
 
 # Stack names based on the configured prefix
 export FOUNDATION_STACK="${STACK_PREFIX}-Foundation"

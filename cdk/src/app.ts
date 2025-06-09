@@ -7,6 +7,7 @@ import { EdgeFunctionsStack } from './edge-functions-stack';
 import { CdnStack } from './cdn-stack';
 import { WafStack } from './waf-stack';
 import { MonitoringStack } from './monitoring-stack';
+import { MonitoringStackAmplify } from './monitoring-stack-amplify';
 import { AppStack } from './app-stack';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { AuthStack } from './auth-stack';
@@ -147,6 +148,20 @@ const apiStack = new ApiStack(app, apiStackName, {
 
 // API stack depends on auth stack
 apiStack.addDependency(authStack);
+
+// 10. Monitoring Stack for Amplify (Alternative to CloudFront monitoring)
+// Only create if explicitly requested for Amplify deployments
+if (app.node.tryGetContext('amplifyMonitoring') === 'true') {
+  const monitoringStackAmplify = new MonitoringStackAmplify(app, `${stackPrefix}-Monitoring-Amplify`, {
+    emailAddress: notificationEmail,
+    apiGatewayName: apiStack.api.restApiName,
+    env: usEast1Env,
+    description: `Monitoring and alerting for ${appName} (Amplify)`,
+  });
+  
+  // Monitoring depends on API stack to get the API name
+  monitoringStackAmplify.addDependency(apiStack);
+}
 
 // Add tags to all stacks
 const tags = {
