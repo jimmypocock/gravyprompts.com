@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",
-    "gravyjs": "file:./GravyJS",
+    "gravyjs": "github:jimmypocock/GravyJS",
     "next": "^15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
