@@ -5,6 +5,7 @@ This guide documents how to properly publish GravyJS to npm when you're ready.
 ## Current Setup (Development)
 
 Right now, your apps install GravyJS directly from GitHub:
+
 ```json
 "gravyjs": "github:jimmypocock/GravyJS"
 ```
@@ -14,6 +15,7 @@ This is perfectly fine for development and even early production!
 ## When to Publish to NPM
 
 Consider publishing when:
+
 - ✅ GravyJS API is stable (not changing frequently)
 - ✅ You want others to easily use it
 - ✅ You need version management
@@ -31,6 +33,7 @@ cd /path/to/GravyJS
 ```
 
 #### Update package.json:
+
 ```json
 {
   "name": "gravyjs",
@@ -39,11 +42,7 @@ cd /path/to/GravyJS
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "keywords": ["editor", "wysiwyg", "variables", "react"],
   "author": "Jimmy Pocock",
   "license": "MIT",
@@ -109,11 +108,13 @@ npm install gravyjs@^0.1.0
 ## Version Management
 
 ### Semantic Versioning (SemVer)
+
 - **MAJOR** (1.0.0): Breaking changes
 - **MINOR** (0.1.0): New features, backwards compatible
 - **PATCH** (0.0.1): Bug fixes
 
 ### Pre-release Versions
+
 ```bash
 # Beta versions
 npm version 1.0.0-beta.1
@@ -126,6 +127,7 @@ npm install gravyjs@beta
 ## Best Practices
 
 ### 1. Always Test Before Publishing
+
 ```bash
 # Dry run (shows what would be published)
 npm publish --dry-run
@@ -136,7 +138,9 @@ tar -tf gravyjs-0.1.0.tgz
 ```
 
 ### 2. Use .npmignore
+
 Create `.npmignore` to exclude files:
+
 ```
 # .npmignore
 src/
@@ -147,6 +151,7 @@ coverage/
 ```
 
 ### 3. Add README Badges
+
 ```markdown
 ![npm version](https://img.shields.io/npm/v/gravyjs)
 ![npm downloads](https://img.shields.io/npm/dm/gravyjs)
@@ -155,6 +160,7 @@ coverage/
 ### 4. Automated Publishing (Optional)
 
 Create `.github/workflows/publish.yml`:
+
 ```yaml
 name: Publish to NPM
 on:
@@ -167,8 +173,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
       - run: npm ci
       - run: npm run build
       - run: npm publish
@@ -181,11 +187,13 @@ jobs:
 If you want to keep it private:
 
 ### Option 1: NPM Private Package (Paid)
+
 ```bash
 npm publish --access restricted
 ```
 
 ### Option 2: GitHub Package Registry (Free)
+
 ```json
 // .npmrc
 @jimmypocock:registry=https://npm.pkg.github.com
@@ -197,16 +205,19 @@ npm publish --access restricted
 ## Troubleshooting
 
 ### "Package name already taken"
+
 - Add a scope: `@jimmypocock/gravyjs`
 - Or choose unique name: `gravyjs-editor`
 
 ### "Must be logged in"
+
 ```bash
 npm login
 npm whoami  # Check current user
 ```
 
 ### "Version already exists"
+
 ```bash
 npm version patch  # Bump version
 npm publish
@@ -215,16 +226,19 @@ npm publish
 ## Maintenance
 
 ### Deprecate Old Versions
+
 ```bash
 npm deprecate gravyjs@0.1.0 "Critical bug, please upgrade"
 ```
 
 ### Unpublish (within 72 hours)
+
 ```bash
 npm unpublish gravyjs@0.1.0
 ```
 
 ### Transfer Ownership
+
 ```bash
 npm owner add username gravyjs
 npm owner rm oldusername gravyjs
