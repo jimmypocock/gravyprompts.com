@@ -31,6 +31,10 @@ export const metadata: Metadata = {
   title: "Gravy Prompts | Store, Share & Populate AI Prompt Templates",
   description: "The ultimate platform for managing AI prompt templates. Store, share, populate variables, and rate prompts to supercharge your AI workflow.",
   keywords: "AI prompts, prompt templates, prompt management, AI tools, ChatGPT prompts, Claude prompts, prompt engineering, template variables, prompt sharing",
+  metadataBase: new URL('https://www.gravyprompts.com'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: "Gravy Prompts | Store, Share & Populate AI Prompt Templates",
     description: "The ultimate platform for managing AI prompt templates. Store, share, populate variables, and rate prompts to supercharge your AI workflow.",
