@@ -1,15 +1,9 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { FoundationStack } from './foundation-stack';
 import { CertificateStack } from './certificate-stack';
-import { EdgeFunctionsStack } from './edge-functions-stack';
-import { CdnStack } from './cdn-stack';
 import { WafStack } from './waf-stack';
-import { MonitoringStack } from './monitoring-stack';
 import { MonitoringStackAmplify } from './monitoring-stack-amplify';
-import { AppStack } from './app-stack';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
 import { AuthStack } from './auth-stack';
 import { ApiStack } from './api-stack';
 
@@ -22,7 +16,7 @@ const stackPrefix = process.env.STACK_PREFIX || app.node.tryGetContext('stackPre
 const certificateArn = process.env.CERTIFICATE_ARN || app.node.tryGetContext('certificateArn');
 const notificationEmail = app.node.tryGetContext('notificationEmail');
 
-// Common environment for us-east-1 (required for CloudFront, ACM, and WAF)
+// Common environment for us-east-1 (required for ACM and WAF)
 const usEast1Env = {
   region: 'us-east-1',
   account: process.env.CDK_DEFAULT_ACCOUNT,
@@ -31,14 +25,7 @@ const usEast1Env = {
 // Get environment (development or production)
 const environment = (process.env.ENVIRONMENT || 'development') as 'development' | 'production';
 
-// 1. Foundation Stack - S3 buckets for website and logs
-const foundationStack = new FoundationStack(app, `${stackPrefix}-Foundation`, {
-  domainName: domainName,
-  env: usEast1Env,
-  description: `Foundation resources (S3 buckets) for ${appName}`,
-});
-
-// 2. Certificate Stack - ACM certificate management
+// 1. Certificate Stack - ACM certificate management (optional, can be reused by Amplify)
 let certificateStack: CertificateStack | undefined;
 
 // Only create certificate stack if explicitly requested via context
@@ -52,72 +39,13 @@ if (app.node.tryGetContext('createCertificate') === 'true') {
   });
 }
 
-// If we have a certificate ARN but no stack, import it directly
-let certificate: acm.ICertificate | undefined;
-if (certificateArn && !certificateStack) {
-  certificate = acm.Certificate.fromCertificateArn(
-    foundationStack,
-    'ImportedCertificate',
-    certificateArn
-  );
-}
-
-// 3. Edge Functions Stack - CloudFront Functions
-const edgeFunctionsStack = new EdgeFunctionsStack(app, `${stackPrefix}-EdgeFunctions`, {
-  domainName: domainName,
-  env: usEast1Env,
-  description: `CloudFront Functions for ${appName}`,
-});
-
-// 4. WAF Stack - Web Application Firewall
+// 2. WAF Stack - Web Application Firewall (can be attached to Amplify)
 const wafStack = new WafStack(app, `${stackPrefix}-WAF`, {
   env: usEast1Env,
   description: `WAF rules for ${appName}`,
 });
 
-// 5. CDN Stack - CloudFront distribution and deployment
-const cdnStack = new CdnStack(app, `${stackPrefix}-CDN`, {
-  domainName: domainName,
-  certificate: certificateStack?.certificate || certificate,
-  redirectFunction: edgeFunctionsStack.redirectFunction,
-  securityHeadersFunction: edgeFunctionsStack.securityHeadersFunction,
-  webAclArn: wafStack.webAcl.attrArn,
-  env: usEast1Env,
-  description: `CDN distribution for ${appName}`,
-});
-
-// Add dependencies
-cdnStack.addDependency(foundationStack);
-// Only add certificate dependency if certificate stack exists
-if (certificateStack) {
-  cdnStack.addDependency(certificateStack);
-}
-cdnStack.addDependency(edgeFunctionsStack);
-cdnStack.addDependency(wafStack);
-
-// 6. Monitoring Stack - CloudWatch alarms and dashboards
-const monitoringStack = new MonitoringStack(app, `${stackPrefix}-Monitoring`, {
-  distributionId: cdnStack.distribution.distributionId,
-  emailAddress: notificationEmail,
-  env: usEast1Env,
-  description: `Monitoring and alerting for ${appName}`,
-});
-
-// Add dependency
-monitoringStack.addDependency(cdnStack);
-
-// 7. App Stack - Application deployment
-const appStack = new AppStack(app, `${stackPrefix}-App`, {
-  websiteBucketName: `${domainName}-app`,
-  cdnStackName: `${stackPrefix}-CDN`,
-  env: usEast1Env,
-  description: `Application deployment for ${appName}`,
-});
-
-// Add dependencies for app deployment (only foundation needed now)
-appStack.addDependency(foundationStack);
-
-// 8. Auth Stack - Cognito User Pool and Authentication
+// 3. Auth Stack - Cognito User Pool and Authentication
 const authStackName = environment === 'production' 
   ? `${stackPrefix}-Auth-Prod`
   : `${stackPrefix}-Auth`;
@@ -130,9 +58,7 @@ const authStack = new AuthStack(app, authStackName, {
   description: `Authentication (Cognito) for ${appName} - ${environment}`,
 });
 
-// Auth stack is independent and can be deployed separately
-
-// 9. API Stack - REST API with Lambda and DynamoDB
+// 4. API Stack - REST API with Lambda and DynamoDB
 const apiStackName = environment === 'production' 
   ? `${stackPrefix}-API-Prod`
   : `${stackPrefix}-API`;
@@ -149,9 +75,9 @@ const apiStack = new ApiStack(app, apiStackName, {
 // API stack depends on auth stack
 apiStack.addDependency(authStack);
 
-// 10. Monitoring Stack for Amplify (Alternative to CloudFront monitoring)
+// 5. Monitoring Stack for Amplify
 // Only create if explicitly requested for Amplify deployments
-if (app.node.tryGetContext('amplifyMonitoring') === 'true') {
+if (app.node.tryGetContext('amplifyMonitoring') === 'true' || notificationEmail) {
   const monitoringStackAmplify = new MonitoringStackAmplify(app, `${stackPrefix}-Monitoring-Amplify`, {
     emailAddress: notificationEmail,
     apiGatewayName: apiStack.api.restApiName,
@@ -166,8 +92,9 @@ if (app.node.tryGetContext('amplifyMonitoring') === 'true') {
 // Add tags to all stacks
 const tags = {
   Project: appName,
-  Environment: 'Production',
+  Environment: environment === 'production' ? 'Production' : 'Development',
   ManagedBy: 'CDK',
+  Frontend: 'Amplify',
 };
 
 Object.entries(tags).forEach(([key, value]) => {
