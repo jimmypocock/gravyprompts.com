@@ -33,9 +33,9 @@ export default function EditorContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const api = useTemplateApi();
-  
+
   const templateId = searchParams.get('templateId');
-  
+
   const [content, setContent] = useState('');
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState<string[]>([]);
@@ -56,23 +56,23 @@ export default function EditorContent() {
 
   const loadTemplate = async () => {
     if (!templateId) return;
-    
+
     try {
       setLoading(true);
       const template = await api.getTemplate(templateId);
-      
+
       if (!template.isOwner) {
         alert('You can only edit your own templates');
         router.push('/templates');
         return;
       }
-      
+
       setOriginalTemplate(template);
       setTitle(template.title);
       setContent(template.content);
       setTags(template.tags);
       setVisibility(template.visibility);
-      
+
       if (editorRef.current) {
         editorRef.current.setContent(template.content);
       }
@@ -111,7 +111,7 @@ export default function EditorContent() {
 
     try {
       setSaving(true);
-      
+
       if (templateId && originalTemplate) {
         await api.updateTemplate(templateId, {
           title,
@@ -184,7 +184,7 @@ export default function EditorContent() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
           {templateId ? 'Edit Template' : 'Create Template'}
         </h1>
-        
+
         {loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -205,7 +205,7 @@ export default function EditorContent() {
                     className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Visibility
@@ -220,7 +220,7 @@ export default function EditorContent() {
                   </select>
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                   Tags (up to 10)
@@ -252,7 +252,7 @@ export default function EditorContent() {
                   </div>
                 )}
               </div>
-          
+
               <div className="mb-4 flex gap-4 flex-wrap">
                 <button
                   onClick={handleSave}
@@ -287,7 +287,7 @@ export default function EditorContent() {
                   </button>
                 )}
               </div>
-          
+
               <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
                 <GravyJS
                   ref={editorRef}
@@ -323,13 +323,13 @@ export default function EditorContent() {
                     </button>
                   </div>
                 </div>
-                <div 
+                <div
                   className="prose dark:prose-invert max-w-none"
                   dangerouslySetInnerHTML={{ __html: populatedContent.html }}
                 />
               </div>
             )}
-            
+
             {visibility === 'public' && (
               <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mb-6">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">

@@ -120,3 +120,7 @@ pids
 # temporary folders
 tmp/
 temp/
+
+# packages/submodules
+packages/gravyjs/
+packages/gravyjs-demo/

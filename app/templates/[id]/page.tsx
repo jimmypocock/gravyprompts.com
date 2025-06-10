@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
 import { useTemplateApi, type Template } from '@/lib/api/templates';
 import GravyJS from 'gravyjs';
 import type { GravyJSRef } from 'gravyjs';
@@ -12,13 +11,12 @@ import 'gravyjs/dist/index.css';
 export default function TemplateDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const { } = useAuth();
   const api = useTemplateApi();
   const editorRef = useRef<GravyJSRef | null>(null);
-  
+
   const templateId = params.id as string;
   const shareToken = searchParams.get('token');
-  
+
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,11 +34,11 @@ export default function TemplateDetailPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const data = await api.getTemplate(templateId, shareToken || undefined);
       setTemplate(data);
       setEditorContent(data.content);
-      
+
       // Wait for next tick and set content in editor
       setTimeout(() => {
         if (editorRef.current) {
@@ -59,18 +57,18 @@ export default function TemplateDetailPage() {
       console.error('Editor ref not available');
       return;
     }
-    
+
     // Debug: Check current content
     const currentContent = editorRef.current.getContent();
     console.log('Current editor content:', currentContent);
-    
+
     // Use GravyJS's built-in populate function
     const result = await editorRef.current.populateVariables();
     console.log('Populate result:', result);
-    
+
     if (result) {
       setPopulatedContent(result);
-      
+
       // Track usage in the backend
       try {
         await api.populateTemplate(
@@ -86,7 +84,7 @@ export default function TemplateDetailPage() {
 
   const handleShare = async () => {
     if (!template || !template.isOwner) return;
-    
+
     try {
       setSharing(true);
       const response = await api.shareTemplate(templateId, {
@@ -155,7 +153,7 @@ export default function TemplateDetailPage() {
           <Link href="/templates" className="text-primary hover:underline mb-4 inline-block">
             ← Back to Templates
           </Link>
-          
+
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-4xl font-bold mb-2">{template.title}</h1>
@@ -163,7 +161,7 @@ export default function TemplateDetailPage() {
                 By {template.authorEmail} • {template.viewCount} views • {template.useCount} uses
               </p>
             </div>
-            
+
             <div className="flex gap-2">
               {template.isOwner && (
                 <>
@@ -224,7 +222,7 @@ export default function TemplateDetailPage() {
 
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4">Template Editor</h2>
-          
+
           <div className="mb-4">
             <button
               onClick={handlePopulate}
@@ -286,9 +284,9 @@ export default function TemplateDetailPage() {
                 </button>
               </div>
             </div>
-            <div 
-              dangerouslySetInnerHTML={{ 
-                __html: populatedContent.html 
+            <div
+              dangerouslySetInnerHTML={{
+                __html: populatedContent.html
               }}
               className="prose dark:prose-invert max-w-none"
             />

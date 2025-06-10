@@ -46,4 +46,4 @@ concurrently \
   --kill-others \
   "cd cdk/local-test && ./run-local.sh" \
   "NEXT_PUBLIC_API_URL=http://localhost:7429 next dev --turbopack -p 6827" \
-  "cd GravyJS/demo && npm run dev"
+  "cd packages/gravyjs-demo && npm run dev"
