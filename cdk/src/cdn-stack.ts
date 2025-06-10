@@ -4,8 +4,6 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as acm from 'aws-cdk-lib/aws-certificatemanager';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as cr from 'aws-cdk-lib/custom-resources';
 
 export interface CdnStackProps extends StackProps {
   domainName: string;
@@ -84,7 +82,9 @@ export class CdnStack extends Stack {
     // CloudFront distribution
     this.distribution = new cloudfront.Distribution(this, 'Distribution', {
       defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(websiteBucket),
+        origin: new origins.HttpOrigin(`${websiteBucket.bucketName}.s3-website-${this.region}.amazonaws.com`, {
+          protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+        }),
         functionAssociations: [
           {
             function: props.redirectFunction,
@@ -152,53 +152,7 @@ export class CdnStack extends Stack {
       });
     }
 
-    // Add bucket policy to allow CloudFront OAC access
-    // Since the bucket is imported, we need to use a custom resource
-    const bucketPolicyStatement = {
-      Version: '2012-10-17',
-      Statement: [
-        {
-          Sid: 'AllowCloudFrontServicePrincipalReadOnly',
-          Effect: 'Allow',
-          Principal: {
-            Service: 'cloudfront.amazonaws.com'
-          },
-          Action: 's3:GetObject',
-          Resource: `${websiteBucket.bucketArn}/*`,
-          Condition: {
-            StringEquals: {
-              'AWS:SourceArn': `arn:aws:cloudfront::${this.account}:distribution/${this.distribution.distributionId}`
-            }
-          }
-        }
-      ]
-    };
-
-    // Use AWS SDK to put the bucket policy
-    new cr.AwsCustomResource(this, 'SetBucketPolicy', {
-      onCreate: {
-        service: 'S3',
-        action: 'putBucketPolicy',
-        parameters: {
-          Bucket: websiteBucket.bucketName,
-          Policy: JSON.stringify(bucketPolicyStatement)
-        },
-        physicalResourceId: cr.PhysicalResourceId.of(`${websiteBucket.bucketName}-policy`)
-      },
-      onUpdate: {
-        service: 'S3',
-        action: 'putBucketPolicy',
-        parameters: {
-          Bucket: websiteBucket.bucketName,
-          Policy: JSON.stringify(bucketPolicyStatement)
-        }
-      },
-      policy: cr.AwsCustomResourcePolicy.fromStatements([
-        new iam.PolicyStatement({
-          actions: ['s3:PutBucketPolicy', 's3:GetBucketPolicy'],
-          resources: [websiteBucket.bucketArn]
-        })
-      ])
-    });
+    // No additional bucket policy needed when using S3 website endpoint
+    // The bucket already has a public read policy from the setup script
   }
 }
