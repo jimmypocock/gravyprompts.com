@@ -1,0 +1,6 @@
+[submodule "packages/gravyjs"]
+	path = packages/gravyjs
+	url = https://github.com/jimmypocock/GravyJS
+[submodule "packages/gravyjs-demo"]
+	path = packages/gravyjs-demo
+	url = https://github.com/jimmypocock/GravyJS-DEMO
