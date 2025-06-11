@@ -1,8 +1,16 @@
+# Gravy Prompts robots.txt
+# All bots are welcome
+
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 1
 
+# Google specific
 User-agent: Googlebot
 Allow: /
+Disallow: /api/
 
 User-agent: AdsBot-Google
 Allow: /
@@ -10,4 +18,33 @@ Allow: /
 User-agent: Mediapartners-Google
 Allow: /
 
-Sitemap: https://gravyprompts.com/sitemap.xml
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Social Media
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Block bad bots
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+# Sitemaps
+Sitemap: https://www.gravyprompts.com/sitemap.xml
+
+# Host directive (optional, helps with www vs non-www)
+Host: www.gravyprompts.com
