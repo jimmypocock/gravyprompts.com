@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     
     // Expose auth functions to window for debugging (only in development)
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-      (window as any).getAuthDebugInfo = async () => {
+      (window as Window & { getAuthDebugInfo?: () => Promise<unknown> }).getAuthDebugInfo = async () => {
         try {
           const session = await fetchAuthSession();
           const token = await getIdToken();
@@ -89,11 +89,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             tokenPreview: token ? `${token.substring(0, 50)}...` : 'No token',
           };
         } catch (error) {
-          return { error: error.message };
+          return { error: error instanceof Error ? error.message : String(error) };
         }
       };
     }
-  }, []);
+  }, [user]);
 
   const loadUser = async () => {
     try {

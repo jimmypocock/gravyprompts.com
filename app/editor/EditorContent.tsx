@@ -134,7 +134,7 @@ export default function EditorContent() {
       console.error('Save template error:', err);
       if (err instanceof Error) {
         // Check if it's a TemplateApiError with details
-        const apiError = err as any;
+        const apiError = err as Error & { details?: string[] };
         if (apiError.details) {
           console.error('Validation details:', apiError.details);
           alert(`Validation failed:\n${Array.isArray(apiError.details) ? apiError.details.join('\n') : apiError.message}`);
