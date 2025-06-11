@@ -73,7 +73,8 @@
     "check:ssl": "./scripts/check-ssl.sh",
     "deploy:cert": "./scripts/deploy-cert.sh",
     "amplify:setup:cert": "./scripts/setup-amplify-custom-cert.sh",
-    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'"
+    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'",
+    "check:lambda:invocations": "./scripts/check-lambda-invocations.sh"
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",
