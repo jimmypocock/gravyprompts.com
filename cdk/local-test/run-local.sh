@@ -17,27 +17,31 @@ node setup-local-db.js
 # Copy Lambda layer files EXCEPT utils.js to preserve local version
 echo "Setting up Lambda layers..."
 # Check if rsync is available, otherwise use cp with exclusion
-if command -v rsync &> /dev/null; then
-    # Use rsync to exclude utils.js
-    rsync -av --exclude='utils.js' ../lambda-layers/shared/nodejs/* ../lambda/templates/
-else
-    # Fallback: copy everything then overwrite with local version
-    cp -r ../lambda-layers/shared/nodejs/* ../lambda/templates/
-fi
+# Don't copy layer files into Lambda folders - they should use the layer
+# if command -v rsync &> /dev/null; then
+#     # Use rsync to exclude utils.js
+#     rsync -av --exclude='utils.js' ../lambda-layers/shared/nodejs/* ../lambda/templates/
+# else
+#     # Fallback: copy everything then overwrite with local version
+#     # cp -r ../lambda-layers/shared/nodejs/* ../lambda/templates/
+# fi
 
 # Always ensure we have the local version of utils.js
-echo "Setting up local utils.js..."
-cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils.js
-cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils-local.js
+# echo "Setting up local utils.js..."
+# cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils.js
+# cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils-local.js
 
-# Verify the utils.js has local auth logic
+# Verify the Lambda layer has local auth logic
 echo "Verifying local authentication setup..."
-if grep -q "isLocal" ../lambda/templates/utils.js; then
+if grep -q "isLocal" ../lambda-layers/shared/nodejs/utils-local.js; then
     echo "✅ Local authentication is properly configured"
 else
-    echo "❌ Local authentication is NOT configured - utils.js may be the production version"
+    echo "❌ Local authentication is NOT configured"
     exit 1
 fi
+
+# Apply layer workaround for local development
+./setup-layer-workaround.sh
 
 # Create or update env.json for SAM Local
 echo "Setting up environment variables..."
@@ -103,9 +107,11 @@ export AWS_ACCESS_KEY_ID=local
 export AWS_SECRET_ACCESS_KEY=local
 export AWS_REGION=us-east-1
 
-# Run SAM local with environment variables file
+# Run SAM local with environment variables file and layer caching
 sam local start-api \
   --port 7429 \
   --template template-local.yaml \
   --docker-network host \
-  --env-vars env.json
+  --env-vars env.json \
+  --layer-cache-basedir .aws-sam/layers-pkg \
+  --force-image-build

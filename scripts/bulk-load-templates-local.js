@@ -123,7 +123,7 @@ function processJSON(data) {
       variables: variables,
       variableCount: variables.length,
       visibility: record.visibility || 'public',
-      tags: record.tags || [],
+      tags: Array.isArray(record.tags) ? record.tags : (record.tags ? [record.tags] : []),
       authorEmail: record.authorEmail || 'demo@localhost',
       createdAt: record.createdAt || new Date().toISOString(),
       updatedAt: record.updatedAt || new Date().toISOString(),
@@ -207,7 +207,8 @@ async function main() {
     // Show sample of loaded templates
     console.log('\nSample of loaded templates:');
     templates.slice(0, 3).forEach(template => {
-      console.log(`- ${template.title} (${template.variables.length} variables, ${template.tags.join(', ')})`);
+      const tags = Array.isArray(template.tags) ? template.tags : [];
+      console.log(`- ${template.title} (${template.variables.length} variables, ${tags.join(', ')})`);
     });
     
     console.log('\n🚀 View your templates at: http://localhost:8001');

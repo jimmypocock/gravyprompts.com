@@ -74,26 +74,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load user on mount
   useEffect(() => {
     loadUser();
-    
-    // Expose auth functions to window for debugging (only in development)
+  }, []); // Empty dependency array - only run once on mount
+
+  // Expose auth functions to window for debugging (only in development)
+  useEffect(() => {
     if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
       (window as Window & { getAuthDebugInfo?: () => Promise<unknown> }).getAuthDebugInfo = async () => {
         try {
           const session = await fetchAuthSession();
-          const token = await getIdToken();
+          // Get token directly from session instead of using getIdToken
+          const idToken = session.tokens?.idToken?.toString();
           return {
             user,
             session,
-            token,
-            hasToken: !!token,
-            tokenPreview: token ? `${token.substring(0, 50)}...` : 'No token',
+            token: idToken,
+            hasToken: !!idToken,
+            tokenPreview: idToken ? `${idToken.substring(0, 50)}...` : 'No token',
           };
         } catch (error) {
           return { error: error instanceof Error ? error.message : String(error) };
         }
       };
     }
-  }, [user]);
+  }, [user]); // Only depend on user
 
   const loadUser = async () => {
     try {
