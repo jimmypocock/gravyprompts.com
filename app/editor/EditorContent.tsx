@@ -140,9 +140,19 @@ export default function EditorContent() {
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim()) {
       e.preventDefault();
-      const newTag = tagInput.trim().toLowerCase();
-      if (!tags.includes(newTag) && tags.length < 10) {
-        setTags([...tags, newTag]);
+      
+      // Split by comma to support comma-separated tags
+      const newTags = tagInput
+        .split(',')
+        .map(tag => tag.trim().toLowerCase())
+        .filter(tag => tag.length > 0 && !tags.includes(tag));
+      
+      // Add all new tags (up to the limit)
+      const remainingSlots = 10 - tags.length;
+      const tagsToAdd = newTags.slice(0, remainingSlots);
+      
+      if (tagsToAdd.length > 0) {
+        setTags([...tags, ...tagsToAdd]);
         setTagInput('');
       }
     }
@@ -230,7 +240,7 @@ export default function EditorContent() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
-                  placeholder="Type tag and press Enter..."
+                  placeholder="Type tags and press Enter (comma-separated for multiple)..."
                   className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
                 />
                 {tags.length > 0 && (

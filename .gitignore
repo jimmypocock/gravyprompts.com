@@ -120,3 +120,6 @@ pids
 # temporary folders
 tmp/
 temp/
+
+# local dynamodb data
+cdk/local-test/dynamodb-data/

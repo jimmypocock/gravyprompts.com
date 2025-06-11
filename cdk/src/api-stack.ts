@@ -19,6 +19,7 @@ export class ApiStack extends Stack {
   public readonly api: apigateway.RestApi;
   public readonly templatesTable: dynamodb.Table;
   public readonly templateViewsTable: dynamodb.Table;
+  public readonly userPromptsTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
@@ -73,6 +74,23 @@ export class ApiStack extends Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // User prompts table for saving populated prompts
+    this.userPromptsTable = new dynamodb.Table(this, 'UserPromptsTable', {
+      tableName: `${props.appName}-${props.environment}-user-prompts`,
+      partitionKey: { name: 'promptId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
+      pointInTimeRecoverySpecification: isProd ? { pointInTimeRecoveryEnabled: true } : undefined,
+    });
+
+    // Add GSI for querying by user
+    this.userPromptsTable.addGlobalSecondaryIndex({
+      indexName: 'userId-createdAt-index',
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'createdAt', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // Create API Gateway
     this.api = new apigateway.RestApi(this, 'TemplatesApi', {
       restApiName: `${props.appName}-${props.environment}-api`,
@@ -122,6 +140,7 @@ export class ApiStack extends Stack {
     // Grant DynamoDB permissions
     this.templatesTable.grantReadWriteData(lambdaRole);
     this.templateViewsTable.grantReadWriteData(lambdaRole);
+    this.userPromptsTable.grantReadWriteData(lambdaRole);
     
     // Grant stream read permissions for the moderation function
     this.templatesTable.grantStreamRead(lambdaRole);
@@ -140,6 +159,7 @@ export class ApiStack extends Stack {
     const environment = {
       TEMPLATES_TABLE: this.templatesTable.tableName,
       TEMPLATE_VIEWS_TABLE: this.templateViewsTable.tableName,
+      USER_PROMPTS_TABLE: this.userPromptsTable.tableName,
       ENVIRONMENT: props.environment,
       USER_POOL_ID: props.userPool.userPoolId,
     };
@@ -257,7 +277,7 @@ export class ApiStack extends Stack {
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
-    // GET /templates - List templates
+    // GET /templates - List templates (includes popular filter)
     templates.addMethod('GET', new apigateway.LambdaIntegration(listTemplatesFunction), {
       authorizationType: apigateway.AuthorizationType.NONE, // Public endpoint
     });
@@ -306,6 +326,67 @@ export class ApiStack extends Stack {
     const populateResource = templateById.addResource('populate');
     populateResource.addMethod('POST', new apigateway.LambdaIntegration(populateTemplateFunction), {
       authorizationType: apigateway.AuthorizationType.NONE, // Auth handled in Lambda
+    });
+
+    // User Prompts Lambda Functions
+    const savePromptFunction = new lambda.Function(this, 'SavePromptFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'save.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      environment,
+      role: lambdaRole,
+      layers: [sharedLayer],
+      timeout: Duration.seconds(10),
+      memorySize: 128,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const listPromptsFunction = new lambda.Function(this, 'ListPromptsFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'list.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      environment,
+      role: lambdaRole,
+      layers: [sharedLayer],
+      timeout: Duration.seconds(10),
+      memorySize: 128,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const deletePromptFunction = new lambda.Function(this, 'DeletePromptFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'delete.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      environment,
+      role: lambdaRole,
+      layers: [sharedLayer],
+      timeout: Duration.seconds(10),
+      memorySize: 128,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    // User Prompts API Routes
+    const prompts = this.api.root.addResource('prompts');
+    
+    // POST /prompts - Save user prompt
+    prompts.addMethod('POST', new apigateway.LambdaIntegration(savePromptFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // GET /prompts - List user prompts
+    prompts.addMethod('GET', new apigateway.LambdaIntegration(listPromptsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Prompt by ID resource
+    const promptById = prompts.addResource('{promptId}');
+
+    // DELETE /prompts/{id} - Delete user prompt
+    promptById.addMethod('DELETE', new apigateway.LambdaIntegration(deletePromptFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
     });
 
     // Add usage plan for rate limiting per user

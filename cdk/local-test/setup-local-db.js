@@ -111,6 +111,44 @@ async function createTables() {
     }
   }
 
+  // User prompts table
+  const userPromptsTable = {
+    TableName: 'local-user-prompts',
+    KeySchema: [
+      { AttributeName: 'promptId', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'promptId', AttributeType: 'S' },
+      { AttributeName: 'userId', AttributeType: 'S' },
+      { AttributeName: 'createdAt', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'userId-createdAt-index',
+        KeySchema: [
+          { AttributeName: 'userId', KeyType: 'HASH' },
+          { AttributeName: 'createdAt', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' },
+        ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  };
+
+  try {
+    console.log('Creating user prompts table...');
+    await client.send(new CreateTableCommand(userPromptsTable));
+    console.log('User prompts table created successfully');
+  } catch (error) {
+    if (error.name === 'ResourceInUseException') {
+      console.log('User prompts table already exists - skipping');
+    } else {
+      console.error('Error creating user prompts table:', error);
+      throw error;
+    }
+  }
+
   console.log('\n✅ All tables ready!');
   console.log('📊 DynamoDB Admin UI: http://localhost:8001');
 }

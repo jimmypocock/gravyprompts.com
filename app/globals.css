@@ -20,70 +20,42 @@
 /* Light mode colors (default) */
 :root {
   --bg-primary: #ffffff;
-  --bg-secondary: #fafbfc;
-  --bg-accent: #f6f8fa;
-  --text-primary: #0e1117;
-  --text-secondary: #31333e;
-  --text-accent: #808495;
-  --border-color: #e0e2e9;
-  --border-focus: #9436eb;
+  --bg-secondary: #f7f7f7;
+  --bg-accent: #f5f5f5;
+  --text-primary: #222222;
+  --text-secondary: #484848;
+  --text-accent: #717171;
+  --border-color: #dddddd;
+  --border-focus: #FF385C;
 
   /*
-   * BRAND COLOR PALETTE
-   * Customize these colors for your brand.
+   * BRAND COLOR PALETTE - Airbnb Inspired
+   * A warm, welcoming color scheme inspired by Airbnb's design language
    *
-   * Primary: #9436eb (Purple) - Main brand color, used for primary actions and branding
-   * Secondary: #2196f3 (Blue) - Secondary actions, links, and complementary elements
-   * Accent: #ec4899 (Pink) - Highlights, special features, and emphasis
-   * Neutral: #9ca3af (Gray-400) - Base neutral for text, borders, and backgrounds
+   * Primary: #FF385C (Rausch Red) - Main brand color for CTAs and key elements
+   * Secondary: #00A699 (Teal) - Supporting color for accents
+   * Accent: #FC642D (Orange) - Highlights and special features
+   * Neutral: #767676 (Gray) - Base neutral for secondary text
    */
 
   /* Brand colors */
-  --primary: #9436eb;      /* Primary brand color */
-  --primary-hover: #7c2ecf;
-  --secondary: #2196f3;    /* Secondary brand color */
-  --accent: #ec4899;       /* Accent brand color */
-  --neutral: #9ca3af;      /* Neutral brand color (gray-400) */
+  --primary: #FF385C;      /* Airbnb's signature red */
+  --primary-hover: #E31C5F;
+  --secondary: #00A699;    /* Teal accent */
+  --accent: #FC642D;       /* Orange accent */
+  --neutral: #767676;      /* Neutral gray */
 
   /* Gradient backgrounds */
-  --gradient-bg: radial-gradient(circle at 30% 20%, #f3f4ff 0%, #fafbfc 40%, #ffffff 100%);
-  --orb-color: rgba(99, 102, 241, 0.4);
+  --gradient-bg: linear-gradient(to bottom, #ffffff 0%, #f7f7f7 100%);
+  --orb-color: rgba(255, 56, 92, 0.2);
 
-  /* Shadows - Softer for light mode */
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  /* Shadows - Airbnb style */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.08);
-  --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.06);
-}
-
-/* Dark mode colors */
-[data-theme="dark"] {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #0f0f17;
-  --bg-accent: #1a1a2e;
-  --text-primary: #fafafa;
-  --text-secondary: #e0e0e0;
-  --text-accent: #a3a8b8;
-  --border-color: #2a2a3e;
-  --border-focus: #9436eb;
-
-  /* Brand colors (same in dark mode for consistency) */
-  --primary: #9436eb;      /* Primary brand color */
-  --primary-hover: #7c2ecf;
-  --secondary: #2196f3;    /* Secondary brand color */
-  --accent: #ec4899;       /* Accent brand color */
-  --neutral: #9ca3af;      /* Neutral brand color (gray-400) */
-
-  /* Gradient backgrounds - Purple theme */
-  --gradient-bg: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #0a0a0a 50%);
-  --orb-color: rgba(147, 51, 234, 0.6);
-
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.4);
-  --shadow-card: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 8px 28px rgba(0, 0, 0, 0.12);
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Global reset and base styles */
@@ -109,7 +81,7 @@ html {
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-ui);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-size: var(--text-base);
   line-height: 1.6;
   color: var(--text-primary);
@@ -180,11 +152,11 @@ body::before {
   height: 400px;
   top: -10%;
   right: -200px;
-  background: radial-gradient(circle at center, rgba(147, 51, 234, 0.5) 0%, rgba(99, 102, 241, 0.3) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 56, 92, 0.3) 0%, rgba(255, 56, 92, 0.15) 50%, transparent 70%);
 }
 
 [data-theme="dark"] .orb1 {
-  background: radial-gradient(circle at center, rgba(217, 70, 239, 0.6) 0%, rgba(147, 51, 234, 0.4) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 56, 92, 0.4) 0%, rgba(255, 56, 92, 0.2) 50%, transparent 70%);
 }
 
 .orb2 {
@@ -192,11 +164,11 @@ body::before {
   height: 350px;
   bottom: -10%;
   left: -10%;
-  background: radial-gradient(circle at center, rgba(236, 72, 153, 0.5) 0%, rgba(219, 39, 119, 0.3) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(0, 166, 153, 0.3) 0%, rgba(0, 166, 153, 0.15) 50%, transparent 70%);
 }
 
 [data-theme="dark"] .orb2 {
-  background: radial-gradient(circle at center, rgba(251, 113, 133, 0.6) 0%, rgba(236, 72, 153, 0.4) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(0, 179, 166, 0.4) 0%, rgba(0, 179, 166, 0.2) 50%, transparent 70%);
 }
 
 .orb3 {
@@ -205,12 +177,12 @@ body::before {
   top: 40%;
   left: 60%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle at center, rgba(139, 92, 246, 0.5) 0%, rgba(124, 58, 237, 0.3) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(252, 100, 45, 0.3) 0%, rgba(252, 100, 45, 0.15) 50%, transparent 70%);
   animation-delay: -5s;
 }
 
 [data-theme="dark"] .orb3 {
-  background: radial-gradient(circle at center, rgba(196, 181, 253, 0.6) 0%, rgba(167, 139, 250, 0.4) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 107, 61, 0.4) 0%, rgba(255, 107, 61, 0.2) 50%, transparent 70%);
 }
 
 /* Additional orb for more effect */
@@ -219,12 +191,12 @@ body::before {
   height: 250px;
   bottom: 20%;
   right: -50px;
-  background: radial-gradient(circle at center, rgba(168, 85, 247, 0.5) 0%, rgba(139, 92, 246, 0.3) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 90, 95, 0.3) 0%, rgba(255, 90, 95, 0.15) 50%, transparent 70%);
   animation-delay: -15s;
 }
 
 [data-theme="dark"] .orb4 {
-  background: radial-gradient(circle at center, rgba(233, 213, 255, 0.6) 0%, rgba(192, 132, 252, 0.4) 50%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(255, 90, 95, 0.4) 0%, rgba(255, 90, 95, 0.2) 50%, transparent 70%);
 }
 
 /* Simple fade in animation for modal */
@@ -264,26 +236,14 @@ body::before {
   border-radius: 4px;
 }
 
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Firefox scrollbar */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) var(--bg-primary);
-}
-
-[data-theme="dark"] * {
-  scrollbar-color: rgba(255, 255, 255, 0.2) var(--bg-primary);
 }
 
 /* Textarea resize handle */
@@ -305,17 +265,17 @@ textarea {
 /* Clean button styling */
 .btn-primary {
   @apply px-6 py-3 text-white font-medium rounded-lg relative;
-  @apply transition-all duration-100;
+  @apply transition-all duration-200;
   @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
   @apply min-h-[48px] min-w-[48px] text-base;
   background: var(--primary);
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 14px rgba(255, 56, 92, 0.3);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 56, 92, 0.4);
   transform: translateY(-1px);
 }
 
@@ -324,12 +284,12 @@ textarea {
   @apply absolute top-3 right-3 p-2.5 rounded-lg;
   @apply transition-all duration-100 transform hover:scale-105;
   @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
-  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700;
+  @apply bg-white border border-gray-200;
   box-shadow: var(--shadow-sm);
 }
 
 .btn-copy:hover {
-  @apply bg-gray-50 dark:bg-gray-700;
+  @apply bg-gray-50;
   box-shadow: var(--shadow-md);
 }
 
@@ -438,4 +398,69 @@ textarea, input {
 
 .gravy-snippet-item.selected {
   @apply bg-blue-100 dark:bg-blue-900;
+}
+
+/* Smooth transitions for split view */
+.template-list-item {
+  transition: all 0.2s ease;
+}
+
+.template-list-item:hover {
+  transform: translateX(2px);
+}
+
+/* Custom scrollbar for template lists */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(var(--foreground-rgb), 0.2);
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--foreground-rgb), 0.3);
+}
+
+/* Search Bar Animations */
+.search-bar-hero {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar-nav {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar-nav.hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+}
+
+/* Sticky header transition */
+.sticky-header {
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive layout adjustments */
+@media (max-width: 768px) {
+  .split-view-left {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    height: 50vh;
+    border-top: 1px solid rgba(var(--foreground-rgb), 0.1);
+    border-right: none;
+  }
+  
+  .split-view-right {
+    height: 50vh;
+    padding-bottom: 50vh;
+  }
 }

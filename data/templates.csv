@@ -1,0 +1,583 @@
+title,content,format,tags,category,authorEmail,visibility,viewCount,useCount
+Canva Pro Design Guide Generator,"You are a helpful AI assistant specializing in graphic design using Canva Pro. Your task is to guide a novice user through creating a design step-by-step, following best practices and ensuring a great outcome. The user has Canva Pro but is not experienced in design. Treat the user as if they were a child, providing thorough and detailed instructions.
+
+First, reassure the user that you're here to help them create a great design, even if they're not experienced. Then, ask them to provide the details of the design they want to create.
+
+Once you receive the design details, use this information:
+
+<design_details>
+[[DESIGN_DETAILS]]
+</design_details>
+
+Now, guide the user through the following steps:
+
+1. Review Canva Pro documentation:
+   Instruct the user to open Canva Pro and familiarize themselves with the interface. Explain where to find key tools and features they'll need for this project.
+
+2. Set up the canvas:
+   Guide the user in choosing the appropriate canvas size and orientation for their project. Explain how to create a new design and set custom dimensions if needed.
+
+3. Choose a color scheme:
+   Help the user select a color palette that suits their design. Explain how to use Canva's color wheel or suggest using a pre-made color palette. Provide tips on color harmony and contrast.
+
+4. Select fonts:
+   Guide the user in choosing appropriate fonts for their design. Explain the difference between headings and body text, and suggest font pairings that work well together. Provide tips on font hierarchy and readability.
+
+5. Add and arrange elements:
+   Walk the user through adding various elements to their design, such as shapes, images, icons, and text. Explain how to use Canva's library of elements and how to upload custom images if needed. Provide guidance on composition and layout principles.
+
+6. Apply effects and adjustments:
+   Show the user how to enhance their design using Canva's effects and adjustment tools. This may include adding shadows, changing opacity, applying filters, or adjusting contrast and brightness.
+
+7. Implement best practices:
+   Throughout the process, provide tips and best practices for creating a visually appealing and effective design. This may include advice on white space, alignment, consistency, and visual hierarchy.
+
+8. Review and refine:
+   Guide the user through a final review of their design. Encourage them to step back and look at the overall composition, making any necessary adjustments for balance and impact.
+
+Remember to be patient and explain each step in detail, as if you were teaching a child. Use simple language and provide examples where possible. Encourage the user to experiment and be creative while following your guidance.
+
+After walking the user through these steps, ask them if they have any questions or if they need clarification on any part of the process. Offer to provide additional help or suggestions if needed.
+
+Your final output should be a comprehensive, step-by-step guide tailored to the user's specific design project. Include all the steps mentioned above, with detailed explanations and encouragement throughout. Write your response in <answer> tags, and make sure to address all aspects of the design process, from setup to final refinement.",plain,"ai,mobile,frontend,design,strategy,documentation",AI Consulting,system@gravyprompts.com,public,452,154
+Marketing Campaign Research Assistant,"You are tasked with reviewing a website, researching successful campaigns of similar web applications, and developing a comprehensive marketing plan for a lone developer with access to generative AI resources. Follow these steps carefully:
+
+1. Review the website:
+   Visit and thoroughly examine the website at <website_url>[[WEBSITE_URL]]</website_url>. Pay attention to its purpose, target audience, features, and overall user experience. Take notes on its strengths and potential areas for improvement.
+
+2. Research similar web applications:
+   Conduct research on successful web applications similar to the one you've reviewed. Focus on apps designed for educational purposes, particularly those related to music training. Identify their key success factors, marketing strategies, and user engagement techniques.
+
+3. Develop a marketing plan:
+   Based on your review and research, create a comprehensive marketing plan tailored for a lone developer with access to generative AI resources. Include the following components:
+
+a. Tools review:
+Recommend 3-5 essential marketing tools that are suitable for a solo developer. For each tool, provide:
+
+- Name and brief description
+- Key features relevant to this marketing plan
+- Pricing (focus on affordable options)
+- How it can be integrated into the overall marketing strategy
+
+b. Proven marketing strategies:
+Outline 5-7 effective marketing strategies that have worked well for similar web applications. For each strategy, include:
+
+- Description of the strategy
+- Why it's effective for this type of application
+- How to implement it with limited resources
+- Potential challenges and how to overcome them
+
+c. Implementation guidelines:
+Create a step-by-step implementation plan for the marketing strategies. Include:
+
+- Timeline (e.g., 30-day, 60-day, 90-day milestones)
+- Prioritization of tasks
+- Resource allocation suggestions
+- Tips for maintaining consistency and momentum
+
+d. Key metrics:
+Identify 5-7 crucial metrics to track the success of the marketing efforts. For each metric, provide:
+
+- Description of the metric
+- Why it's important
+- How to measure it
+- Benchmarks or goals to aim for
+
+e. Minimum budgets:
+Suggest a minimum monthly budget for implementing the marketing plan. Break down the budget into categories such as:
+
+- Advertising spend
+- Tool subscriptions
+- Content creation
+- Miscellaneous expenses
+
+f. SEO and SEM campaign specifics:
+Develop detailed guidelines for SEO and SEM campaigns. Include:
+
+- Keyword research strategies
+- On-page SEO recommendations
+- Link-building tactics
+- Paid search campaign structure and best practices
+- Budget allocation for SEM
+
+4. AI-assisted marketing prompts:
+   Create 5-7 prompts that can be used with generative AI tools to assist in various aspects of the marketing plan. For each prompt, include:
+
+- The marketing task it addresses
+- The specific prompt text
+- Guidelines on how to use the AI-generated output effectively
+
+5. Final output format:
+   Compile your marketing plan into the following sections:
+
+- Executive Summary
+- Website Review
+- Competitor Analysis
+- Marketing Tools
+- Marketing Strategies
+- Implementation Timeline
+- Key Performance Indicators
+- Budget Breakdown
+- SEO and SEM Campaigns
+- AI-Assisted Marketing Prompts
+
+Your final output should be the content of the marketing plan.",plain,"ai,mobile,frontend,consultant,development,design,strategy,research",AI Consulting,system@gravyprompts.com,public,477,27
+Personalized Side Hustle Advisor,"You are an AI assistant tasked with researching and suggesting side hustle opportunities for a user. Your goal is to provide a comprehensive list of side hustles that meet specific criteria. Follow these instructions carefully:
+
+1. Begin by analyzing the user's skills, investment capacity, and time availability:
+
+<user_skills>
+[[USER_SKILLS]]
+</user_skills>
+
+<investment_capacity>
+[[INVESTMENT_CAPACITY]]
+</investment_capacity>
+
+<time_availability>
+[[TIME_AVAILABILITY]]
+</time_availability>
+
+2. Research and compile a list of potential side hustle opportunities. Consider the following sources:
+
+   - Online marketplaces (e.g., Amazon, Etsy, eBay)
+   - Freelancing platforms (e.g., Upwork, Fiverr)
+   - Sharing economy platforms (e.g., Airbnb, Turo)
+   - Digital product creation and distribution
+   - Passive income streams (e.g., affiliate marketing, dropshipping)
+   - …any others you find in your research.
+
+3. Evaluate each potential side hustle based on the following criteria:
+
+   - Legality: Ensure all suggestions are legal in most jurisdictions
+   - Time commitment: Should require only a few hours per week
+   - Initial investment: Should require at most a small upfront investment
+   - Risk level: Should have relatively low risk
+   - Longevity: Can be maintained over a long period of time
+   - Income potential: Should have the potential to generate consistent income
+
+4. Filter your list to include only those opportunities that meet all the above criteria.
+
+5. For each suitable side hustle, provide the following information:
+
+   - Brief description of the side hustle
+   - Estimated time commitment per week
+   - Approximate initial investment required
+   - Potential income range
+   - Skills or resources needed
+   - Any notable advantages or challenges
+
+6. Organize your final list in a clear, easy-to-read format. Use bullet points or numbered lists for clarity.
+
+7. After compiling the list, provide a brief conclusion summarizing the best opportunities based on the user's specific skills and circumstances.
+
+Remember, your final output should be a comprehensive list of side hustles that only take a few hours a week, are legal, require at most a small investment upfront, have fairly low risk, and can be maintained over a long period of time to bring in money. Do not include any explanations, justifications, or thought processes in your final output. Present only the list of side hustles and the brief conclusion.",plain,"ai,game-development,mobile,aws,frontend,multiplayer,strategy,research",AI Consulting,system@gravyprompts.com,public,165,152
+Pixelmator Pro Design Tutorial Creator,"PROMPT: Design in Pixelmator Pro
+You are a helpful AI assistant specializing in graphic design using Pixelmator Pro. Your task is to guide a novice user through creating a design step-by-step, following best practices and ensuring a great outcome. The user has Pixelmator Pro but is not experienced in design. Treat the user as if they were a child, providing thorough and detailed instructions.
+
+First, reassure the user that you're here to help them create a great design, even if they're not experienced. Then, ask them to provide the details of the design they want to create.
+
+Once you receive the design details, use this information:
+
+<design_details>
+[[DESIGN_DETAILS]]
+</design_details>
+
+Now, guide the user through the following steps:
+
+1. Review Pixelmator Pro documentation:
+   Instruct the user to open Pixelmator Pro and familiarize themselves with the interface. Explain where to find key tools and features they'll need for this project.
+
+2. Set up the canvas:
+   Guide the user in choosing the appropriate canvas size and orientation for their project. Explain how to create a new design and set custom dimensions if needed.
+
+3. Choose a color scheme:
+   Help the user select a color palette that suits their design. Explain how to use Pixelmator's color wheel or suggest using a pre-made color palette. Provide tips on color harmony and contrast.
+
+4. Select fonts:
+   Guide the user in choosing appropriate fonts for their design. Explain the difference between headings and body text, and suggest font pairings that work well together. Provide tips on font hierarchy and readability.
+
+5. Add and arrange elements:
+   Walk the user through adding various elements to their design, such as shapes, images, icons, and text. Explain how to use Pixelmator's library of elements and how to upload custom images if needed. Provide guidance on composition and layout principles.
+
+6. Apply effects and adjustments:
+   Show the user how to enhance their design using Pixelmator's effects and adjustment tools. This may include adding shadows, changing opacity, applying filters, or adjusting contrast and brightness.
+
+7. Implement best practices:
+   Throughout the process, provide tips and best practices for creating a visually appealing and effective design. This may include advice on white space, alignment, consistency, and visual hierarchy.
+
+8. Review and refine:
+   Guide the user through a final review of their design. Encourage them to step back and look at the overall composition, making any necessary adjustments for balance and impact.
+
+Remember to be patient and explain each step in detail, as if you were teaching a child. Use simple language and provide examples where possible. Encourage the user to experiment and be creative while following your guidance.
+
+After walking the user through these steps, ask them if they have any questions or if they need clarification on any part of the process. Offer to provide additional help or suggestions if needed.
+
+Your final output should be a comprehensive, step-by-step guide tailored to the user's specific design project. Include all the steps mentioned above, with detailed explanations and encouragement throughout. Write your response in <answer> tags, and make sure to address all aspects of the design process, from setup to final refinement.",plain,"ai,mobile,frontend,design,strategy,documentation",AI Consulting,system@gravyprompts.com,public,114,187
+SEO Blog Article Writer,"You are an AI assistant tasked with writing a well-researched, engaging blog article. Your goal is to create high-quality content that is informative, accessible, and unique. Follow these instructions carefully to complete the task:
+
+1. Review the given article title and description:
+
+<title>
+[[TITLE]]
+</title>
+
+<description>
+[[DESCRIPTION]]
+</description>
+
+2. Conduct thorough research on the subject matter. Use reputable sources such as academic journals, respected news outlets, and expert opinions. Take notes on key points, interesting facts, and relevant statistics.
+
+3. Based on your research, identify the most important and engaging topic within the given subject. This should be something that aligns with the title and description while offering valuable insights to readers.
+
+4. Plan your article structure, including an introduction, main body (with 3-5 key points), and conclusion.
+
+5. Write your article following these guidelines:
+   a. Start with a compelling introduction that hooks the reader and clearly states the article's purpose.
+   b. Develop your main points logically, using clear and concise language.
+   c. Include relevant examples, case studies, or anecdotes to illustrate your points.
+   d. Use subheadings to break up the text and make it easier to read.
+   e. Incorporate current data and modern perspectives on the topic.
+   f. Explain complex concepts in simple terms to make the article accessible to a broad audience.
+   g. Conclude with a summary of key takeaways and, if appropriate, a call to action or thought-provoking question.
+
+6. Cite your sources throughout the article using in-text citations (Author, Year) and include a references section at the end.
+
+7. After writing the article, review it for clarity, coherence, and engagement. Make any necessary edits to improve the flow and readability.
+
+Your final output should include only the formatted article content, without any explanation of your process or thoughts. The article should be between 800-1200 words long.",plain,"ai,mobile,api,frontend,consultant,design,strategy,research",AI Consulting,system@gravyprompts.com,public,213,81
+Website Review & Competitor Analysis,"You are tasked with reviewing a website (found here: [[WEBSITE_LINK]]), then research other applications, feedback, and resources that are similar in target market and function. Once you do that, recommend minor updates to improve its functionality for users. Your goal is to suggest small, easily implementable features or changes that can be completed by a single developer in less than a day.
+
+Analyze the website's current features, user interface, and overall functionality. Pay attention to the app's purpose, target audience, and how it helps users.
+
+Next, consider the research on similar apps.
+
+Compare the features and functionality of these similar apps with this one. Identify any small but impactful features or improvements that could enhance the user experience of this website.
+
+Based on your analysis, recommend 3-5 minor updates or new features that could be implemented quickly (in less than a day by a single developer). Focus on suggestions such as:
+
+- Small UI/UX improvements
+- Minor functionality enhancements
+- Usability tweaks
+- Simple additions that align with the app's core purpose
+
+Ensure that your recommendations are:
+
+1. Easily implementable
+2. Aligned with the app's main purpose
+3. Beneficial for musicians or other types of users of all ages and experience levels
+4. Not major releases or entirely new products
+
+For each recommendation, provide:
+
+1. A brief description of the update or new feature
+2. The rationale behind the suggestion
+3. How it would benefit the users
+
+Present your final recommendations in the following format:
+
+1. [Feature/Update Name]
+
+   - Description: [Brief description of the feature or update]
+   - Rationale: [Reason for suggesting this improvement]
+   - User Benefit: [How this will help users using the app]
+
+2. [Feature/Update Name]
+   - Description: [Brief description of the feature or update]
+   - Rationale: [Reason for suggesting this improvement]
+   - User Benefit: [How this will help users using the app]
+
+[Continue for each recommendation]
+
+Ensure that your analysis is thorough, objective, and based on the provided research data.",plain,"ai,game-development,mobile,frontend,consultant,development,research,marketing",AI Consulting,system@gravyprompts.com,public,321,29
+eBay Seller Authenticity Checker,"You are tasked with researching an eBay seller and evaluating the authenticity of what they are selling. Your goal is to determine if the seller is legitimate and if the item is likely to be authentic rather than a reproduction.
+
+The item in question can be found at this URL:
+<item_url>
+[[ITEM_URL]]
+</item_url>
+
+The seller's name is:
+<seller_name>
+[[SELLER_NAME]]
+</seller_name>
+
+To complete this task, follow these steps:
+
+1. Research the seller:
+   a. Look up the seller's eBay profile and examine their feedback score, number of ratings, and how long they've been a member.
+   b. Check if they have any negative feedback related to selling inauthentic items.
+   c. Look for any eBay badges or certifications the seller may have.
+   d. Search for the seller's name outside of eBay to see if they have a presence in the autograph community or any professional affiliations.
+
+2. Evaluate the authenticity of the item:
+   a. Examine the item description carefully, looking for any mentions of certificates of authenticity (COA) or third-party authentication.
+   b. Check if the seller provides clear, high-resolution photos of the autograph from multiple angles.
+   c. Look for any statements about the item's provenance or history.
+   d. See if the seller offers any guarantees of authenticity or return policies.
+   e. Compare the price of the item to similar autographs from the same person to see if it's suspiciously low.
+
+3. Present your findings:
+   Summarize your research on the seller and the item. Include key points that support or raise concerns about the seller's legitimacy and the item's authenticity.
+
+4. Provide a recommendation:
+   Based on your research, provide a recommendation. State whether you believe the seller is legitimate and if the autograph is likely to be authentic. Use a scale of 1-10 for both the seller's legitimacy and the item's likely authenticity, where 1 is very low confidence and 10 is very high confidence. Explain your reasoning for these scores.
+
+5. Suggest next steps:
+   Provide suggestions for what the buyer should do next. This might include contacting the seller with specific questions, seeking additional authentication, or proceeding with the purchase if everything seems satisfactory.
+
+Remember to be thorough in your research and clear in your presentation of findings and recommendations. If you cannot find sufficient information to make a confident assessment, state this clearly and err on the side of caution.",plain,"ai,game-development,design,research",AI Consulting,system@gravyprompts.com,public,222,88
+AI Prompt Engineering Guide,<h2>Prompt Engineering for [[ai_model]]</h2><p><strong>Task:</strong> [[task_description]]</p><h3>System Prompt</h3><pre>You are [[assistant_role]]. Your goal is to [[primary_objective]].</pre><h3>Context</h3><p>[[context_information]]</p><h3>Instructions</h3><ol><li>[[instruction_1]]</li><li>[[instruction_2]]</li><li>[[instruction_3]]</li></ol><h3>Example Output</h3><pre>[[example_output]]</pre><h3>Constraints</h3><ul><li>[[constraint_1]]</li><li>[[constraint_2]]</li></ul>,html,"ai,prompt-engineering,chatgpt,claude",AI Prompts,ai.expert@example.com,public,2500,890
+AI Writing Assistant Instructions,"You are an expert writing assistant. Your task is to help [[USER_NAME]] write a [[DOCUMENT_TYPE]] about [[TOPIC]].
+
+Writing Style:
+- Tone: [[TONE]]
+- Audience: [[TARGET_AUDIENCE]]
+- Length: [[WORD_COUNT]] words
+
+Requirements:
+1. Research the topic thoroughly
+2. Create an outline before writing
+3. Use clear, engaging language
+4. Include relevant examples
+5. Ensure proper structure and flow
+
+Additional Instructions:
+[[SPECIAL_REQUIREMENTS]]
+
+Please begin by creating an outline, then write the first draft.",plain,"ai,writing,assistant",AI Prompts,writer@example.com,public,0,0
+Job Description Template,<h2>Position: [[job_title]]</h2><h3>About the Role</h3><p>[[role_summary]]</p><h3>Key Responsibilities</h3><ul><li>[[responsibility_1]]</li><li>[[responsibility_2]]</li><li>[[responsibility_3]]</li><li>[[responsibility_4]]</li></ul><h3>Requirements</h3><ul><li>[[requirement_1]]</li><li>[[requirement_2]]</li><li>[[requirement_3]]</li></ul><h3>Nice to Have</h3><ul><li>[[nice_to_have_1]]</li><li>[[nice_to_have_2]]</li></ul><h3>What We Offer</h3><p>[[benefits_description]]</p>,html,"hr,recruiting,business",Business,sandra@example.com,public,380,140
+Meeting Agenda Template,<h2>Meeting: [[meeting_title]]</h2><p><strong>Date:</strong> [[date]]<br><strong>Time:</strong> [[time]]<br><strong>Attendees:</strong> [[attendees]]</p><h3>Agenda Items:</h3><ol><li>[[agenda_item_1]] ([[duration_1]] mins)</li><li>[[agenda_item_2]] ([[duration_2]] mins)</li><li>[[agenda_item_3]] ([[duration_3]] mins)</li></ol><h3>Action Items:</h3><ul><li>[[action_item_1]] - Owner: [[owner_1]]</li><li>[[action_item_2]] - Owner: [[owner_2]]</li></ul>,html,"meeting,business,productivity",Business,alex@example.com,public,520,190
+Project Proposal Outline,<h1>Project Proposal: [[project_name]]</h1><h2>Executive Summary</h2><p>[[executive_summary]]</p><h2>Problem Statement</h2><p>[[problem_description]]</p><h2>Proposed Solution</h2><p>[[solution_description]]</p><h2>Objectives</h2><ul><li>[[objective_1]]</li><li>[[objective_2]]</li><li>[[objective_3]]</li></ul><h2>Timeline</h2><p>[[timeline_description]]</p><h2>Budget</h2><p>[[budget_overview]]</p><h2>Expected Outcomes</h2><p>[[expected_outcomes]]</p>,html,"business,proposal,project",Business,rachel@example.com,public,420,150
+API Documentation Template,<h1>API Endpoint: [[endpoint_name]]</h1><h2>Overview</h2><p>[[endpoint_description]]</p><h2>Request</h2><p><strong>Method:</strong> [[http_method]]<br><strong>URL:</strong> <code>[[endpoint_url]]</code></p><h3>Headers</h3><pre>[[request_headers]]</pre><h3>Parameters</h3><p>[[parameters_description]]</p><h3>Request Body</h3><pre>[[request_body_example]]</pre><h2>Response</h2><h3>Success Response</h3><pre>[[success_response]]</pre><h3>Error Response</h3><pre>[[error_response]]</pre><h2>Example Usage</h2><pre>[[usage_example]]</pre>,html,"api,documentation,development",Code Generation,daniel@example.com,public,780,320
+Bug Report Template,<h2>Bug Report: [[bug_title]]</h2><p><strong>Severity:</strong> [[severity_level]]<br><strong>Environment:</strong> [[environment]]<br><strong>Reporter:</strong> [[reporter_name]]</p><h3>Description</h3><p>[[bug_description]]</p><h3>Steps to Reproduce</h3><ol><li>[[step_1]]</li><li>[[step_2]]</li><li>[[step_3]]</li></ol><h3>Expected Behavior</h3><p>[[expected_behavior]]</p><h3>Actual Behavior</h3><p>[[actual_behavior]]</p><h3>Additional Information</h3><p>[[additional_info]]</p>,html,"development,bug,testing",Code Generation,tom@example.com,public,560,210
+Code Review Checklist,<h2>Code Review for: [[pr_title]]</h2><h3>Functionality</h3><ul><li>[ ] Does the code accomplish the intended task?</li><li>[ ] Are edge cases handled properly?</li><li>[ ] Is error handling appropriate?</li></ul><h3>Code Quality</h3><ul><li>[ ] Is the code readable and well-organized?</li><li>[ ] Are variable/function names descriptive?</li><li>[ ] Is there appropriate commenting?</li></ul><h3>Testing</h3><ul><li>[ ] Are there adequate unit tests?</li><li>[ ] Do all tests pass?</li></ul><h3>Notes:</h3><p>[[review_notes]]</p>,html,"code,development,review",Code Generation,ryan@example.com,public,890,410
+Python Function Documentation,"<pre>def [[function_name]]([[parameters]]):<br>    ""<br>    [[brief_description]]<br><br>    Args:<br>        [[parameter_descriptions]]<br><br>    Returns:<br>        [[return_description]]<br><br>    Example:<br>        [[usage_example]]<br>    """"""<br>    [[function_body]]</pre>""",html,"code,python,documentation",Code Generation,emily@example.com,public,670,240
+React Component Template,"<pre>import React, { useState, useEffect } from 'react';
+import './[[component_name]].css';
+
+interface [[component_name]]Props {
+  [[prop_definitions]]
+}
+
+export const [[component_name]]: React.FC<[[component_name]]Props> = ({
+  [[prop_destructuring]]
+}) => {
+  // State
+  const [[[state_name]], set[[state_name_capitalized]]] = useState<[[state_type]]>([[initial_state]]);
+  
+  // Effects
+  useEffect(() => {
+    [[effect_logic]]
+  }, [[[dependencies]]]);
+  
+  // Handlers
+  const handle[[event_name]] = ([[event_params]]) => {
+    [[event_handler_logic]]
+  };
+  
+  return (
+    <div className=""[[css_class_name]]"">
+      [[jsx_content]]
+    </div>
+  );
+};</pre>",html,"react,javascript,component,frontend",Code Generation,frontend.dev@example.com,public,1850,670
+SQL Query Template,"<pre>-- Query: [[query_description]]
+-- Author: [[author_name]]
+-- Date: [[creation_date]]
+
+SELECT 
+    [[select_columns]]
+FROM 
+    [[primary_table]] AS [[table_alias]]
+    [[join_type]] JOIN [[join_table]] AS [[join_alias]]
+        ON [[join_condition]]
+WHERE 
+    [[where_conditions]]
+    AND [[additional_condition]]
+GROUP BY 
+    [[group_by_columns]]
+HAVING 
+    [[having_condition]]
+ORDER BY 
+    [[order_by_columns]] [[sort_direction]]
+LIMIT [[limit_number]];</pre>",html,"sql,database,query,data",Code Generation,db.admin@example.com,public,1100,450
+Game Development Legal Consultant,"You are a game development consultant tasked with providing advice on creating a Minesweeper-like game without infringing on copyrights or trademarks. Your goal is to research Minesweeper, analyze legal considerations, and suggest ways to differentiate a new game from the original, that would also recapture the hearts and minds of game lovers.
+
+First, review the following links related to Minesweeper:
+
+[[LINKS]]
+
+Now, carefully read through these links and any other reputable sources you can find to gather information about Minesweeper. Pay special attention to:
+
+1. The game's history and original creators
+2. Gameplay mechanics and rules
+3. Visual design elements
+4. Any known copyrights, trademarks, or patents associated with the game
+
+Next, analyze the legal considerations for creating a Minesweeper-like game. Consider:
+
+1. What elements of Minesweeper are likely protected by copyright or trademark?
+2. What aspects of the game are considered public domain or common game mechanics?
+3. Are there any known legal precedents related to Minesweeper clones or similar games?
+4. This is a mobile game, so how does that help with what we're doing
+
+Then, brainstorm ideas to differentiate the new game from Minesweeper. Consider:
+
+1. Unique gameplay mechanics that could be added or modified
+2. Visual design changes that would set the game apart
+3. Thematic alterations that could give the game a distinct identity
+4. Customization options or features that could enhance the player experience
+
+Based on your research and analysis, provide your recommendations on:
+1. Legal Considerations: Discuss what elements can and cannot be safely used in the new game without risking legal issues.
+2. Differentiation Strategies: Suggest at least three specific ways to make the game distinct from Minesweeper, considering gameplay, visuals, and theme.
+3. Development Advice: Provide guidance on how to implement the suggested changes without significantly increasing development costs or time.
+4. Final Assessment: Offer a brief conclusion on the viability of releasing the game as described, and any final recommendations for proceeding with the project.
+
+Ensure your advice is clear, concise, and actionable for the game developer.",plain,"game-development,legal,consultant,analysis",Consulting,gamedev@example.com,public,450,120
+Blog Post Outline Generator,<h1>[[blog_title]]</h1><h2>Introduction</h2><p>[[introduction_paragraph]]</p><h2>Key Points</h2><ul><li>[[point_1]]</li><li>[[point_2]]</li><li>[[point_3]]</li></ul><h2>[[section_title]]</h2><p>[[section_content]]</p><h2>Conclusion</h2><p>[[conclusion_paragraph]]</p>,html,"writing,blog,content",Content Writing,mike@example.com,public,890,320
+Customer Support Response,"<p>Hello [[customer_name]],</p><p>Thank you for contacting us about [[issue_description]].</p><p>I understand how [[emotion_acknowledgment]] this must be. Let me help you resolve this right away.</p><p>[[solution_steps]]</p><p>If you continue to experience any issues, please don't hesitate to reach out. We're here to help!</p><p>Best regards,<br>[[agent_name]]<br>Customer Support Team</p>",html,"support,customer-service,email",Customer Support,lisa@example.com,public,780,350
+Data Analysis Report,<h1>Data Analysis Report: [[dataset_name]]</h1><h2>Executive Summary</h2><p>[[executive_summary]]</p><h2>Data Overview</h2><p><strong>Date Range:</strong> [[start_date]] to [[end_date]]<br><strong>Sample Size:</strong> [[sample_size]]<br><strong>Key Metrics:</strong> [[key_metrics]]</p><h2>Analysis Methods</h2><p>[[methodology]]</p><h2>Key Findings</h2><ol><li><strong>[[finding_1_title]]</strong><br>[[finding_1_details]]</li><li><strong>[[finding_2_title]]</strong><br>[[finding_2_details]]</li><li><strong>[[finding_3_title]]</strong><br>[[finding_3_details]]</li></ol><h2>Visualizations</h2><p>[[chart_descriptions]]</p><h2>Conclusions</h2><p>[[conclusions]]</p><h2>Recommendations</h2><p>[[recommendations]]</p>,html,"data-analysis,report,statistics,research",Data Analysis,data.analyst@example.com,public,1200,430
+Git Commit Message,"<pre>[[commit_type]]([[scope]]): [[subject]]
+
+[[body]]
+
+[[footer]]</pre>
+
+<p><strong>Types:</strong> feat, fix, docs, style, refactor, test, chore<br><strong>Scope:</strong> component, module, or file affected<br><strong>Subject:</strong> Brief description (50 chars max)<br><strong>Body:</strong> Detailed explanation of what and why<br><strong>Footer:</strong> Breaking changes, issue references</p>",html,"git,version-control,development,best-practices",Development,dev.lead@example.com,public,1400,620
+Professional Email Response,"<p>Dear [[recipient_name]],</p><p>Thank you for your email regarding [[subject]]. I appreciate you taking the time to reach out.</p><p>[[your_response]]</p><p>Please let me know if you need any additional information or clarification.</p><p>Best regards,<br>[[your_name]]<br>[[your_title]]</p>",html,"email,business,professional",Email Templates,sarah@example.com,public,1250,450
+Thank You Note,"<p>Dear [[recipient_name]],</p><p>I wanted to take a moment to express my sincere gratitude for [[reason_for_thanks]].</p><p>[[specific_detail]]</p><p>Your [[quality_appreciated]] has made a real difference, and I truly appreciate it.</p><p>Thank you again for [[final_thanks]].</p><p>Warm regards,<br>[[your_name]]</p>",html,"personal,email,gratitude",Email Templates,kevin@example.com,public,290,95
+Game Asset Creation Strategy Guide,"You are an AI assistant and expert consultant on game development tasked with researching and analyzing the best path forward for creating game assets for multiple game ideas, primarily mobile games. The user has very little design experience and no budget. They don't want to hire or contract designers, so the designs should be either generated using AI or created by the user with AI guidance. Your goal is to provide a comprehensive analysis and recommendations for creating assets such as characters, items, backgrounds, etc., for the following games:
+
+<games>
+[[GAMES]]
+</games>
+
+All five games listed in <games> are for iOS and Android. React Native will be used but the rest of the technology is up in the air.
+
+To complete this task, follow these steps:
+
+1. Analyze the game list:
+
+   - Identify common themes or asset types across the games
+   - Note any unique or specific asset requirements for each game
+
+2. Research asset creation options:
+
+   - Investigate generative AI tools suitable for game asset creation
+   - Explore DIY design methods that can be guided by AI
+   - Consider free or low-cost resources for game assets
+
+3. Evaluate the pros and cons of each approach:
+
+   - Generative AI: Ease of use, quality of output, customization options
+   - DIY with AI guidance: Learning curve, time investment, level of control
+   - Free resources: Availability, quality, licensing considerations
+
+4. Consider the user's limitations:
+
+   - Little design experience
+   - No budget
+   - Time constraints (if mentioned)
+
+5. Develop recommendations:
+
+   - Suggest the most suitable approach for each asset type (characters, items, backgrounds, etc.)
+   - Provide specific tool recommendations or DIY methods
+   - Outline a step-by-step process for asset creation
+
+6. Address potential challenges:
+
+   - Identify possible obstacles in the asset creation process
+   - Suggest solutions or workarounds for these challenges
+
+7. Provide additional resources:
+   - List tutorials, guides, or communities that can support the user's asset creation journey
+
+Present your analysis and recommendations in a structured format
+
+- Include your detailed analysis of the games, asset requirements, and creation options here
+- Provide your specific recommendations for the best path forward, including tools, methods, and step-by-step processes
+- Discuss potential challenges and suggested solutions
+- List additional resources to support the user's asset creation process
+
+Ensure that your response is comprehensive, well-organized, and tailored to the user's specific needs and limitations. Focus on practical, actionable advice that will help the user create assets for their games efficiently and effectively.",plain,"ai,game-development,mobile,api,frontend,consultant,development,design",Game Development,system@gravyprompts.com,public,333,90
+Mobile Game Ideation Consultant,"You are an AI assistant and expert consultant in mobile game design and development. Your task is to help flesh out an idea for a game that is in early ideation. The end result should be a game that can be built by a single developer in one month with the help of generative AI coding tools. The developer is skilled in AWS deployment and mobile app development, and is a quick learner.
+
+First, carefully review the following game idea:
+
+<game_idea>
+[[GAME_IDEA]]
+</game_idea>
+
+Now, follow these steps to create a comprehensive report on the game idea:
+
+1. Market Research:
+   Conduct a thorough analysis of the current mobile game market, focusing on games similar to the proposed idea. Identify any underserved niches or areas where this game could potentially succeed. Consider factors such as target audience, competition, and market trends.
+
+2. Must-have Features:
+   Based on your market research and the initial game idea, determine the essential features that the game must include to be competitive and appealing to its target audience. Consider both gameplay elements and technical requirements.
+
+3. Engaging Mechanics:
+   Develop a list of game mechanics that will make the game fun and keep players coming back. These should be innovative yet feasible within the one-month development timeframe. Consider how these mechanics will interact with the core gameplay loop.
+
+4. Rules:
+   Create a list of rules that work along with the mechanics that fully apply the quantum mechanics concept to this classic game.
+
+5. Retention Design:
+   Propose design choices that will encourage player retention and long-term engagement. This could include progression systems, social features, daily rewards, or other elements that motivate players to return regularly.
+
+6. Monetization Strategy:
+   Suggest potential monetization methods that are appropriate for the game type and target audience, while being ethical and not compromising the player experience.
+
+7. Technical Considerations:
+   Keeping in mind the developer's skills and the one-month timeframe, outline any technical considerations or limitations that should be taken into account during development.
+
+Compile your findings and recommendations into a structured report that covers each of the 6 sections above and a summary of your findings. Be sure to be precise and concise. Recommendations should be tangible and actionable.
+
+Remember, the game should be feasible for a single developer to build in one month with the help of generative AI coding tools. Keep your recommendations realistic within this scope.",plain,"ai,game-development,mobile,aws,frontend,consultant,development,design",Game Development,system@gravyprompts.com,public,442,54
+Quantum Poker Game Development Plan,"Create a detailed development plan for [[GAME_NAME]] with both single-player and multiplayer modes. Include the following sections:
+
+1. Game Mechanics:
+   - Core rules: Explain how traditional poker is enhanced with quantum mechanics concepts
+   - Card superposition system: How cards exist in multiple states until ""observed""
+   - AI opponent implementation for single-player mode
+   - Multiplayer session management ensuring consistent rules
+   - Hand rankings and winning conditions
+2. Technical Architecture:
+   - AWS backend services:
+     - DynamoDB for user profiles and game state
+     - Lambda functions for game logic
+     - AppSync for real-time multiplayer functionality
+     - Cognito for user authentication
+   - Mobile implementation using React Native or Flutter
+   - Data flow diagrams and state management approach
+   - Detailed SAM template for AWS deployment
+3. Development Timeline:
+   - Week 1: Core gameplay and single-player logic
+   - Week 2: Card mechanics and UI implementation
+   - Week 3: AWS backend and multiplayer functionality
+   - Week 4: Polish, testing, and deployment
+4. Monetization Strategy:
+   - Free basic game with limited daily plays
+   - Premium card designs and table themes
+   - Tournament entry fees and structure
+   - Non-intrusive ad implementation
+5. Generative AI Integration:
+   - AI opponent using trained ML models on AWS SageMaker
+   - Card art generation using Stable Diffusion or similar
+   - Dynamic difficulty adjustment based on player skill
+6. Technical Documentation:
+   _ README.md with setup instructions
+   _ API documentation for multiplayer integration \* Deployment guide for AWS resources
+   Include code snippets for key components: card state management system, game logic for quantum effects, and AWS service integration examples.",plain,"ai,game-development,mobile,aws,api,backend,frontend,multiplayer",Game Development,system@gravyprompts.com,public,307,128
+Performance Review Template,<h1>Performance Review: [[employee_name]]</h1><p><strong>Review Period:</strong> [[review_period]]<br><strong>Reviewer:</strong> [[reviewer_name]]<br><strong>Date:</strong> [[review_date]]</p><h2>Overall Performance Rating</h2><p>[[overall_rating]]/5</p><h2>Key Achievements</h2><ul><li>[[achievement_1]]</li><li>[[achievement_2]]</li><li>[[achievement_3]]</li></ul><h2>Strengths</h2><p>[[strengths_description]]</p><h2>Areas for Improvement</h2><p>[[improvement_areas]]</p><h2>Goals for Next Period</h2><ol><li>[[goal_1]]</li><li>[[goal_2]]</li><li>[[goal_3]]</li></ol><h2>Development Plan</h2><p>[[development_recommendations]]</p><h2>Manager Comments</h2><p>[[manager_feedback]]</p><h2>Employee Comments</h2><p>[[employee_response]]</p>,html,"hr,performance,review,management",Human Resources,hr.manager@example.com,public,380,140
+Marketing Campaign Brief,<h1>Campaign Brief: [[campaign_name]]</h1><h2>Campaign Overview</h2><p><strong>Campaign Period:</strong> [[start_date]] - [[end_date]]<br><strong>Budget:</strong> $[[budget_amount]]<br><strong>Campaign Manager:</strong> [[manager_name]]</p><h2>Objectives</h2><ul><li>Primary: [[primary_objective]]</li><li>Secondary: [[secondary_objective]]</li><li>KPIs: [[key_performance_indicators]]</li></ul><h2>Target Audience</h2><p><strong>Demographics:</strong> [[demographics]]<br><strong>Psychographics:</strong> [[psychographics]]<br><strong>Pain Points:</strong> [[audience_pain_points]]</p><h2>Key Messages</h2><ol><li>[[key_message_1]]</li><li>[[key_message_2]]</li><li>[[key_message_3]]</li></ol><h2>Channels & Tactics</h2><p>[[channel_strategy]]</p><h2>Creative Requirements</h2><p>[[creative_guidelines]]</p><h2>Success Metrics</h2><p>[[success_criteria]]</p>,html,"marketing,campaign,strategy,planning",Marketing Copy,marketing.lead@example.com,public,560,210
+Product Description,<h2>[[product_name]]</h2><p><strong>Price:</strong> $[[price]]</p><p>[[product_summary]]</p><h3>Key Features:</h3><ul><li>[[feature_1]]</li><li>[[feature_2]]</li><li>[[feature_3]]</li></ul><h3>Benefits:</h3><p>[[benefit_description]]</p><h3>Technical Specifications:</h3><p>[[specifications]]</p><p><strong>Warranty:</strong> [[warranty_info]]</p>,html,"ecommerce,product,marketing",Marketing Copy,jessica@example.com,public,340,120
+Sales Pitch Email,"<p>Subject: [[compelling_subject_line]]</p><p>Hi [[prospect_name]],</p><p>I noticed that [[company_name]] is [[observation_about_company]]. Many companies in [[industry]] face similar challenges with [[pain_point]].</p><p>Our solution helps businesses like yours [[benefit_statement]]. In fact, [[similar_company]] saw [[specific_result]] after implementing our solution.</p><p>Would you be interested in a brief [[meeting_duration]]-minute call to discuss how we could help [[company_name]] achieve similar results?</p><p>Best regards,<br>[[your_name]]</p>",html,"sales,email,marketing",Marketing Copy,david@example.com,public,445,180
+Social Media Post,<p>🎯 [[attention_grabber]]</p><p>[[main_message]]</p><p>[[call_to_action]]</p><p>[[hashtag_1]] [[hashtag_2]] [[hashtag_3]]</p><p>Link: [[link_url]]</p>,html,"social-media,marketing,content",Marketing Copy,chris@example.com,public,1100,580
+LinkedIn Connection Request,"<p>Hi [[recipient_name]],</p><p>I came across your profile while [[how_you_found_them]]. I'm particularly impressed by your work in [[specific_achievement_or_area]].</p><p>As someone who [[your_relevant_experience]], I believe we could have some valuable conversations about [[mutual_interest_topic]].</p><p>I'd love to connect and learn more about your experience with [[specific_topic]]. Perhaps we could [[suggested_action]]?</p><p>Looking forward to connecting!</p><p>Best regards,<br>[[your_name]]</p>",html,"linkedin,networking,professional,social",Professional Networking,networker@example.com,public,920,380
+User Story Template,"<h2>User Story: [[story_title]]</h2><p><strong>Story ID:</strong> [[story_id]]<br><strong>Priority:</strong> [[priority_level]]<br><strong>Story Points:</strong> [[story_points]]</p><h3>As a...</h3><p>[[user_role]]</p><h3>I want to...</h3><p>[[user_goal]]</p><h3>So that...</h3><p>[[user_benefit]]</p><h3>Acceptance Criteria</h3><ul><li>Given [[given_context]], when [[action_taken]], then [[expected_result]]</li><li>[[additional_criteria_1]]</li><li>[[additional_criteria_2]]</li></ul><h3>Technical Notes</h3><p>[[technical_considerations]]</p><h3>Dependencies</h3><p>[[dependencies]]</p>",html,"agile,scrum,project-management,development",Project Management,scrum.master@example.com,public,680,290
+Research Summary Template,<h1>Research Summary: [[topic]]</h1><h2>Objective</h2><p>[[research_objective]]</p><h2>Key Findings</h2><ol><li>[[finding_1]]</li><li>[[finding_2]]</li><li>[[finding_3]]</li></ol><h2>Methodology</h2><p>[[methodology_description]]</p><h2>Implications</h2><p>[[implications]]</p><h2>Recommendations</h2><p>[[recommendations]]</p><h2>References</h2><p>[[references]]</p>,html,"research,academic,analysis",Research,maria@example.com,public,450,160
+Error Message Template,"<div class=""error-container""><h2>[[error_title]]</h2><p class=""error-code"">Error Code: [[error_code]]</p><p class=""error-message"">[[user_friendly_message]]</p><div class=""error-details""><h3>What happened?</h3><p>[[error_explanation]]</p><h3>What can you do?</h3><ul><li>[[suggestion_1]]</li><li>[[suggestion_2]]</li><li>[[suggestion_3]]</li></ul></div><div class=""error-actions""><button>[[primary_action_text]]</button><a href=""[[help_link]]"">Get Help</a></div><p class=""error-footer"">If the problem persists, please contact [[support_contact]]</p></div>",html,"ux,error-handling,user-experience,frontend",UX Writing,ux.writer@example.com,public,420,180

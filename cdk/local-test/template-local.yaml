@@ -62,6 +62,12 @@ Resources:
             RestApiId: !Ref TemplatesApi
             Path: /templates
             Method: GET
+        OptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /templates
+            Method: OPTIONS
 
   UpdateTemplateFunction:
     Type: AWS::Serverless::Function

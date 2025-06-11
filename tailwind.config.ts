@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ['class', '[data-theme="dark"]'],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,13 +9,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-        // Add your brand colors here
-        primary: "#9436eb",
-        secondary: "#2196f3", 
-        accent: "#ec4899",
-        neutral: "#9ca3af",
+        background: "var(--bg-primary)",
+        foreground: "var(--text-primary)",
+        // Airbnb-inspired brand colors
+        primary: "var(--primary)",
+        secondary: "var(--secondary)", 
+        accent: "var(--accent)",
+        neutral: "var(--neutral)",
+        // Additional color utilities
+        border: "var(--border-color)",
+        "text-primary": "var(--text-primary)",
+        "text-secondary": "var(--text-secondary)",
+        "text-accent": "var(--text-accent)",
       },
     },
   },

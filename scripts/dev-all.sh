@@ -34,8 +34,15 @@ fi
 echo "📊 Setting up database tables..."
 node setup-local-db.js
 
-# Go back to root
+# Load sample templates
+echo "📝 Loading sample templates..."
 cd ../..
+if [ -f "./data/sample-templates.json" ]; then
+    npm run templates:load:local -- --file ./data/sample-templates.json
+    echo "✅ Sample templates loaded!"
+else
+    echo "⚠️  Sample templates file not found, skipping..."
+fi
 
 # Start all services
 echo "🎯 Starting all services..."

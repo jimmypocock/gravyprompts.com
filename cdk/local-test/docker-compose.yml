@@ -5,7 +5,9 @@ services:
     container_name: gravyprompts-dynamodb-local
     ports:
       - "8000:8000"
-    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    volumes:
+      - "./dynamodb-data:/home/dynamodblocal/data"
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath /home/dynamodblocal/data"
 
   # DynamoDB Admin UI (optional but helpful)
   dynamodb-admin:

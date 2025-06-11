@@ -1,250 +1,391 @@
 'use client';
 
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from '@/lib/auth-context';
+import { useSearch } from '@/lib/search-context';
 import { useTemplateApi, type Template } from '@/lib/api/templates';
+import TemplateQuickview from '@/components/TemplateQuickview';
 
-export default function Home() {
+export default function HomePage() {
+  const { user } = useAuth();
+  const { searchQuery, setSearchQuery, setNavSearchVisible } = useSearch();
   const api = useTemplateApi();
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const heroSearchRef = useRef<HTMLDivElement>(null);
 
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [popularTemplates, setPopularTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [isQuickviewOpen, setIsQuickviewOpen] = useState(false);
+  const [recentPrompts, setRecentPrompts] = useState<Array<{
+    id: string;
+    templateTitle: string;
+    content: string;
+    variables: Record<string, string>;
+    createdAt: string;
+  }>>([]);
+
+  const popularTags = [
+    'ai', 'react', 'marketing', 'sql', 'data-analysis', 'linkedin',
+    'project-management', 'ux', 'hr', 'git', 'agile', 'frontend'
+  ];
+
+  // Load popular templates and recent prompts on mount
   useEffect(() => {
-    loadTemplates();
+    // Load recent prompts from localStorage
+    const stored = localStorage.getItem('recentPrompts');
+    if (stored) {
+      try {
+        setRecentPrompts(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to load recent prompts:', e);
+      }
+    }
+
+    // Give the API a moment to start when first loading
+    const timer = setTimeout(() => {
+      loadPopularTemplates();
+    }, 1000);
+
+    return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadTemplates = async () => {
+  // Handle scroll detection for search bar transition
+  useEffect(() => {
+    const handleScroll = () => {
+      if (heroSearchRef.current) {
+        const rect = heroSearchRef.current.getBoundingClientRect();
+        // Show nav search when hero search is about to go under the fixed navbar (64px height)
+        const shouldShowNavSearch = rect.bottom < 120;
+        setNavSearchVisible(shouldShowNavSearch);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check initial position
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      setNavSearchVisible(false); // Reset when leaving home page
+    };
+  }, [setNavSearchVisible]);
+
+  const loadPopularTemplates = async (retryCount = 0) => {
     try {
-      setLoading(true);
-      const response = await api.listTemplates({
-        filter: 'public',
-        limit: 9,
-        sortBy: 'viewCount',
-        sortOrder: 'desc',
-      });
-      setTemplates(response.items);
-    } catch (err) {
-      console.error('Failed to load templates:', err);
-    } finally {
-      setLoading(false);
+      const response = await api.getPopularTemplates({ limit: 12 });
+      setPopularTemplates(response.items);
+      setInitialLoading(false);
+    } catch (error) {
+      // Check if it's a network error (API not ready)
+      const errorMessage = error instanceof Error ? error.message : '';
+      const errorStatus = error && typeof error === 'object' && 'status' in error ? (error as { status: number }).status : -1;
+      if (errorMessage === 'Failed to fetch' || errorStatus === 0) {
+        if (retryCount < 5) {
+          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s, 8s, 16s
+          console.log(`API not ready, retrying in ${delay}ms... (attempt ${retryCount + 1}/5)`);
+          setTimeout(() => {
+            loadPopularTemplates(retryCount + 1);
+          }, delay);
+          return;
+        }
+      }
+
+      console.error('Failed to load popular templates:', error);
+      setInitialLoading(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Navigate to templates page with search query
-    const params = new URLSearchParams();
-    if (searchQuery) params.append('search', searchQuery);
-    if (selectedTag) params.append('tag', selectedTag);
-    window.location.href = `/templates?${params.toString()}`;
+  // Debounced search function
+  const searchTemplates = useCallback(async (query: string, tags: string[]) => {
+    if (!query && tags.length === 0) {
+      setTemplates([]);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // When only tags are selected, we need to get more templates to filter
+      const limit = tags.length > 0 && !query ? 50 : 20;
+
+      const response = await api.listTemplates({
+        search: query || undefined,
+        filter: 'public',
+        sortBy: 'useCount',
+        sortOrder: 'desc',
+        limit: limit,
+      });
+
+      // Filter by selected tags locally
+      let results = response.items;
+      if (tags.length > 0) {
+        results = results.filter(template => {
+          const templateTags = Array.isArray(template.tags) ? template.tags : 
+                              (template.tags ? [template.tags] : []);
+          return tags.some(tag => templateTags.includes(tag));
+        });
+      }
+
+      setTemplates(results);
+    } catch (error) {
+      console.error('Search failed:', error);
+      setTemplates([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [api]);
+
+  // Handle search input change with debouncing
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+
+    // Clear existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      searchTemplates(value, selectedTags);
+    }, 300);
   };
 
-  // Extract all unique tags from templates
-  const allTags = Array.from(
-    new Set(templates.flatMap(t => t.tags))
-  ).slice(0, 10).sort();
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
+  // Handle tag selection
+  const toggleTag = (tag: string) => {
+    const newTags = selectedTags.includes(tag)
+      ? selectedTags.filter(t => t !== tag)
+      : [...selectedTags, tag];
 
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Create & Share AI Prompt Templates
+    setSelectedTags(newTags);
+    searchTemplates(searchQuery, newTags);
+  };
+
+  // Handle template selection
+  const selectTemplate = (template: Template) => {
+    setSelectedTemplate(template);
+    setIsQuickviewOpen(true);
+  };
+
+  // Handle save prompt
+  const handleSavePrompt = async (content: string, variables: Record<string, string>) => {
+    if (!selectedTemplate) return;
+
+    // Save to recent prompts
+    const newPrompt = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      templateTitle: selectedTemplate.title,
+      content: content,
+      variables: variables,
+      createdAt: new Date().toISOString()
+    };
+
+    const updatedPrompts = [newPrompt, ...recentPrompts].slice(0, 10);
+    setRecentPrompts(updatedPrompts);
+    localStorage.setItem('recentPrompts', JSON.stringify(updatedPrompts));
+
+    // Save to user account if logged in
+    if (user) {
+      try {
+        await api.savePrompt({
+          templateId: selectedTemplate.templateId,
+          templateTitle: selectedTemplate.title,
+          content: content,
+          variables: variables
+        });
+        alert('Prompt saved to your account!');
+      } catch (error) {
+        console.error('Failed to save prompt:', error);
+      }
+    }
+
+    // Track usage
+    try {
+      await api.populateTemplate(
+        selectedTemplate.templateId,
+        { variables: variables }
+      );
+    } catch {
+      console.error('Failed to track usage');
+    }
+  };
+
+  const getCategoryIcon = (template: Template) => {
+    const content = (template.content || '').toLowerCase();
+    const title = (template.title || '').toLowerCase();
+
+    if (content.includes('email') || title.includes('email')) return '✉️';
+    if (content.includes('code') || title.includes('code')) return '💻';
+    if (content.includes('blog') || title.includes('article')) return '✍️';
+    if (content.includes('sales') || title.includes('marketing')) return '📢';
+    if (content.includes('support') || title.includes('customer')) return '💬';
+    if (content.includes('data') || title.includes('analysis')) return '📊';
+    if (content.includes('game') || title.includes('game')) return '🎮';
+    if (content.includes('design') || title.includes('design')) return '🎨';
+    if (content.includes('research') || title.includes('research')) return '🔬';
+    return '📝';
+  };
+
+  // Display templates - either search results or popular templates
+  const displayTemplates = searchQuery || selectedTags.length > 0 ? templates : popularTemplates;
+  const showingResults = searchQuery || selectedTags.length > 0;
+
+  return (
+    <div className="flex flex-col flex-1">
+      {/* Hero Search Section */}
+      <div ref={heroSearchRef} className="bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Find the perfect <span className="text-primary">prompt</span>
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-            Build reusable templates with variables, share with your team, and streamline your AI workflow.
+          <p className="text-xl text-gray-600 mb-8">
+            Search thousands of AI prompts for every use case
           </p>
-          
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Search templates..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-3 border rounded-lg dark:bg-gray-800 dark:border-gray-700 text-lg"
-              />
+
+          {/* Big Search Bar */}
+          <div className="relative max-w-2xl mx-auto mb-6">
+            <input
+              type="text"
+              placeholder="Search for templates... (e.g., 'email response', 'blog post outline')"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="w-full px-6 py-4 pl-14 text-lg border-2 border-gray-300 rounded-full focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-lg hover:shadow-xl hover:border-gray-400"
+              autoFocus
+            />
+            <svg className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            {(loading || initialLoading) && (
+              <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
+                <svg className="animate-spin h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+            )}
+          </div>
+
+          {/* Tag Pills */}
+          <div className="flex gap-2 flex-wrap justify-center">
+            {popularTags.map(tag => (
               <button
-                type="submit"
-                className="px-8 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  selectedTags.includes(tag)
+                    ? 'bg-primary text-white shadow-md'
+                    : 'bg-white hover:bg-gray-50 border border-gray-300'
+                }`}
               >
-                Search
+                {tag}
               </button>
-            </div>
-          </form>
-          
-          {/* Popular Tags */}
-          {allTags.length > 0 && (
-            <div className="flex gap-2 justify-center flex-wrap mb-8">
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => {
-                    setSelectedTag(tag);
-                    const params = new URLSearchParams();
-                    params.append('tag', tag);
-                    window.location.href = `/templates?${params.toString()}`;
-                  }}
-                  className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-full text-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">
+            {showingResults
+              ? `${displayTemplates.length} Results`
+              : '🔥 Popular Templates'}
+          </h2>
+
+          {initialLoading || (loading && displayTemplates.length === 0) ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white rounded-lg shadow-md border border-gray-200 p-6 animate-pulse"
                 >
-                  {tag}
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                    <div className="flex-1">
+                      <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded w-full"></div>
+                    <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                  </div>
+                  <div className="flex gap-2 mt-4">
+                    <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                    <div className="h-6 bg-gray-200 rounded-full w-20"></div>
+                  </div>
+                </div>
+              ))}
+                <div className="text-center pt-4">
+                  <p className="text-sm text-gray-500">
+                    Loading templates... If this takes too long, the API might still be starting up.
+                  </p>
+                </div>
+            </div>
+          ) : displayTemplates.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">
+                {showingResults
+                  ? 'No templates found. Try different keywords or tags.'
+                  : 'No templates available.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayTemplates.map(template => (
+                <button
+                  key={template.templateId}
+                  onClick={() => selectTemplate(template)}
+                  className="bg-white rounded-lg shadow-md border border-gray-200 p-6 text-left transition-all hover:shadow-xl hover:border-primary hover:transform hover:-translate-y-1 group"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <span className="text-3xl">{getCategoryIcon(template)}</span>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                        {template.title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {template.useCount || 0} uses • {template.variableCount || 0} variables
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Preview text */}
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                    {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                  </p>
+
+                  {template.tags && template.tags.length > 0 && (
+                    <div className="flex gap-1 flex-wrap">
+                      {(Array.isArray(template.tags) ? template.tags : [template.tags])
+                        .slice(0, 3)
+                        .map(tag => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 text-xs bg-gray-100 group-hover:bg-primary/10 rounded-full transition-colors"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                    </div>
+                  )}
                 </button>
               ))}
             </div>
           )}
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              href="/editor"
-              className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition"
-            >
-              Create Your First Template
-            </Link>
-            <Link 
-              href="/templates" 
-              className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-            >
-              Browse All Templates
-            </Link>
-          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Popular Templates Section */}
-      <section className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        <h2 className="text-3xl font-bold text-center mb-8">Popular Templates</h2>
-        
-        {loading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : templates.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {templates.map(template => (
-              <Link
-                key={template.templateId}
-                href={`/templates/${template.templateId}`}
-                className="glass-card p-6 hover:shadow-lg transition group"
-              >
-                <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition">
-                  {template.title}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                  By {template.authorEmail}
-                </p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
-                  <span>{template.variableCount || template.variables?.length || 0} variables</span>
-                  <span>{template.viewCount || 0} views</span>
-                </div>
-                {template.tags.length > 0 && (
-                  <div className="flex gap-2 flex-wrap mt-3">
-                    {template.tags.slice(0, 3).map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12 text-gray-600 dark:text-gray-400">
-            <p>No templates available yet. Be the first to create one!</p>
-          </div>
-        )}
-        
-        <div className="text-center">
-          <Link
-            href="/templates"
-            className="inline-block px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-          >
-            View All Templates →
-          </Link>
-        </div>
-      </section>
-
-      <main className="relative z-10 max-w-6xl mx-auto px-6 py-12">
-        {/* Features Section */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="glass-card p-6">
-            <div className="w-12 h-12 rounded-full mb-4 flex items-center justify-center" style={{ backgroundColor: 'var(--primary)' }}>
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Store Templates</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Save and organize your favorite AI prompts with custom categories and tags.
-            </p>
-          </div>
-
-          <div className="glass-card p-6">
-            <div className="w-12 h-12 rounded-full mb-4 flex items-center justify-center" style={{ backgroundColor: 'var(--secondary)' }}>
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Dynamic Variables</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Use [[variables]] in your prompts and populate them instantly with our editor.
-            </p>
-          </div>
-
-          <div className="glass-card p-6">
-            <div className="w-12 h-12 rounded-full mb-4 flex items-center justify-center" style={{ backgroundColor: 'var(--accent)' }}>
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-3">Share & Rate</h3>
-            <p className="text-gray-600 dark:text-gray-300">
-              Share your best prompts with the community and discover top-rated templates.
-            </p>
-          </div>
-        </div>
-
-        {/* Getting Started Section */}
-        <div className="glass-card p-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Level Up Your AI Prompts?</h2>
-          <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-            Join thousands of users who are creating, sharing, and discovering amazing AI prompts. 
-            Start building your prompt library today.
-          </p>
-          <Link href="/editor" className="btn-primary inline-block">
-            Try the Editor
-          </Link>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-gray-200 dark:border-gray-700 mt-20">
-        <div className="max-w-6xl mx-auto px-6 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-4 md:mb-0">
-              <p className="text-gray-600 dark:text-gray-300">
-                © 2024 Gravy Prompts. All rights reserved.
-              </p>
-            </div>
-            <div className="flex space-x-6">
-              <Link href="/privacy" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                Privacy
-              </Link>
-              <Link href="/terms" className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
-                Terms
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Template Quickview */}
+      <TemplateQuickview
+        template={selectedTemplate}
+        isOpen={isQuickviewOpen}
+        onClose={() => setIsQuickviewOpen(false)}
+        onSavePrompt={handleSavePrompt}
+      />
     </div>
   );
 }
