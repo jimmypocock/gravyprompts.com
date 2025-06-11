@@ -5,6 +5,8 @@ Globals:
   Function:
     Runtime: nodejs20.x
     Timeout: 30
+    Layers:
+      - !Ref SharedLayer
     Environment:
       Variables:
         TEMPLATES_TABLE: local-templates
@@ -15,6 +17,13 @@ Globals:
         AWS_SAM_LOCAL: 'true'
 
 Resources:
+  SharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: SharedLayer
+      ContentUri: ../lambda-layers/shared/
+      CompatibleRuntimes:
+        - nodejs20.x
   TemplatesApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -120,3 +129,52 @@ Resources:
             RestApiId: !Ref TemplatesApi
             Path: /templates/{templateId}/populate
             Method: POST
+
+  # User Prompts Functions
+  SavePromptFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/prompts/
+      Handler: save.handler
+      Environment:
+        Variables:
+          USER_PROMPTS_TABLE: local-user-prompts
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /prompts
+            Method: POST
+
+  ListPromptsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/prompts/
+      Handler: list.handler
+      Environment:
+        Variables:
+          USER_PROMPTS_TABLE: local-user-prompts
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /prompts
+            Method: GET
+
+  DeletePromptFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/prompts/
+      Handler: delete.handler
+      Environment:
+        Variables:
+          USER_PROMPTS_TABLE: local-user-prompts
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /prompts/{promptId}
+            Method: DELETE

@@ -1,0 +1,17 @@
+# Ignore files for npm package and CDK deployments
+node_modules/
+*.log
+.DS_Store
+*.ts
+!*.d.ts
+cdk.out/
+.aws-sam/
+local-test/
+scripts/
+docs/
+
+# Lambda specific ignores
+lambda/**/node_modules/
+lambda/**/*.log
+lambda/**/local-test.js
+lambda/**/package-lock.json

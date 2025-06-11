@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Local development files
+utils.js
+
+# Logs
+*.log
+
+# Lock files
+package-lock.json

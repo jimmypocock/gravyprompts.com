@@ -156,7 +156,9 @@ export class ApiStack extends Stack {
     const createTemplateFunction = new lambda.Function(this, 'CreateTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'create.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -168,7 +170,9 @@ export class ApiStack extends Stack {
     const getTemplateFunction = new lambda.Function(this, 'GetTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'get.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -180,7 +184,9 @@ export class ApiStack extends Stack {
     const listTemplatesFunction = new lambda.Function(this, 'ListTemplatesFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'list.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -192,7 +198,9 @@ export class ApiStack extends Stack {
     const updateTemplateFunction = new lambda.Function(this, 'UpdateTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'update.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -204,7 +212,9 @@ export class ApiStack extends Stack {
     const deleteTemplateFunction = new lambda.Function(this, 'DeleteTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'delete.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -216,7 +226,9 @@ export class ApiStack extends Stack {
     const shareTemplateFunction = new lambda.Function(this, 'ShareTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'share.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -229,7 +241,9 @@ export class ApiStack extends Stack {
     const moderateContentFunction = new lambda.Function(this, 'ModerateContentFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'moderate.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/moderation')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/moderation'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -301,7 +315,9 @@ export class ApiStack extends Stack {
     const populateTemplateFunction = new lambda.Function(this, 'PopulateTemplateFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'populate.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/templates'), {
+        exclude: ['node_modules', '*.log', 'local-test.js', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -320,7 +336,9 @@ export class ApiStack extends Stack {
     const savePromptFunction = new lambda.Function(this, 'SavePromptFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'save.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -332,7 +350,9 @@ export class ApiStack extends Stack {
     const listPromptsFunction = new lambda.Function(this, 'ListPromptsFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'list.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
@@ -344,7 +364,9 @@ export class ApiStack extends Stack {
     const deletePromptFunction = new lambda.Function(this, 'DeletePromptFunction', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'delete.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/prompts'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
       environment,
       role: lambdaRole,
       layers: [sharedLayer],
