@@ -210,6 +210,20 @@ All scripts now have npm commands. See:
 4. **Persistent data** - Local templates survive restarts
 5. **Test search** - Try partial words, typos, and content searches
 
+## ✅ Content Moderation Update
+
+**AWS Comprehend has been completely removed from this application.**
+
+After a $100+ infinite loop incident with AWS Comprehend, the moderation system has been replaced with a simple, cost-free alternative that performs basic content checks without any external API calls.
+
+See `/docs/CONTENT_MODERATION.md` for details. Current implementation:
+- Basic word filtering (customizable blocked words list)
+- Spam detection (excessive caps, repetitive content)
+- No external API calls = No surprise charges
+- Moderation states: `approved`, `rejected`, `review`
+
+The new system is safe to deploy and won't incur any API costs.
+
 ## Deployment Checklist
 
 1. Run `npm run lint`

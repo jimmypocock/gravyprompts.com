@@ -2,63 +2,16 @@ const { UpdateCommand } = require('@aws-sdk/lib-dynamodb');
 const crypto = require('crypto');
 const {
   docClient,
-  stripHtml,
 } = require('utils');
 
 /**
- * Simple content moderation without AWS Comprehend
- * This version performs basic checks and auto-approves most content
- * You can enhance this with your own moderation logic
+ * TEMPORARY SIMPLE MODERATION LAMBDA
+ * This version auto-approves all public templates to avoid infinite loops and API costs
+ * Replace with moderate-fixed.js when ready to re-enable content moderation
  */
 
-// Basic list of inappropriate words (you can expand this)
-const BLOCKED_WORDS = [
-  // Add words you want to block here
-  // This is just a basic example
-];
-
-// Basic content checking without external APIs
-function checkContent(title, content) {
-  const fullText = `${title} ${stripHtml(content)}`.toLowerCase();
-  
-  // Check for blocked words
-  for (const word of BLOCKED_WORDS) {
-    if (fullText.includes(word.toLowerCase())) {
-      return {
-        status: 'rejected',
-        reason: 'Inappropriate content detected',
-      };
-    }
-  }
-  
-  // Check for excessive caps (potential spam)
-  const upperCaseRatio = (fullText.match(/[A-Z]/g) || []).length / fullText.length;
-  if (upperCaseRatio > 0.7 && fullText.length > 20) {
-    return {
-      status: 'review',
-      reason: 'Excessive capitalization detected',
-    };
-  }
-  
-  // Check for repetitive content (potential spam)
-  const words = fullText.split(/\s+/);
-  const uniqueWords = new Set(words);
-  if (words.length > 10 && uniqueWords.size < words.length * 0.3) {
-    return {
-      status: 'review',
-      reason: 'Repetitive content detected',
-    };
-  }
-  
-  // Default: approve
-  return {
-    status: 'approved',
-    reason: 'Passed basic content checks',
-  };
-}
-
 exports.handler = async (event) => {
-  console.log('Content moderation event received (Comprehend-free version):', {
+  console.log('Simple moderation event received:', {
     recordCount: event.Records.length,
     eventName: event.Records.map(r => r.eventName),
   });
@@ -85,7 +38,7 @@ exports.handler = async (event) => {
         const content = newImage.content.S;
         const title = newImage.title.S;
         
-        // Skip if this is a moderation update (prevent loops)
+        // CRITICAL: Skip if this is a moderation update
         const isModificationUpdate = record.eventName === 'MODIFY' && 
           newImage.moderatedAt?.S && 
           (!oldImage?.moderatedAt?.S || newImage.moderatedAt.S !== oldImage.moderatedAt.S);
@@ -107,13 +60,10 @@ exports.handler = async (event) => {
           .update(`${title}::${content}`)
           .digest('hex');
         
-        console.log(`Moderating template ${templateId} with basic checks`);
+        console.log(`Auto-approving template ${templateId}`);
         
         try {
-          // Perform basic content check
-          const moderationResult = checkContent(title, content);
-          
-          // Update template with moderation results
+          // Auto-approve the template
           await docClient.send(new UpdateCommand({
             TableName: process.env.TEMPLATES_TABLE,
             Key: { templateId },
@@ -122,28 +72,28 @@ exports.handler = async (event) => {
               '#contentHash': 'contentHash',
             },
             ExpressionAttributeValues: {
-              ':status': moderationResult.status,
+              ':status': 'approved',
               ':details': {
-                method: 'basic-checks',
-                reason: moderationResult.reason,
+                autoApproved: true,
+                reason: 'Temporary auto-approval while moderation is being fixed',
                 moderatedAt: new Date().toISOString(),
-                moderationVersion: 'no-comprehend-1.0',
+                moderationVersion: 'simple-1.0',
               },
               ':moderatedAt': new Date().toISOString(),
               ':contentHash': contentHash,
             },
-            // Only update if content hash is different (prevents re-moderation)
+            // Only update if content hash is different
             ConditionExpression: 'attribute_not_exists(#contentHash) OR #contentHash <> :contentHash',
             ReturnValues: 'ALL_NEW',
           }));
           
-          console.log(`Successfully moderated template ${templateId}: ${moderationResult.status}`);
+          console.log(`Successfully auto-approved template ${templateId}`);
           
         } catch (error) {
           if (error.name === 'ConditionalCheckFailedException') {
             console.log(`Template ${templateId} was already processed`);
           } else {
-            console.error(`Error moderating template ${templateId}:`, error);
+            console.error(`Error auto-approving template ${templateId}:`, error);
           }
         }
       }

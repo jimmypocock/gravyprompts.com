@@ -131,7 +131,19 @@ export default function EditorContent() {
         router.push(`/templates/${result.templateId}`);
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save template');
+      console.error('Save template error:', err);
+      if (err instanceof Error) {
+        // Check if it's a TemplateApiError with details
+        const apiError = err as any;
+        if (apiError.details) {
+          console.error('Validation details:', apiError.details);
+          alert(`Validation failed:\n${Array.isArray(apiError.details) ? apiError.details.join('\n') : apiError.message}`);
+        } else {
+          alert(err.message);
+        }
+      } else {
+        alert('Failed to save template');
+      }
     } finally {
       setSaving(false);
     }

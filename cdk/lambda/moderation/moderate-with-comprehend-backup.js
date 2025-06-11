@@ -1,6 +1,7 @@
-const { UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+const { UpdateCommand, GetCommand } = require('@aws-sdk/lib-dynamodb');
 const { 
   DetectSentimentCommand,
+  DetectToxicContentCommand,
   DetectPiiEntitiesCommand 
 } = require('@aws-sdk/client-comprehend');
 const crypto = require('crypto');
@@ -8,6 +9,7 @@ const {
   docClient,
   comprehendClient,
   stripHtml,
+  createResponse,
 } = require('utils');
 
 exports.handler = async (event) => {
@@ -39,17 +41,6 @@ exports.handler = async (event) => {
         const content = newImage.content.S;
         const title = newImage.title.S;
         
-        // CRITICAL: Skip if this is a moderation update
-        // Check for the presence of moderatedAt in the update
-        const isModificationUpdate = record.eventName === 'MODIFY' && 
-          newImage.moderatedAt?.S && 
-          (!oldImage?.moderatedAt?.S || newImage.moderatedAt.S !== oldImage.moderatedAt.S);
-          
-        if (isModificationUpdate) {
-          console.log(`Skipping template ${templateId} - this is a moderation update`);
-          continue;
-        }
-        
         // Create content hash to detect if content actually changed
         const contentHash = crypto.createHash('md5')
           .update(`${title}::${content}`)
@@ -74,11 +65,16 @@ exports.handler = async (event) => {
             continue;
           }
           
-          // Additional check: skip if moderationDetails exists and matches current content
-          const existingContentHash = newImage.contentHash?.S;
-          if (existingContentHash === contentHash) {
-            console.log(`Skipping template ${templateId} - already moderated for this exact content`);
-            continue;
+          // Also skip if this update was from the moderation itself
+          // Check if moderatedAt was just set (within last 5 seconds)
+          const moderatedAt = newImage.moderatedAt?.S;
+          if (moderatedAt) {
+            const moderatedTime = new Date(moderatedAt).getTime();
+            const now = Date.now();
+            if (now - moderatedTime < 5000) { // 5 seconds
+              console.log(`Skipping template ${templateId} - just moderated ${(now - moderatedTime) / 1000}s ago`);
+              continue;
+            }
           }
         }
         
@@ -99,7 +95,7 @@ exports.handler = async (event) => {
           });
           
           // Update template with moderation results
-          // Use conditional update to prevent race conditions and loops
+          // Use conditional update to prevent race conditions
           await docClient.send(new UpdateCommand({
             TableName: process.env.TEMPLATES_TABLE,
             Key: { templateId },
@@ -112,13 +108,19 @@ exports.handler = async (event) => {
               ':details': moderationResult.details,
               ':moderatedAt': new Date().toISOString(),
               ':contentHash': contentHash,
+              ':expectedHash': contentHash,
             },
-            // Only update if content hash is different (prevents re-moderation of same content)
-            ConditionExpression: 'attribute_not_exists(#contentHash) OR #contentHash <> :contentHash',
+            // Only update if content hash matches (prevents race conditions)
+            ConditionExpression: 'attribute_not_exists(#contentHash) OR #contentHash <> :expectedHash',
             ReturnValues: 'ALL_NEW',
           }));
           
           console.log(`Successfully updated moderation for template ${templateId}`);
+          
+          // TODO: If rejected, you might want to:
+          // 1. Send notification to the user
+          // 2. Log to a moderation audit trail
+          // 3. Update metrics
           
         } catch (error) {
           if (error.name === 'ConditionalCheckFailedException') {
@@ -127,23 +129,18 @@ exports.handler = async (event) => {
             console.error(`Error moderating template ${templateId}:`, error);
             
             // Mark as needing review if moderation fails
-            try {
-              await docClient.send(new UpdateCommand({
-                TableName: process.env.TEMPLATES_TABLE,
-                Key: { templateId },
-                UpdateExpression: 'SET moderationStatus = :status, moderationDetails = :details, moderatedAt = :moderatedAt',
-                ExpressionAttributeValues: {
-                  ':status': 'review',
-                  ':details': {
-                    error: error.message,
-                    timestamp: new Date().toISOString(),
-                  },
-                  ':moderatedAt': new Date().toISOString(),
+            await docClient.send(new UpdateCommand({
+              TableName: process.env.TEMPLATES_TABLE,
+              Key: { templateId },
+              UpdateExpression: 'SET moderationStatus = :status, moderationDetails = :details',
+              ExpressionAttributeValues: {
+                ':status': 'review',
+                ':details': {
+                  error: error.message,
+                  timestamp: new Date().toISOString(),
                 },
-              }));
-            } catch (updateError) {
-              console.error(`Failed to update template ${templateId} with error status:`, updateError);
-            }
+              },
+            }));
           }
         }
       }
@@ -170,11 +167,14 @@ async function moderateContent(title, content, templateId) {
   console.log(`Calling Comprehend APIs for template ${templateId} (${textForAnalysis.length} chars)`);
   
   try {
-    // Run sentiment and PII analysis in parallel
-    // NOTE: Removed DetectToxicContentCommand as it's not available in the standard API
+    // Run all analyses in parallel
     const startTime = Date.now();
-    const [sentimentResult, piiResult] = await Promise.all([
+    const [sentimentResult, toxicityResult, piiResult] = await Promise.all([
       comprehendClient.send(new DetectSentimentCommand({
+        Text: textForAnalysis,
+        LanguageCode: 'en',
+      })),
+      comprehendClient.send(new DetectToxicContentCommand({
         Text: textForAnalysis,
         LanguageCode: 'en',
       })),
@@ -191,15 +191,36 @@ async function moderateContent(title, content, templateId) {
     const moderationDetails = {
       sentiment: sentimentResult.Sentiment,
       sentimentScores: sentimentResult.SentimentScore,
+      toxicityLabels: [],
       piiEntities: piiResult.Entities?.map(e => e.Type) || [],
       moderatedAt: new Date().toISOString(),
-      moderationVersion: '2.0', // Updated version without toxicity detection
+      moderationVersion: '1.1', // Updated version
       apiCallDuration: apiDuration,
     };
     
-    // Determine moderation status based on available data
+    // Process toxicity results
+    if (toxicityResult.ResultList && toxicityResult.ResultList.length > 0) {
+      const toxicLabels = toxicityResult.ResultList[0].Labels || [];
+      moderationDetails.toxicityLabels = toxicLabels
+        .filter(label => label.Score > 0.5)
+        .map(label => ({
+          name: label.Name,
+          score: label.Score,
+        }));
+    }
+    
+    // Determine moderation status
     let status = 'approved';
     const reasons = [];
+    
+    // Check for high toxicity
+    const highToxicity = moderationDetails.toxicityLabels.some(
+      label => label.score > 0.7
+    );
+    if (highToxicity) {
+      status = 'rejected';
+      reasons.push('High toxicity detected');
+    }
     
     // Check for sensitive PII
     const sensitivePII = ['SSN', 'CREDIT_DEBIT_NUMBER', 'BANK_ACCOUNT_NUMBER', 
@@ -212,12 +233,15 @@ async function moderateContent(title, content, templateId) {
       reasons.push('Sensitive personal information detected');
     }
     
-    // Check for very negative sentiment
-    const veryNegativeSentiment = sentimentResult.SentimentScore.Negative > 0.9;
+    // Check for medium toxicity or negative sentiment
+    const mediumToxicity = moderationDetails.toxicityLabels.some(
+      label => label.score > 0.5 && label.score <= 0.7
+    );
+    const veryNegativeSentiment = sentimentResult.SentimentScore.Negative > 0.8;
     
-    if (veryNegativeSentiment && status === 'approved') {
+    if ((mediumToxicity || veryNegativeSentiment) && status === 'approved') {
       status = 'review';
-      reasons.push('Very negative sentiment - requires manual review');
+      reasons.push('Requires manual review');
     }
     
     moderationDetails.moderationReasons = reasons;

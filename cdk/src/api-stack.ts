@@ -145,15 +145,7 @@ export class ApiStack extends Stack {
     // Grant stream read permissions for the moderation function
     this.templatesTable.grantStreamRead(lambdaRole);
 
-    // Grant Comprehend permissions for content moderation
-    lambdaRole.addToPolicy(new iam.PolicyStatement({
-      actions: [
-        'comprehend:DetectSentiment',
-        'comprehend:DetectToxicContent',
-        'comprehend:DetectPiiEntities',
-      ],
-      resources: ['*'],
-    }));
+    // Note: Comprehend permissions removed - content moderation disabled
 
     // Environment variables for Lambdas
     const environment = {

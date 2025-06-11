@@ -4,15 +4,16 @@ const { v4: uuidv4 } = require('uuid');
 // Use local utils if running locally, otherwise use Lambda layer
 let utils;
 try {
-  // Try to load from Lambda layer first
-  utils = require('./utils');
+  // In Lambda, the layer modules are available directly
+  utils = require('utils');
 } catch (e) {
-  // Fallback to local file (for SAM Local)
+  // Fallback for local development
   try {
-    utils = require('./utils');
-  } catch (e2) {
-    // Final fallback
     utils = require('./utils-local');
+  } catch (e2) {
+    console.error('Failed to load utils from layer:', e);
+    console.error('Failed to load utils-local:', e2);
+    throw new Error('Unable to load utils module');
   }
 }
 
@@ -53,9 +54,13 @@ exports.handler = async (event) => {
     // Parse request body
     const body = JSON.parse(event.body || '{}');
     
+    // Log the received body for debugging
+    console.log('Received body:', JSON.stringify(body, null, 2));
+    
     // Validate template
     const validationErrors = validateTemplate(body);
     if (validationErrors.length > 0) {
+      console.error('Validation errors:', validationErrors);
       return createResponse(400, { 
         error: 'Validation failed', 
         details: validationErrors 

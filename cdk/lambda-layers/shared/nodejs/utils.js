@@ -1,6 +1,5 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient } = require('@aws-sdk/lib-dynamodb');
-const { ComprehendClient } = require('@aws-sdk/client-comprehend');
 const { CognitoIdentityProviderClient } = require('@aws-sdk/client-cognito-identity-provider');
 const DOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
@@ -8,7 +7,6 @@ const { JSDOM } = require('jsdom');
 // Initialize AWS clients
 const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
-const comprehendClient = new ComprehendClient({});
 const cognitoClient = new CognitoIdentityProviderClient({});
 
 // Initialize DOMPurify
@@ -132,7 +130,6 @@ const validateTemplate = (template) => {
 
 module.exports = {
   docClient,
-  comprehendClient,
   cognitoClient,
   sanitizeHtml,
   extractVariables,

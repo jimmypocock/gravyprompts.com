@@ -1,0 +1,23 @@
+#!/bin/bash
+# Check CloudWatch logs for moderation Lambda
+
+echo "Checking moderation Lambda status..."
+echo ""
+echo "To check moderation status in production:"
+echo ""
+echo "1. Check if the moderation Lambda is being triggered:"
+echo "   aws logs tail /aws/lambda/gravy-prompts-production-ModerateContentFunction* --follow"
+echo ""
+echo "2. Check for any errors in the Lambda:"
+echo "   aws logs filter-log-events --log-group-name /aws/lambda/gravy-prompts-production-ModerateContentFunction* --filter-pattern 'ERROR'"
+echo ""
+echo "3. Check DynamoDB Streams:"
+echo "   aws dynamodbstreams list-streams --table-name gravy-prompts-production-templates"
+echo ""
+echo "4. Check if Comprehend is working:"
+echo "   Look for 'Comprehend APIs completed' messages in the logs"
+echo ""
+echo "Common issues:"
+echo "- Lambda not triggered: Check DynamoDB stream is enabled"
+echo "- Comprehend errors: Check IAM permissions for comprehend:DetectSentiment, etc."
+echo "- Rate limits: Check for throttling errors"
