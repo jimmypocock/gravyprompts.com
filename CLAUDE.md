@@ -4,163 +4,217 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a production-ready Next.js 15 template with comprehensive AWS infrastructure, designed for scalable web applications with Google Analytics, AdSense integration, and modern web development tools.
+GravyPrompts is a production-ready AI prompt template marketplace built with Next.js 15 and deployed on AWS Amplify. It features instant search, template management, and a sleek user interface inspired by modern web applications.
+
+### Key Features
+- **Instant Template Search** - Advanced search with relevance scoring, fuzzy matching, and content search
+- **Template Quickview** - Slide-out panel for quick template preview and variable population
+- **Local Development** - Full local stack with DynamoDB, API Gateway, and authentication mocking
+- **Persistent Storage** - Local DynamoDB data persists between restarts
+- **CORS Proxy** - Built-in proxy for local development to avoid CORS issues
+- **User Prompt Saving** - Save populated templates to user accounts
+
+## Recent Updates
+
+### UI/UX Improvements
+- **Airbnb-style Search** - Hero search bar that transitions to navbar on scroll
+- **Full-width Grid Layout** - Replaced split view with responsive template grid
+- **Quickview Panel** - Slide-out panel (80% width on desktop) with inline variable inputs
+- **Inter Font** - Clean, modern typography throughout
+- **Primary Color Accents** - Subtle red (#FF385C) highlights for interactive elements
+- **Fixed Navigation** - Persistent top nav with integrated search
+
+### Search Enhancements
+- **Relevance Scoring** - Templates ranked by title, tag, and content matches
+- **Fuzzy Matching** - Handles typos and partial matches
+- **Multi-term Search** - Each word searched independently
+- **Content Search** - Searches within template content, not just titles/tags
+- **Popularity Weighting** - Popular templates get slight ranking boost
+
+### Backend Updates
+- **User Prompts Table** - DynamoDB table for saving user's populated templates
+- **Prompt API Endpoints** - Save, list, and delete user prompts
+- **Enhanced Search Lambda** - Improved search algorithm with scoring
+- **Persistent Local Storage** - DynamoDB data persists in `cdk/local-test/dynamodb-data/`
 
 ## Development Commands
 
+### 🚀 Quick Start for Local Development
+```bash
+npm run dev:all
+```
+This single command:
+- Starts Docker containers (DynamoDB, LocalStack)
+- Creates database tables
+- Starts SAM Local API (port 7429)
+- Starts Next.js dev server (port 6827)
+- Opens DynamoDB Admin UI (port 8001)
+
 ### Core Development
-- `npm run dev` - Start development server with Turbopack
-- `npm run dev:all` - Start all services (frontend, API, database) for local development
-- `npm run build` - Build for production (Note: Static export disabled - see DEPLOYMENT_OPTIONS.md)
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint (check this after code changes)
+- `npm run dev` - DEPRECATED - Use `npm run dev:all` instead
+- `npm run build` - Build for production
+- `npm run build:all` - Build both app and gravyjs package
+- `npm run start` - Start production server on port 6827
+- `npm run lint` - Run ESLint (always check after code changes)
 
-**IMPORTANT**: This app uses dynamic routes and requires SSR. It cannot be deployed as a static site to S3/CloudFront. See `docs/DEPLOYMENT_OPTIONS.md` for deployment options like Vercel or AWS Amplify.
-
-### CDK Infrastructure
-- `npm run cdk:install` - Install CDK dependencies
-- `npm run cdk:synth` - Synthesize CDK templates
-- `npm run build:cdk` - Build CDK TypeScript files
-
-### Deployment Commands
-
-#### Certificate-First Deployment (Recommended)
-To prevent certificate deletion issues, use this two-step process:
-
-1. **Deploy Certificate First**:
-   ```bash
-   npm run deploy:cert:first  # Creates certificate and saves ARN to .env
-   npm run check:cert         # Check validation status
-   # Add DNS CNAME records as shown
-   # Wait for validation (5-30 minutes)
-   npm run check:cert         # Verify ISSUED status
-   ```
-
-2. **Deploy Everything Else**:
-   ```bash
-   npm run deploy:all         # Deploy all remaining stacks
-   ```
-
-The certificate ARN is automatically saved to your `.env` file, preventing accidental deletion.
-
-#### Individual Stack Commands
-- `npm run deploy:foundation` - Deploy S3 buckets and core infrastructure
-- `npm run deploy:cert` - Deploy SSL certificates
-- `npm run check:cert` - Check certificate validation status
-- `npm run deploy:edge` - Deploy Lambda@Edge functions
-- `npm run deploy:waf` - Deploy Web Application Firewall
-- `npm run deploy:cdn` - Deploy CloudFront distribution
-- `npm run deploy:app` - Deploy application content
-- `npm run deploy:monitoring` - Deploy CloudWatch dashboards and alerts
-- `npm run deploy:auth` - Deploy Cognito authentication (separate dev/prod pools)
-- `npm run deploy:api` - Deploy API Gateway and Lambda functions for template management
-
-### Monitoring & Maintenance
-- `npm run status:all` - Check all stack deployment status
-- `npm run maintenance:on` - Enable maintenance mode
-- `npm run maintenance:off` - Disable maintenance mode
-
-### TODO Management
-- `npm run todo` - Display current TODO items
-- `npm run todo:add` - Add a new TODO item
-- `npm run todo:complete` - Mark a TODO item as completed
-- `npm run todo:progress` - Update a TODO item's progress
+### Template Management
+- `npm run templates:load -- --file ./data/templates.csv` - Load to production
+- `npm run templates:load:local -- --file ./data/consolidated-templates.json` - Load to local
+- `npm run templates:delete` - Delete templates in bulk
+- `npm run templates:analyze` - Analyze markdown templates
+- `npm run templates:consolidate` - Consolidate template files
+- `npm run check:templates` - Check template status
 
 ### Local Development & Testing
-- `npm run local:setup` - Setup local DynamoDB and tables
+- `npm run local:setup` - Setup local DynamoDB with persistent storage
 - `npm run local:start` - Start local API Gateway
 - `npm run local:stop` - Stop local services
-- `npm run local:test` - Test template API endpoints
-- `npm run local:test:auth` - Test authentication setup
-- `npm run local:test:api` - Comprehensive API tests
-- `npm run local:fix-auth` - Fix local authentication issues
+- `npm run local:test:api` - Test API endpoints
 - `npm run local:logs` - View DynamoDB logs
+- `npm run local:cleanup` - Clean up local environment
+
+### AWS Deployment
+
+#### Backend (CDK)
+```bash
+npm run deploy:backend     # Deploy all backend stacks
+npm run deploy:auth        # Deploy Cognito only
+npm run deploy:api         # Deploy API Gateway + Lambda
+npm run deploy:waf         # Deploy WAF
+npm run deploy:cert:first  # Initial certificate deployment
+```
+
+#### Frontend (Amplify)
+- Push to GitHub - Amplify auto-deploys
+- Check status: `npm run check:amplify:app`
+- Check DNS: `npm run check:amplify:dns`
+- Check domain: `npm run check:amplify:domain`
+
+### Infrastructure Management
+- `npm run status:all` - Check all stack statuses
+- `npm run diagnose:stack` - Diagnose stack issues
+- `npm run protect:cert` - Protect certificate from deletion
+- `npm run destroy:all` - Destroy all stacks (use carefully!)
 
 ## Architecture
 
 ### Frontend Stack
 - **Next.js 15** with App Router and Turbopack
 - **TypeScript** for type safety
-- **Tailwind CSS** for styling with custom CSS variables in `app/globals.css`
-- **Google Fonts**: Noto Sans (UI) and Noto Serif (content)
+- **Tailwind CSS** with custom Airbnb-inspired design
+- **Inter Font** - Modern, readable typography
+- **Search Context** - Global search state management
+- **API Proxy** - `/api/proxy` routes for CORS handling in development
 
-### AWS Infrastructure (Decoupled Stacks)
-The infrastructure uses a decoupled stack architecture (see `cdk/src/ARCHITECTURE.md`) with these independent stacks:
+### Backend Services (AWS CDK)
+1. **DynamoDB Tables**
+   - `templates` - Template storage with GSIs for queries
+   - `template-views` - View tracking
+   - `user-prompts` - Saved user prompts with userId GSI
 
-1. **Foundation Stack** - S3 buckets for content and logs (deploy once)
-2. **Certificate Stack** - ACM SSL certificates (deploy once)
-3. **Edge Functions Stack** - CloudFront functions for redirects and security headers
-4. **WAF Stack** - Web Application Firewall with rate limiting and geo-blocking
-5. **CDN Stack** - CloudFront distribution with custom domains
-6. **App Stack** - Content deployment and CloudFront invalidation
-7. **Monitoring Stack** - CloudWatch dashboards, SNS alerts, and billing alarms
-8. **Auth Stack** - AWS Cognito user pools for authentication (separate dev/prod)
-9. **API Stack** - API Gateway, Lambda functions, and DynamoDB for template management
+2. **Lambda Functions**
+   - Enhanced search with relevance scoring
+   - Template CRUD operations
+   - User prompt management
+   - Content moderation (AWS Comprehend)
 
-### Google Integrations
-- **Google Analytics** with consent management (`components/GoogleAnalytics.tsx`)
-- **Google AdSense** with privacy-compliant setup (`components/AdSense/`)
-- **Cookie Consent Management Platform** (`components/GoogleCMP.tsx`)
-- **Consent Initialization** (`components/GoogleConsentInit.tsx`) - Handles initial consent state setup
+3. **API Gateway**
+   - RESTful endpoints
+   - CORS configuration
+   - Local development via SAM
 
-### Authentication System
-- **AWS Cognito** integration with separate dev/prod user pools
-- **Custom auth UI** - Login, signup, profile, password reset pages
-- **Protected routes** - Using `ProtectedRoute` component
-- **Auth context** - Global state management with `useAuth` hook
-- **User profiles** - Support for bio, GitHub, Twitter, LinkedIn
-- **Security features** - Email verification, MFA support, 30-day sessions
+### Local Development Stack
+- **Docker Compose** - Orchestrates local services
+- **DynamoDB Local** - Persistent data storage
+- **LocalStack** - AWS service mocking
+- **SAM Local** - API Gateway simulation
+- **Next.js Proxy** - CORS bypass for local dev
 
 ## Key Directories
 
-- `app/` - Next.js App Router pages and layouts
-  - `login/`, `signup/`, `profile/`, `forgot-password/` - Auth pages
-- `components/` - Reusable React components
-  - `auth/` - Authentication components (ProtectedRoute)
-  - `Navigation.tsx` - Dynamic nav with auth state
-- `lib/` - Utility functions and contexts
-  - `auth-context.tsx` - Global authentication state management
-- `cdk/` - AWS CDK infrastructure code (separate TypeScript project)
-- `scripts/` - Deployment and maintenance shell scripts
-- `public/` - Static assets including `ads.txt` and `sitemap.xml`
+- `app/` - Next.js App Router pages
+  - `api/proxy/` - CORS proxy for local development
+  - `page.tsx` - Home page with search and grid layout
+- `components/` 
+  - `TemplateQuickview.tsx` - Slide-out panel component
+  - `Navigation.tsx` - Fixed nav with search integration
+- `lib/`
+  - `search-context.tsx` - Global search state
+  - `api/templates.ts` - API client with proxy support
+- `cdk/` - AWS infrastructure
+  - `lambda/templates/list.js` - Enhanced search implementation
+  - `local-test/` - Local development configuration
+- `scripts/` - All scripts have npm commands (see SCRIPTS.md)
+- `data/` - Template data files for bulk loading
 
-## Environment Configuration
+## Local Development Tips
 
-Copy `.env.example` to `.env` and configure:
-- `NEXT_PUBLIC_GA_MEASUREMENT_ID` - Google Analytics measurement ID
-- `NEXT_PUBLIC_ADSENSE_CLIENT_ID` - Google AdSense publisher ID
-- `AWS_REGION`, `AWS_ACCOUNT_ID`, `DOMAIN_NAME` - AWS deployment settings
-- `APP_NAME` - Application name for CDK stacks
+### First Time Setup
+```bash
+npm install
+npm run local:setup
+npm run templates:load:local -- --file ./data/consolidated-templates.json
+npm run dev:all
+```
 
-## Customization Areas
+### Common Issues & Solutions
 
-### Brand Colors
-Update CSS variables in `app/globals.css` and `tailwind.config.ts`:
-- `--primary`, `--secondary`, `--accent`, `--neutral`
+1. **Templates disappearing** - DynamoDB now uses persistent storage
+2. **CORS errors** - API proxy automatically handles this
+3. **Port conflicts** - Run `npm run local:cleanup` first
+4. **Search not working** - Enhanced algorithm searches content too
 
-### Content & Metadata
-- `app/layout.tsx` - Site metadata, Open Graph, schema markup
-- `app/page.tsx` - Home page content
-- `package.json` - Project name and description
+### Environment Variables
 
-### AdSense Setup
-- Update `public/ads.txt` with your Google AdSense publisher ID
-- Configure ad units in `components/AdSense/` components
+Create `.env.local`:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:7429
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX
+```
 
-## Development Notes
+## Recent Script Organization
 
-### CDK Infrastructure
-- CDK code is in a separate TypeScript project under `cdk/`
-- Run `npm run build:cdk` before CDK operations
-- Stack dependencies must be deployed in order (see ARCHITECTURE.md)
-- Use `npm run deploy:all` for full deployment
+All scripts now have npm commands. See:
+- `SCRIPTS.md` - Complete command reference
+- `scripts/README.md` - Script organization guide
+- `scripts/SCRIPT_REGISTRY.md` - Full script mapping
 
-### ESLint Configuration
-- Ignores `cdk/` directory (separate linting rules)
-- Extends Next.js recommended configs
-- Always run `npm run lint` after making code changes
+### Script Naming Convention
+- `deploy:*` - Deployment scripts
+- `check:*` - Status checks
+- `templates:*` - Template operations
+- `local:*` - Local development
+- `destroy:*` - Cleanup operations
 
-### Theme System
-- Uses Tailwind CSS with custom CSS variables for easy theme customization
-- Animated gradient orbs provide dynamic background effects
-- Theme toggle component supports light/dark modes
+## UI/UX Guidelines
+
+### Design System
+- **Primary Color**: #FF385C (Airbnb red)
+- **Font**: Inter (clean, modern)
+- **Animations**: 500ms ease-in-out transitions
+- **Spacing**: Consistent 4/6/8 unit spacing
+- **Shadows**: Subtle elevation with hover states
+
+### Component Patterns
+- **Search Bar**: Transitions from hero to nav on scroll
+- **Template Cards**: Hover effects with primary color
+- **Quickview Panel**: 80% width on desktop, full on mobile
+- **Buttons**: Primary color with hover states
+
+## Best Practices
+
+1. **Always use `npm run dev:all`** for local development
+2. **Run `npm run lint`** after code changes
+3. **Use the proxy** - Templates API automatically uses `/api/proxy` locally
+4. **Persistent data** - Local templates survive restarts
+5. **Test search** - Try partial words, typos, and content searches
+
+## Deployment Checklist
+
+1. Run `npm run lint`
+2. Run `npm run build:all`
+3. Run `npm run pre-flight`
+4. Deploy backend: `npm run deploy:backend`
+5. Push to GitHub for Amplify deployment
+6. Check deployment: `npm run status:all`

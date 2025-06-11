@@ -93,7 +93,9 @@ exports.handler = async (event) => {
 
     // Get user info for author details
     // Note: In production, you might want to cache this or store it differently
-    const userEmail = event.requestContext?.authorizer?.claims?.email || 'Unknown';
+    const userEmail = event.requestContext?.authorizer?.claims?.email || 
+                     event.requestContext?.authorizer?.claims?.sub || 
+                     'Anonymous';
     template.authorEmail = userEmail;
     
     // Save to DynamoDB

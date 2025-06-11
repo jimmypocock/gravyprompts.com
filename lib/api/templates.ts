@@ -1,5 +1,15 @@
 // Template API service for frontend integration
 
+// Use proxy for local development to avoid CORS issues
+const getApiBaseUrl = () => {
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    // Use Next.js API proxy in local development
+    return '/api/proxy';
+  }
+  // Use direct API URL in production
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7429';
+};
+
 export interface Template {
   templateId: string;
   title: string;
@@ -43,8 +53,26 @@ export interface PopulateTemplateRequest {
   returnHtml?: boolean;
 }
 
+export interface UserPrompt {
+  promptId: string;
+  userId: string;
+  templateId?: string;
+  templateTitle: string;
+  content: string;
+  variables: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavePromptRequest {
+  templateId?: string;
+  templateTitle: string;
+  content: string;
+  variables: Record<string, string>;
+}
+
 export interface ListTemplatesParams {
-  filter?: 'public' | 'mine' | 'all';
+  filter?: 'public' | 'mine' | 'all' | 'popular';
   tag?: string;
   search?: string;
   limit?: number;
@@ -81,7 +109,7 @@ class TemplateApi {
     };
 
     // For local development, use a mock token
-    const isLocal = this.baseUrl.includes('localhost');
+    const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
     if (isLocal) {
       headers['Authorization'] = 'Bearer local-dev-token';
     } else if (token) {
@@ -136,6 +164,18 @@ class TemplateApi {
     const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
     const response = await this.fetchWithAuth(`/templates${query}`);
     return response.json();
+  }
+
+  async getPopularTemplates(params: { limit?: number; category?: string } = {}): Promise<{
+    items: Template[];
+    count: number;
+  }> {
+    // Use the list endpoint with filter=popular instead of a separate endpoint
+    return this.listTemplates({
+      filter: 'popular',
+      limit: params.limit,
+      tag: params.category,
+    });
   }
 
   async updateTemplate(
@@ -197,6 +237,35 @@ class TemplateApi {
     );
     return response.json();
   }
+
+  // User Prompts methods
+  async savePrompt(data: SavePromptRequest): Promise<UserPrompt> {
+    const response = await this.fetchWithAuth('/prompts', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  }
+
+  async listPrompts(params: { limit?: number; lastKey?: string } = {}): Promise<{
+    items: UserPrompt[];
+    count: number;
+    lastKey?: string;
+  }> {
+    const queryParams = new URLSearchParams();
+    if (params.limit) queryParams.append('limit', String(params.limit));
+    if (params.lastKey) queryParams.append('lastKey', params.lastKey);
+    
+    const query = queryParams.toString() ? `?${queryParams.toString()}` : '';
+    const response = await this.fetchWithAuth(`/prompts${query}`);
+    return response.json();
+  }
+
+  async deletePrompt(promptId: string): Promise<void> {
+    await this.fetchWithAuth(`/prompts/${promptId}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 // Factory function to create template API instance
@@ -215,7 +284,7 @@ export function useTemplateApi() {
   const { user, getIdToken } = useAuth();
   
   const api = useMemo(() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || '/api';
+    const apiUrl = getApiBaseUrl();
     return createTemplateApi(apiUrl, async () => {
       if (!user) return null;
       try {

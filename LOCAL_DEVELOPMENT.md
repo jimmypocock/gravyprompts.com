@@ -7,177 +7,82 @@ This guide explains how to run the GravyPrompts template management system local
 - Docker Desktop installed and running
 - AWS SAM CLI installed (`brew install aws-sam-cli`)
 - Node.js 20.x or later
-- npm or yarn
+- npm
 
 ## Quick Start
 
-1. **Install dependencies**:
-   ```bash
-   npm install
-   npm run local:install
-   ```
-
-2. **Copy environment file**:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-
-3. **Start all services**:
-   ```bash
-   npm run dev:all
-   ```
-
-   This will start:
-   - Next.js development server on http://localhost:3000
-   - GravyJS demo on http://localhost:5173
-   - Local API Gateway on http://localhost:7429
-   - DynamoDB Local on http://localhost:8000
-   - DynamoDB Admin UI on http://localhost:8001
-
-## Individual Service Commands
-
-### Local API Development
+**IMPORTANT: Use only `npm run dev:all` for local development.**
 
 ```bash
-# Install local dependencies
-npm run local:install
+# Install dependencies
+npm install
 
-# Setup Docker containers and tables
-npm run local:setup
-
-# Start API (in separate terminal)
-npm run local:start
-
-# View logs
-npm run local:logs
-
-# Stop services
-npm run local:stop
-
-# Clean up everything
-npm run local:cleanup
+# Start everything with one command
+npm run dev:all
 ```
 
-### Testing the API
+This single command will:
+1. Clean up any existing Docker containers
+2. Start DynamoDB Local on port 8000
+3. Create all necessary database tables
+4. **Load sample template data automatically**
+5. Start SAM Local API Gateway on port 7429
+6. Start Next.js development server on port 6827
+7. Start GravyJS demo on port 5173
+8. Make DynamoDB Admin UI available on port 8001
 
+## Access Points
+
+- **Main Application**: http://localhost:6827
+- **API Gateway**: http://localhost:7429
+- **DynamoDB Admin**: http://localhost:8001
+- **GravyJS Demo**: http://localhost:5173
+
+## What's Included
+
+When you run `npm run dev:all`, you get:
+- 10 sample templates pre-loaded with various categories
+- Full API functionality with mocked authentication
+- Hot reload for all code changes
+- Database persistence until containers are stopped
+
+## Stopping Services
+
+Press `Ctrl+C` in the terminal where you ran `npm run dev:all`. This will stop all services gracefully.
+
+## Troubleshooting
+
+### Templates not loading?
+Templates are automatically loaded when starting with `npm run dev:all`. If you need to reload them:
 ```bash
-# Run API tests
-npm run local:test
+npm run templates:load:local -- --file ./data/sample-templates.json
+```
 
-# View API endpoints
-curl http://localhost:7429/templates
+### Port conflicts
+The following ports are used:
+- **6827**: Next.js application
+- **7429**: API Gateway
+- **8000**: DynamoDB
+- **8001**: DynamoDB Admin UI
+- **5173**: GravyJS Demo
+
+### Docker issues
+If containers won't start:
+```bash
+# Stop everything and clean up
+docker-compose -f cdk/local-test/docker-compose.yml down -v
+
+# Then restart
+npm run dev:all
 ```
 
 ## Authentication in Local Development
 
-For local development, authentication is mocked:
-- All requests with an `Authorization` header will work
-- User IDs are automatically generated based on timestamp
+Authentication is mocked for local development:
+- Any `Authorization` header will work
+- User IDs are automatically generated
 - No actual AWS Cognito calls are made
 
-Example request:
-```bash
-curl -X POST http://localhost:7429/templates \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer local-dev-token" \
-  -d '{
-    "title": "My Template",
-    "content": "<p>Hello [[name]]!</p>",
-    "visibility": "private"
-  }'
-```
+## Do NOT Use Individual Commands
 
-## Troubleshooting
-
-### "Unauthorized" errors
-
-If you get unauthorized errors when saving templates:
-
-1. Run the fix script:
-   ```bash
-   ./scripts/fix-local-auth.sh
-   ```
-
-2. Restart the local API:
-   ```bash
-   npm run local:stop
-   npm run local:start
-   ```
-
-### Port conflicts
-
-The following ports are used:
-- **3000**: Next.js development server
-- **5173**: GravyJS demo
-- **7429**: Local API Gateway (SAM)
-- **8000**: DynamoDB Local
-- **8001**: DynamoDB Admin UI
-
-If you have conflicts, stop the conflicting services or modify the ports in:
-- `package.json` (Next.js port)
-- `GravyJS/demo/vite.config.js` (GravyJS demo port)
-- `cdk/local-test/run-local.sh` (API port)
-- `cdk/local-test/docker-compose.yml` (DynamoDB ports)
-
-### Docker issues
-
-If Docker containers won't start:
-
-```bash
-# Check running containers
-docker ps
-
-# Remove old containers
-npm run local:cleanup
-
-# Restart Docker Desktop and try again
-npm run local:setup
-```
-
-### Lambda layer issues
-
-If Lambda functions can't find dependencies:
-
-```bash
-# The fix script will copy necessary files
-./scripts/fix-local-auth.sh
-
-# Or manually copy files
-cd cdk/local-test
-cp -r ../lambda-layers/shared/nodejs/* ../lambda/templates/
-```
-
-## Environment Variables
-
-The `.env.local` file should contain:
-
-```env
-# API Gateway URL for local development
-NEXT_PUBLIC_API_URL=http://localhost:7429
-
-# Mock Cognito values (not used locally but required)
-NEXT_PUBLIC_COGNITO_USER_POOL_ID_DEV=local-pool
-NEXT_PUBLIC_COGNITO_CLIENT_ID_DEV=local-client
-```
-
-## Database Admin
-
-View and manage local DynamoDB tables:
-1. Open http://localhost:8001
-2. Tables are prefixed with `local-`
-3. You can view, add, edit, and delete items
-
-## Architecture
-
-Local development uses:
-- **SAM Local**: Emulates API Gateway and Lambda
-- **DynamoDB Local**: In-memory database
-- **Mock Services**: Cognito and Comprehend are mocked
-- **Docker Compose**: Orchestrates local services
-
-## Next Steps
-
-1. Create and test templates through the UI
-2. Check API responses with `npm run local:test`
-3. View database changes at http://localhost:8001
-4. Make code changes - hot reload is enabled
+For consistency and to avoid confusion, always use `npm run dev:all`. Individual service commands (`npm run dev`, `npm run local:start`, etc.) should not be used directly.

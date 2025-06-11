@@ -1,30 +1,20 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Serif } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import AdSenseScript from "@/components/AdSense/AdSenseScript";
 import GoogleCMP from "@/components/GoogleCMP";
 import GoogleConsentInit from "@/components/GoogleConsentInit";
-import ThemeToggle from "@/components/ThemeToggle";
 import { AuthProvider } from "@/lib/auth-context";
+import { SearchProvider } from "@/lib/search-context";
 import Navigation from "@/components/Navigation";
 
-// Configure Noto Sans for UI text with phonetic support
-const notoSans = Noto_Sans({
+// Configure Inter for the entire site
+const inter = Inter({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "600", "700"],
-  variable: "--font-noto-sans",
   display: "swap",
   preload: true,
-});
-
-// Configure Noto Serif for optional use in content areas
-const notoSerif = Noto_Serif({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "700"],
-  variable: "--font-noto-serif",
-  display: "swap",
-  preload: false,
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -68,7 +58,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${notoSans.variable} ${notoSerif.variable}`}>
+    <html lang="en" className={inter.variable}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <GoogleConsentInit />
@@ -109,7 +99,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={notoSans.className}>
+      <body className={inter.className}>
         {/* Gradient orbs container to prevent overflow */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
           <div className="gradient-orb orb1" />
@@ -118,12 +108,15 @@ export default function RootLayout({
           <div className="gradient-orb orb4" />
         </div>
         
-        <ThemeToggle />
         <AuthProvider>
-          <Navigation />
-          <main className="pt-16">
-            {children}
-          </main>
+          <SearchProvider>
+            <div className="flex flex-col min-h-screen">
+              <Navigation />
+              <main className="flex-1 flex flex-col pt-16">
+                {children}
+              </main>
+            </div>
+          </SearchProvider>
         </AuthProvider>
         <GoogleCMP />
       </body>

@@ -158,7 +158,7 @@ export default function TemplateDetailPage() {
             <div>
               <h1 className="text-4xl font-bold mb-2">{template.title}</h1>
               <p className="text-gray-600 dark:text-gray-400">
-                By {template.authorEmail} • {template.viewCount} views • {template.useCount} uses
+                By {template.authorEmail} • {template.viewCount || 0} views • {template.useCount || 0} uses
               </p>
             </div>
 
@@ -183,7 +183,7 @@ export default function TemplateDetailPage() {
             </div>
           </div>
 
-          {template.tags.length > 0 && (
+          {template.tags && template.tags.length > 0 && (
             <div className="flex gap-2 flex-wrap mt-4">
               {template.tags.map(tag => (
                 <span

@@ -1,82 +1,76 @@
 # Scripts Directory
 
-This directory contains all deployment and maintenance scripts for the NextJS AWS Template.
+This directory contains various scripts for deployment, maintenance, and development of the GravyPrompts application.
 
-## Deployment Scripts
+## Script Organization
 
-### Core Deployment
+All scripts have corresponding npm commands for easy discovery and execution. Run `npm run` to see all available commands.
 
-- **deploy-all-decoupled.sh** - Deploys all stacks in the correct order
-- **deploy-app-content.sh** - Deploys application content to S3 and invalidates CloudFront cache
+### Categories:
 
-### Individual Stack Deployment
+1. **Development Scripts** (`dev-*.sh`, `local-*.sh`)
+   - Local environment setup and management
+   - Testing and debugging tools
 
-- **deploy-foundation.sh** - Deploys S3 buckets for website and logs
-- **deploy-cert.sh** - Creates or imports SSL certificate (one-time setup)
-- **deploy-edge-functions.sh** - Deploys CloudFront functions for redirects and security headers
-- **deploy-waf.sh** - Deploys WAF security rules
-- **deploy-cdn.sh** - Deploys CloudFront distribution with custom domains
-- **deploy-monitoring.sh** - Sets up CloudWatch monitoring and alerts
+2. **Deployment Scripts** (`deploy-*.sh`)
+   - AWS CDK stack deployments
+   - Amplify configuration
 
-## Maintenance Scripts
+3. **Check Scripts** (`check-*.sh`)
+   - Infrastructure status checks
+   - Certificate and DNS validation
 
-- **maintenance-mode.sh** - Enable/disable maintenance mode
-  - `on` - Shows maintenance page
-  - `off` - Restores normal site
-  - `update "message" "eta"` - Updates maintenance message
+4. **Template Scripts** (`*-templates.*`)
+   - Bulk loading and management
+   - Template analysis and conversion
 
-## Status and Monitoring
+5. **Utility Scripts**
+   - TODO management
+   - Configuration helpers
+   - Cleanup tools
 
-- **check-stack-status.sh** - Monitors a single stack's status
-- **check-all-stacks.sh** - Shows status of all stacks at once
-- **diagnose-stack.sh** - Diagnoses issues with a specific stack
+## Quick Reference
 
-## Cleanup Scripts
+See `../SCRIPTS.md` for a complete guide to all npm commands.
 
-- **destroy-waf.sh** - Removes WAF stack (with confirmation)
-- **destroy-monitoring.sh** - Removes monitoring stack (with confirmation)
+## Script Naming Convention
 
-## Script Conventions
+- `.sh` - Shell scripts (Bash)
+- `.js` - Node.js scripts
+- `.py` - Python scripts
+- `.md` - Documentation
 
-All scripts:
+## Adding New Scripts
 
-1. Load configuration from config.sh (which reads .env)
-2. Use configurable stack names based on STACK_PREFIX
-3. Check for AWS credentials before proceeding
-4. Build CDK TypeScript if needed
-5. Provide clear status messages
-6. Exit with proper error codes
-7. Support the decoupled architecture with proper dependencies
+When adding a new script:
 
-## Common Script Patterns
+1. Place it in this directory
+2. Make it executable: `chmod +x script-name.sh`
+3. Add a corresponding npm command in `package.json`
+4. Document it in `../SCRIPTS.md`
+5. Include a header comment explaining its purpose
 
+Example script header:
 ```bash
-# All scripts follow this pattern:
-1. Load configuration from config.sh
-2. Check AWS credentials
-3. Build CDK (if needed)
-4. Execute CDK deployment with configurable stack names
-5. Provide success/failure feedback
+#\!/bin/bash
+# Script: deploy-api.sh
+# Purpose: Deploy API Gateway and Lambda functions
+# Usage: npm run deploy:api
+# Dependencies: AWS CLI, CDK CLI
 ```
 
-## Stack Dependencies
+## Environment Variables
 
-When deploying, ensure stacks are deployed in this order:
+Most scripts source `config.sh` for common variables:
+- `APP_NAME` - Application name for resource naming
+- `AWS_REGION` - AWS region for deployment
+- `DOMAIN_NAME` - Domain for the application
+- `ENVIRONMENT` - Deployment environment (dev/prod)
 
-1. {STACK_PREFIX}-Foundation (required by CDN and App)
-2. {STACK_PREFIX}-Certificate (required by CDN)
-3. {STACK_PREFIX}-EdgeFunctions (required by CDN)
-4. {STACK_PREFIX}-WAF (optional, used by CDN)
-5. {STACK_PREFIX}-CDN (required by App)
-6. {STACK_PREFIX}-App (deploys content)
-7. {STACK_PREFIX}-Monitoring (optional, monitors CDN)
+## Error Handling
 
-## Configuration
-
-All scripts use the configuration from `config.sh` which reads environment variables:
-
-- `APP_NAME`: Application name (e.g., "my-app")
-- `DOMAIN_NAME`: Domain name (e.g., "myapp.com")
-- `STACK_PREFIX`: AWS stack prefix (defaults to uppercase APP_NAME)
-
-Stack names are generated as `{STACK_PREFIX}-{StackType}` (e.g., "MYAPP-Foundation").
+Scripts should:
+- Exit with non-zero status on failure
+- Provide clear error messages
+- Clean up resources on failure when possible
+- Log operations for debugging
