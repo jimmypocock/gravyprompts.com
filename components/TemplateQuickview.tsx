@@ -180,7 +180,6 @@ export default function TemplateQuickview({ template, isOpen, onClose, onSavePro
                       className="min-h-[400px]"
                       variablePrefix="[["
                       variableSuffix="]]"
-                      readOnly={true}
                     />
                   </div>
                 </div>

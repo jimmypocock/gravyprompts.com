@@ -1,0 +1,43 @@
+{
+  "name": "Gravy Prompts",
+  "short_name": "GravyPrompts",
+  "description": "Store, share, populate, and rate your AI prompt templates",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF385C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Search Templates",
+      "short_name": "Search",
+      "description": "Search AI prompt templates",
+      "url": "/templates",
+      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Create Template",
+      "short_name": "Create",
+      "description": "Create a new prompt template",
+      "url": "/editor",
+      "icons": [{ "src": "/images/logo.png", "sizes": "96x96" }]
+    }
+  ]
+}
