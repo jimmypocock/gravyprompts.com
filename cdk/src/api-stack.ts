@@ -12,7 +12,6 @@ export interface ApiStackProps extends StackProps {
   appName: string;
   userPool: cognito.UserPool;
   userPoolClient: cognito.UserPoolClient;
-  environment: 'development' | 'production';
 }
 
 export class ApiStack extends Stack {
@@ -24,15 +23,13 @@ export class ApiStack extends Stack {
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
-    const isProd = props.environment === 'production';
-
     // Create DynamoDB Tables
     this.templatesTable = new dynamodb.Table(this, 'TemplatesTable', {
-      tableName: `${props.appName}-${props.environment}-templates`,
+      tableName: `${props.appName}-templates`,
       partitionKey: { name: 'templateId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-      pointInTimeRecoverySpecification: isProd ? { pointInTimeRecoveryEnabled: true } : undefined,
+      removalPolicy: RemovalPolicy.RETAIN,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
       stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
     });
 
@@ -60,10 +57,10 @@ export class ApiStack extends Stack {
 
     // Template views tracking table
     this.templateViewsTable = new dynamodb.Table(this, 'TemplateViewsTable', {
-      tableName: `${props.appName}-${props.environment}-template-views`,
+      tableName: `${props.appName}-template-views`,
       partitionKey: { name: 'viewId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
+      removalPolicy: RemovalPolicy.RETAIN,
       timeToLiveAttribute: 'ttl', // Auto-delete old views after 90 days
     });
 
@@ -76,11 +73,11 @@ export class ApiStack extends Stack {
 
     // User prompts table for saving populated prompts
     this.userPromptsTable = new dynamodb.Table(this, 'UserPromptsTable', {
-      tableName: `${props.appName}-${props.environment}-user-prompts`,
+      tableName: `${props.appName}-user-prompts`,
       partitionKey: { name: 'promptId', type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: isProd ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
-      pointInTimeRecoverySpecification: isProd ? { pointInTimeRecoveryEnabled: true } : undefined,
+      removalPolicy: RemovalPolicy.RETAIN,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
     });
 
     // Add GSI for querying by user
@@ -93,10 +90,10 @@ export class ApiStack extends Stack {
 
     // Create API Gateway
     this.api = new apigateway.RestApi(this, 'TemplatesApi', {
-      restApiName: `${props.appName}-${props.environment}-api`,
+      restApiName: `${props.appName}-api`,
       description: `Template management API for ${props.appName}`,
       deployOptions: {
-        stageName: props.environment,
+        stageName: 'api',
         loggingLevel: apigateway.MethodLoggingLevel.INFO,
         dataTraceEnabled: true,
         metricsEnabled: true,
@@ -119,7 +116,7 @@ export class ApiStack extends Stack {
     // Create Cognito Authorizer
     const authorizer = new apigateway.CognitoUserPoolsAuthorizer(this, 'UserPoolAuthorizer', {
       cognitoUserPools: [props.userPool],
-      authorizerName: `${props.appName}-${props.environment}-authorizer`,
+      authorizerName: `${props.appName}-authorizer`,
     });
 
     // Lambda Layer for shared code
@@ -145,22 +142,13 @@ export class ApiStack extends Stack {
     // Grant stream read permissions for the moderation function
     this.templatesTable.grantStreamRead(lambdaRole);
 
-    // Grant Comprehend permissions for content moderation
-    lambdaRole.addToPolicy(new iam.PolicyStatement({
-      actions: [
-        'comprehend:DetectSentiment',
-        'comprehend:DetectToxicContent',
-        'comprehend:DetectPiiEntities',
-      ],
-      resources: ['*'],
-    }));
+    // Content moderation uses basic checks without external APIs
 
     // Environment variables for Lambdas
     const environment = {
       TEMPLATES_TABLE: this.templatesTable.tableName,
       TEMPLATE_VIEWS_TABLE: this.templateViewsTable.tableName,
       USER_PROMPTS_TABLE: this.userPromptsTable.tableName,
-      ENVIRONMENT: props.environment,
       USER_POOL_ID: props.userPool.userPoolId,
     };
 
@@ -391,7 +379,7 @@ export class ApiStack extends Stack {
 
     // Add usage plan for rate limiting per user
     const plan = this.api.addUsagePlan('PerUserThrottling', {
-      name: `${props.appName}-${props.environment}-per-user`,
+      name: `${props.appName}-per-user`,
       throttle: {
         rateLimit: 10, // requests per second
         burstLimit: 20,

@@ -5,6 +5,7 @@
 ### Features
 
 #### Template System
+
 - [x] Basic template CRUD operations - Create, Read, Update, Delete
 - [x] Template sharing with secure links
 - [x] Template population with variables
@@ -18,9 +19,10 @@
 - [ ] Template usage analytics - Track how often templates are used (partially done)
 - [ ] Template recommendation engine - Suggest templates based on usage
 - [ ] Template marketplace - Buy/sell premium templates
-- [ ] Template scheduling - Schedule template availability
+- [ ] Template scheduling - Schedule template availabilityTemplate scheduling - Schedule template availability
 
 #### User Features
+
 - [ ] User reputation system - Track quality contributions
 - [ ] User favorites/bookmarks - Save favorite templates
 - [ ] User follow system - Follow template creators
@@ -28,6 +30,7 @@
 - [ ] User profile customization - Themes, bio, links
 
 #### Moderation & Trust
+
 - [ ] Manual content review dashboard - Admin panel for reviewing flagged content
 - [ ] Appeal process - Allow users to appeal moderation decisions
 - [ ] Community reporting - Users can flag inappropriate content
@@ -36,6 +39,7 @@
 - [ ] Custom moderation rules - Industry-specific filters
 
 #### Platform Features
+
 - [ ] Email notifications - Template shares, new followers, etc.
 - [ ] API for third-party integrations - REST/GraphQL API
 - [ ] Webhook support - Notify external services
@@ -43,11 +47,14 @@
 - [ ] Browser extension - Quick template access
 - [ ] Advanced search with filters - Search by tags, author, popularity
 - [ ] Analytics dashboard - Usage statistics for users
+- [ ] Set up a staging branch to work with a test environment for Amplify.
 
 ### Bugs
+
 <!-- Add bug fixes here -->
 
 ### Documentation
+
 - [ ] API documentation - Document all endpoints
 - [ ] Template creation best practices - Guide for effective templates
 - [ ] User guides and tutorials - How-to videos and guides
@@ -56,6 +63,7 @@
 ---
 
 ## Completed Tasks
+
 - [x] Initial project setup
 - [x] AWS CDK infrastructure
 - [x] Google Analytics integration

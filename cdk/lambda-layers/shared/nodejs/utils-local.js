@@ -20,41 +20,7 @@ const dynamoConfig = isLocal ? {
 const dynamoClient = new DynamoDBClient(dynamoConfig);
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
-// Mock Comprehend client for local testing
-const comprehendClient = {
-  send: async (command) => {
-    console.log('Mock Comprehend command:', command.constructor.name);
-    
-    // Return mock responses based on command type
-    if (command.constructor.name === 'DetectSentimentCommand') {
-      return {
-        Sentiment: 'NEUTRAL',
-        SentimentScore: {
-          Positive: 0.3,
-          Negative: 0.2,
-          Neutral: 0.4,
-          Mixed: 0.1
-        }
-      };
-    }
-    
-    if (command.constructor.name === 'DetectToxicContentCommand') {
-      return {
-        ResultList: [{
-          Labels: []
-        }]
-      };
-    }
-    
-    if (command.constructor.name === 'DetectPiiEntitiesCommand') {
-      return {
-        Entities: []
-      };
-    }
-    
-    return {};
-  }
-};
+// Comprehend removed - no longer needed
 
 // Mock Cognito client for local testing
 const cognitoClient = {
@@ -81,7 +47,6 @@ const purify = DOMPurify(window);
 // Export the same interface as the real utils
 module.exports = {
   docClient,
-  comprehendClient: isLocal ? comprehendClient : require('@aws-sdk/client-comprehend').ComprehendClient,
   cognitoClient: isLocal ? cognitoClient : require('@aws-sdk/client-cognito-identity-provider').CognitoIdentityProviderClient,
   
   sanitizeHtml: (html) => {

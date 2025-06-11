@@ -74,6 +74,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Load user on mount
   useEffect(() => {
     loadUser();
+    
+    // Expose auth functions to window for debugging (only in development)
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      (window as any).getAuthDebugInfo = async () => {
+        try {
+          const session = await fetchAuthSession();
+          const token = await getIdToken();
+          return {
+            user,
+            session,
+            token,
+            hasToken: !!token,
+            tokenPreview: token ? `${token.substring(0, 50)}...` : 'No token',
+          };
+        } catch (error) {
+          return { error: error.message };
+        }
+      };
+    }
   }, []);
 
   const loadUser = async () => {

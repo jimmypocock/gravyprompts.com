@@ -1,229 +1,180 @@
-# Content Moderation for GravyPrompts
+# Content Moderation System
 
 ## Overview
 
-This document outlines the content moderation strategy for public templates using AWS Comprehend and related services.
+The content moderation system automatically reviews public templates using basic content checks to detect:
 
-## AWS Comprehend Integration
+- Blocked words/phrases
+- Excessive capitalization (spam indicator)
+- Repetitive content (spam indicator)
 
-### Services Used
+**AWS Comprehend has been completely removed from this application** due to unexpected costs from an infinite loop incident ($100+ charges).
 
-1. **AWS Comprehend** - For content analysis
-   - Sentiment Analysis
-   - Toxicity Detection
-   - PII (Personally Identifiable Information) Detection
+## Current Status
 
-2. **AWS Lambda** - For moderation processing
-   - Triggered on template creation/update
-   - Processes content through Comprehend
-   - Updates moderation status in DynamoDB
+**✅ MODERATION ACTIVE - Comprehend-Free Version**
 
-### Cost Analysis
+The moderation system now uses simple, cost-free checks without any external API calls.
 
-#### AWS Comprehend Pricing (US East 1)
-- **Sentiment Analysis**: $0.0001 per unit (100 characters)
-- **Toxicity Detection**: $0.0001 per unit (100 characters)
-- **PII Detection**: $0.0001 per unit (100 characters)
+## The Problem
 
-#### Example Cost Calculation
-For a typical template (500 characters):
-- 5 units × $0.0001 × 3 analyses = $0.0015 per template
-- 1,000 templates/month = $1.50
-- 10,000 templates/month = $15.00
-- 100,000 templates/month = $150.00
+### Infinite Loop Issue
 
-#### Additional Costs
-- **Lambda Invocations**: $0.20 per 1M requests
-- **Lambda Compute**: ~$0.00001667 per invocation (128MB, 1s duration)
-- **DynamoDB Updates**: Minimal (within free tier for most usage)
+1. User creates/updates a public template
+2. DynamoDB stream triggers moderation Lambda
+3. Moderation Lambda analyzes content and updates the template with moderation results
+4. This update triggers the DynamoDB stream again
+5. Loop continues indefinitely
 
-### Moderation Workflow
+### API Error Issue
 
-```mermaid
-graph TD
-    A[User Creates/Updates Template] --> B{Is Public?}
-    B -->|Yes| C[Lambda Triggered]
-    B -->|No| D[Save to DynamoDB]
-    C --> E[AWS Comprehend Analysis]
-    E --> F{Content Check}
-    F -->|Pass| G[Mark as Approved]
-    F -->|Fail| H[Mark for Review]
-    G --> D
-    H --> D
+The `DetectToxicContentCommand` was failing with:
+
+```
+ValidationException: 1 validation error detected: Value null at 'textSegments' failed to satisfy constraint: Member must not be null
 ```
 
-### Moderation Criteria
+This API is not available in the standard Comprehend API and requires special access.
 
-#### Automatic Rejection
-- **Toxicity Score** > 0.7 (HIGH confidence)
-- **Negative Sentiment** > 0.9 with toxicity
-- **PII Detection** of sensitive data (SSN, credit cards)
+## The Solution
 
-#### Manual Review Required
-- **Toxicity Score** between 0.5-0.7 (MEDIUM confidence)
-- **Multiple PII Detections** (emails, phone numbers)
-- **Negative Sentiment** > 0.8
+### Comprehend-Free Moderation (`moderate.js`)
 
-#### Automatic Approval
-- **Toxicity Score** < 0.5
-- **No PII** or only non-sensitive PII
-- **Neutral or Positive Sentiment**
+1. **Loop Prevention**:
 
-### Implementation Details
+   - Checks if update is from moderation itself (by checking `moderatedAt` timestamp)
+   - Uses content hash to prevent re-moderation of same content
+   - Conditional updates to prevent race conditions
 
-#### Lambda Function
-```javascript
-const comprehend = new AWS.Comprehend();
+2. **Basic Content Checks**:
 
-async function moderateContent(templateContent) {
-  // Remove HTML tags for analysis
-  const plainText = stripHtml(templateContent);
-  
-  // Run analyses in parallel
-  const [sentiment, toxicity, pii] = await Promise.all([
-    comprehend.detectSentiment({ Text: plainText, LanguageCode: 'en' }).promise(),
-    comprehend.detectToxicContent({ Text: plainText, LanguageCode: 'en' }).promise(),
-    comprehend.detectPiiEntities({ Text: plainText, LanguageCode: 'en' }).promise()
-  ]);
-  
-  return {
-    sentiment: sentiment.Sentiment,
-    sentimentScores: sentiment.SentimentScore,
-    toxicity: toxicity.ResultList[0]?.Labels || [],
-    piiEntities: pii.Entities || [],
-    moderationStatus: determineModerationStatus(sentiment, toxicity, pii)
-  };
-}
+   - Blocked words detection (customizable list)
+   - Excessive capitalization detection (>70% caps = potential spam)
+   - Repetitive content detection (>70% repeated words = potential spam)
+   - No external API calls = No surprise charges!
+
+3. **Moderation States**:
+   - `approved` - Passes all basic checks
+   - `rejected` - Contains blocked content
+   - `review` - Suspicious patterns detected (manual review needed)
+
+## Emergency Procedures
+
+### Stop Moderation Lambda
+
+```bash
+# Find Lambda function names
+./scripts/find-and-stop-lambda.sh
+
+# Stop specific Lambda
+aws lambda put-function-concurrency \
+  --function-name <FUNCTION_NAME> \
+  --reserved-concurrent-executions 0
+
+# Or use the emergency script
+./scripts/stop-both-lambdas.sh
 ```
 
-#### DynamoDB Schema Addition
-```javascript
-{
-  moderationStatus: 'pending' | 'approved' | 'rejected' | 'review',
-  moderationDetails: {
-    sentiment: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL' | 'MIXED',
-    sentimentScores: { Positive, Negative, Neutral, Mixed },
-    toxicityLabels: ['PROFANITY', 'HATE_SPEECH', etc],
-    piiDetected: ['EMAIL', 'PHONE', etc],
-    moderatedAt: timestamp,
-    moderationVersion: '1.0'
-  }
-}
+### Check if Lambda is Stopped
+
+```bash
+./scripts/check-moderation-stopped.sh
 ```
 
-### Rate Limiting Strategy
+### Manually Approve Templates
 
-#### API Gateway Throttling
-- **Per User**: 10 templates per minute, 100 per hour
-- **Global**: 1000 templates per minute
-- **Burst**: Allow 2x rate for 10 seconds
+```bash
+# List pending templates
+node scripts/approve-pending-templates.js
 
-#### DynamoDB Limits
-- **Write Capacity**: Auto-scaling 5-100 WCU
-- **Read Capacity**: Auto-scaling 5-500 RCU
+# Approve all pending templates
+node scripts/approve-pending-templates.js --all
 
-### Security Considerations
+# Approve specific template
+node scripts/approve-pending-templates.js --template-id <template-id>
+```
 
-1. **Content Sanitization**
-   - Strip potentially harmful HTML/JavaScript
-   - Validate variable syntax
-   - Limit template size (10KB max)
+## Re-enabling Moderation
 
-2. **User Reputation System** (Future TODO)
-   - Track user's approved/rejected ratio
-   - Adjust rate limits based on reputation
-   - Fast-track trusted users
+1. **Deploy the fixed Lambda**:
 
-3. **Appeal Process** (Future TODO)
-   - Allow users to appeal rejections
-   - Manual review queue
-   - Feedback mechanism
+   ```bash
+   # Replace moderate.js with one of the fixed versions
+   cp cdk/lambda/moderation/moderate-fixed.js cdk/lambda/moderation/moderate.js
+   # OR for temporary auto-approval
+   cp cdk/lambda/moderation/moderate-simple.js cdk/lambda/moderation/moderate.js
 
-### Monitoring and Alerts
+   # Deploy the API stack
+   npm run deploy:api
+   ```
 
-#### CloudWatch Metrics
-- Moderation rejection rate
-- Average processing time
-- API throttling events
-- Comprehend API errors
+2. **Re-enable Lambda concurrency**:
 
-#### SNS Alerts
-- High rejection rate (>20%)
-- Comprehend API failures
-- Rate limit breaches
-- Unusual activity patterns
+   ```bash
+   aws lambda put-function-concurrency \
+     --function-name <FUNCTION_NAME> \
+     --reserved-concurrent-executions 10
+   ```
 
-### Cost Optimization
+3. **Monitor for issues**:
 
-1. **Caching Results**
-   - Cache moderation results for 24 hours
-   - Skip re-moderation for unchanged content
+   ```bash
+   # Watch CloudWatch logs
+   aws logs tail /aws/lambda/<FUNCTION_NAME> --follow
 
-2. **Batch Processing**
-   - Group multiple templates for bulk analysis
-   - Use Comprehend batch APIs when available
+   # Check Comprehend usage
+   ./scripts/check-moderation-stopped.sh
+   ```
 
-3. **Smart Sampling**
-   - Only analyze changed portions on updates
-   - Skip moderation for trusted users (future)
+## Architecture
 
-### Compliance and Privacy
+### DynamoDB Table Structure
 
-1. **Data Retention**
-   - Moderation logs kept for 90 days
-   - PII detection results not stored
-   - User content never shared with third parties
+- `moderationStatus`: 'pending' | 'approved' | 'rejected' | 'review'
+- `moderatedAt`: ISO timestamp of last moderation
+- `moderationDetails`: Object with analysis results
+- `contentHash`: MD5 hash of title+content to detect changes
 
-2. **GDPR Compliance**
-   - Users can request moderation data
-   - Right to explanation for rejections
-   - Data deletion upon account closure
+### Lambda Trigger
 
-### Future Enhancements (TODO.md items)
+- Triggered by DynamoDB Streams on INSERT and MODIFY events
+- Only processes templates with `visibility: 'public'`
+- Skips templates already moderated for same content
 
-1. **Multi-language Support**
-   - Expand beyond English
-   - Language-specific moderation rules
+### Moderation Logic
 
-2. **Custom Moderation Models**
-   - Train on GravyPrompts-specific content
-   - Industry-specific filters
+- **Approved**: No issues detected
+- **Rejected**: Sensitive PII detected
+- **Review**: High negative sentiment or API errors
+- **Pending**: Awaiting moderation
 
-3. **Community Reporting**
-   - User flagging system
-   - Crowd-sourced moderation
+## Cost Considerations
 
-4. **AI-Powered Suggestions**
-   - Suggest improvements for rejected content
-   - Help users create compliant templates
+AWS Comprehend pricing (as of 2024):
 
-## Implementation Checklist
+- Sentiment Analysis: $0.0001 per unit (100 characters)
+- PII Detection: $0.0001 per unit (100 characters)
+- Toxic Content Detection: Not publicly available
 
-- [ ] Create Lambda function for moderation
-- [ ] Set up Comprehend permissions
-- [ ] Configure DynamoDB GSIs for moderation queries
-- [ ] Implement API Gateway rate limiting
-- [ ] Create CloudWatch dashboard
-- [ ] Set up SNS alerts
-- [ ] Add moderation status to UI
-- [ ] Create moderation admin panel (future)
+For a 1000-character template:
 
-## Estimated Monthly Costs
+- Cost per moderation: ~$0.002
+- With infinite loop: Can quickly escalate to $100s
 
-### Low Usage (1,000 templates/month)
-- Comprehend: $1.50
-- Lambda: $0.20
-- Total: **~$2/month**
+## Future Improvements
 
-### Medium Usage (10,000 templates/month)
-- Comprehend: $15.00
-- Lambda: $2.00
-- Total: **~$17/month**
+1. **Implement rate limiting** in the Lambda itself
+2. **Add CloudWatch alarms** for high invocation rates
+3. **Consider alternative moderation services** (OpenAI, Perspective API)
+4. **Implement moderation queue** with batch processing
+5. **Add manual review interface** for templates marked as 'review'
+6. **Cache moderation results** by content hash
 
-### High Usage (100,000 templates/month)
-- Comprehend: $150.00
-- Lambda: $20.00
-- CloudWatch Logs: $5.00
-- Total: **~$175/month**
+## Related Files
 
-Note: These are rough estimates. Actual costs may vary based on template length and complexity.
+- `/cdk/lambda/moderation/moderate.js` - Current moderation Lambda
+- `/cdk/lambda/moderation/moderate-fixed.js` - Fixed version with loop prevention
+- `/cdk/lambda/moderation/moderate-simple.js` - Simple auto-approval version
+- `/scripts/approve-pending-templates.js` - Manual approval script
+- `/scripts/stop-both-lambdas.sh` - Emergency stop script
+- `/scripts/check-moderation-stopped.sh` - Check if Lambda is stopped

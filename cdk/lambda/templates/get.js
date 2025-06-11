@@ -4,7 +4,7 @@ const {
   docClient,
   createResponse,
   getUserIdFromEvent,
-} = require('./utils');
+} = require('utils');
 
 exports.handler = async (event) => {
   try {
@@ -40,6 +40,7 @@ exports.handler = async (event) => {
     const hasValidShareToken = shareToken && template.shareTokens?.[shareToken] && 
       new Date(template.shareTokens[shareToken].expiresAt) > new Date();
 
+    // Owner can always see their own templates regardless of moderation status
     if (!isOwner && !isPublic && !isViewer && !hasValidShareToken) {
       return createResponse(403, { error: 'Access denied' });
     }

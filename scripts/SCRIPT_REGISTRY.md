@@ -50,6 +50,7 @@ This document maps all scripts to their npm commands and purposes.
 | check-stack-status.sh | `npm run status` | Check CDK stack status |
 | diagnose-stack.sh | `npm run diagnose:stack` | Diagnose stack issues |
 | protect-certificate.sh | `npm run protect:cert` | Protect certificate from deletion |
+| check-lambda-invocations.sh | `npm run check:lambda:invocations` | Monitor Lambda invocation counts |
 
 ## Utility Scripts
 

@@ -63,7 +63,6 @@
     "check:amplify:domain": "./scripts/check-amplify-domain-status.sh",
     "diagnose:stack": "./scripts/diagnose-stack.sh",
     "protect:cert": "./scripts/protect-certificate.sh",
-    "analyze:comprehend": "./scripts/analyze-comprehend-usage.sh",
     "templates:load": "node scripts/bulk-load-templates.js",
     "templates:delete": "node scripts/bulk-delete-templates.js",
     "templates:analyze": "node scripts/analyze-markdown-templates.js",
@@ -73,7 +72,8 @@
     "check:ssl": "./scripts/check-ssl.sh",
     "deploy:cert": "./scripts/deploy-cert.sh",
     "amplify:setup:cert": "./scripts/setup-amplify-custom-cert.sh",
-    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'"
+    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'",
+    "check:lambda:invocations": "./scripts/check-lambda-invocations.sh"
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",

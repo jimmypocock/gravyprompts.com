@@ -3,7 +3,7 @@ const {
   docClient,
   createResponse,
   getUserIdFromEvent,
-} = require('./utils');
+} = require('utils');
 
 // Simple fuzzy matching for typos (Levenshtein distance)
 function levenshteinDistance(str1, str2) {

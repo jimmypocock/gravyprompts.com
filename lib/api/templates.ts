@@ -113,7 +113,7 @@ class TemplateApi {
     if (isLocal) {
       headers['Authorization'] = 'Bearer local-dev-token';
     } else if (token) {
-      headers['Authorization'] = token;
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${this.baseUrl}${path}`, {
