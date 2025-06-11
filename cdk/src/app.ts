@@ -59,17 +59,12 @@ const authStack = new AuthStack(app, authStackName, {
 });
 
 // 4. API Stack - REST API with Lambda and DynamoDB
-const apiStackName = environment === 'production' 
-  ? `${stackPrefix}-API-Prod`
-  : `${stackPrefix}-API`;
-
-const apiStack = new ApiStack(app, apiStackName, {
+const apiStack = new ApiStack(app, `${stackPrefix}-API`, {
   appName: appName,
   userPool: authStack.userPool,
   userPoolClient: authStack.userPoolClient,
-  environment: environment,
   env: usEast1Env,
-  description: `API and database for ${appName} - ${environment}`,
+  description: `API and database for ${appName}`,
 });
 
 // API stack depends on auth stack

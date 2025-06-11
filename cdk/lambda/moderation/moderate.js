@@ -58,7 +58,7 @@ function checkContent(title, content) {
 }
 
 exports.handler = async (event) => {
-  console.log('Content moderation event received (Comprehend-free version):', {
+  console.log('Content moderation event received:', {
     recordCount: event.Records.length,
     eventName: event.Records.map(r => r.eventName),
   });
@@ -127,7 +127,7 @@ exports.handler = async (event) => {
                 method: 'basic-checks',
                 reason: moderationResult.reason,
                 moderatedAt: new Date().toISOString(),
-                moderationVersion: 'no-comprehend-1.0',
+                moderationVersion: 'basic-1.0',
               },
               ':moderatedAt': new Date().toISOString(),
               ':contentHash': contentHash,
