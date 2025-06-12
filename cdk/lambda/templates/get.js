@@ -4,7 +4,7 @@ const {
   docClient,
   createResponse,
   getUserIdFromEvent,
-} = require('utils');
+} = require('./utils');
 
 exports.handler = async (event) => {
   try {
@@ -119,4 +119,3 @@ async function trackView(templateId, viewerId) {
       ':inc': 1,
     },
   }));
-}

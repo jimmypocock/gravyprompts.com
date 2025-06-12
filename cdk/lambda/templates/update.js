@@ -7,7 +7,7 @@ const {
   getUserIdFromEvent,
   validateTemplate,
   checkRateLimit,
-} = require('utils');
+} = require('./utils');
 
 exports.handler = async (event) => {
   try {
@@ -145,4 +145,3 @@ exports.handler = async (event) => {
       message: process.env.ENVIRONMENT === 'development' ? error.message : undefined,
     });
   }
-};

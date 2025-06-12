@@ -74,28 +74,16 @@ export default function HomePage() {
     };
   }, [setNavSearchVisible]);
 
-  const loadPopularTemplates = async (retryCount = 0) => {
+  const loadPopularTemplates = async () => {
     try {
       const response = await api.getPopularTemplates({ limit: 12 });
       setPopularTemplates(response.items);
       setInitialLoading(false);
     } catch (error) {
-      // Check if it's a network error (API not ready)
-      const errorMessage = error instanceof Error ? error.message : '';
-      const errorStatus = error && typeof error === 'object' && 'status' in error ? (error as { status: number }).status : -1;
-      if (errorMessage === 'Failed to fetch' || errorStatus === 0) {
-        if (retryCount < 5) {
-          const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s, 8s, 16s
-          console.log(`API not ready, retrying in ${delay}ms... (attempt ${retryCount + 1}/5)`);
-          setTimeout(() => {
-            loadPopularTemplates(retryCount + 1);
-          }, delay);
-          return;
-        }
-      }
-
       console.error('Failed to load popular templates:', error);
       setInitialLoading(false);
+      // Don't retry automatically - let the user refresh if needed
+      // This prevents infinite retry loops
     }
   };
 

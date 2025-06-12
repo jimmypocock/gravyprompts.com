@@ -6,7 +6,7 @@ const {
   createResponse,
   getUserIdFromEvent,
   sanitizeHtml,
-} = require('utils');
+} = require('./utils');
 
 exports.handler = async (event) => {
   try {
@@ -180,4 +180,3 @@ function escapeRegExp(string) {
 // Strip HTML tags (simple implementation)
 function stripHtml(html) {
   return html.replace(/<[^>]*>/g, '');
-}
