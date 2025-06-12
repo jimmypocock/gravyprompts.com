@@ -1,6 +1,11 @@
 {
-  "name": "moderation-functions",
+  "name": "moderation-function",
   "version": "1.0.0",
-  "description": "Lambda functions for content moderation",
-  "private": true
+  "description": "Content moderation Lambda function",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.0.0",
+    "@aws-sdk/lib-dynamodb": "^3.0.0",
+    "dompurify": "^3.0.0",
+    "jsdom": "^23.0.0"
+  }
 }

@@ -102,4 +102,3 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'Failed to save prompt' }),
     };
   }
-};

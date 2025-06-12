@@ -42,11 +42,9 @@ const region = process.env.AWS_REGION || 'us-east-1';
 const client = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(client);
 
-// Determine table name based on environment
+// Determine table name - now environment-agnostic
 const appName = process.env.APP_NAME || 'nextjs-app';
-const stackPrefix = appName.toUpperCase().replace(/[^A-Z0-9]/g, '');
-const envSuffix = environment === 'production' ? 'Prod' : 'Dev';
-const tableName = `${stackPrefix}-Templates-${envSuffix}`;
+const tableName = `GravyPrompts-templates`;
 
 console.log(`Loading templates into table: ${tableName}`);
 console.log(`Region: ${region}`);

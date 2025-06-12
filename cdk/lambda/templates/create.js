@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 let utils;
 try {
   // In Lambda, the layer modules are available directly
-  utils = require('utils');
+  utils = require('./utils');
 } catch (e) {
   // Fallback for local development
   try {
@@ -135,4 +135,3 @@ exports.handler = async (event) => {
       message: process.env.ENVIRONMENT === 'development' ? error.message : undefined,
     });
   }
-};

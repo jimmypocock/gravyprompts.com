@@ -1,7 +1,7 @@
 {
-  "name": "shared-layer",
+  "name": "templates-functions",
   "version": "1.0.0",
-  "description": "Shared utilities for Lambda functions",
+  "description": "Template management Lambda functions",
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.0.0",
     "@aws-sdk/lib-dynamodb": "^3.0.0",

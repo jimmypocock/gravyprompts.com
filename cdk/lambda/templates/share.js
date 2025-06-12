@@ -7,7 +7,7 @@ const {
   getUserIdFromEvent,
   generateShareToken,
   checkRateLimit,
-} = require('utils');
+} = require('./utils');
 
 exports.handler = async (event) => {
   try {
@@ -180,4 +180,3 @@ async function getUserIdsByEmails(emails) {
   }
   
   return userIds;
-}
