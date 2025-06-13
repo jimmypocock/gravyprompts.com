@@ -7,15 +7,12 @@ CLI_ENVIRONMENT=$ENVIRONMENT
 # Load configuration
 source "$(dirname "$0")/config.sh"
 
-# Use CLI environment if provided, otherwise use from config/default
-ENVIRONMENT=${CLI_ENVIRONMENT:-${ENVIRONMENT:-development}}
+# API is always deployed for production only
+# Development uses local SAM
+ENVIRONMENT=production
+echo "ℹ️  API stack is production-only (development uses local SAM)"
 
-# Use different stack name for production
-if [ "$ENVIRONMENT" = "production" ]; then
-    API_STACK="${STACK_PREFIX}-API-Prod"
-else
-    API_STACK="${STACK_PREFIX}-API"
-fi
+API_STACK="${STACK_PREFIX}-API"
 
 echo "🚀 Deploying API Stack..."
 echo "📝 Stack name: $API_STACK"
@@ -29,9 +26,6 @@ fi
 
 # Check if Auth stack exists
 AUTH_STACK_NAME="${STACK_PREFIX}-Auth"
-if [ "$ENVIRONMENT" = "production" ]; then
-    AUTH_STACK_NAME="${STACK_PREFIX}-Auth-Prod"
-fi
 
 if ! aws cloudformation describe-stacks --stack-name "$AUTH_STACK_NAME" --region us-east-1 &>/dev/null; then
     echo "❌ Error: Auth stack ($AUTH_STACK_NAME) not found. Deploy auth first:"

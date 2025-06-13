@@ -14,7 +14,7 @@ export default function AdStickyBottom({ adSlot, testMode = false }: AdStickyBot
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 shadow-lg border-t border-gray-200 dark:border-gray-700 z-40 lg:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t border-gray-200 z-40 lg:hidden">
       <div className="relative">
         <button
           onClick={() => setIsVisible(false)}

@@ -47,10 +47,8 @@ const client = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(client);
 
 // Determine table name based on environment
-const appName = process.env.APP_NAME || 'nextjs-app';
-const stackPrefix = appName.toUpperCase().replace(/[^A-Z0-9]/g, '');
-const envSuffix = environment === 'production' ? 'Prod' : 'Dev';
-const tableName = `${stackPrefix}-Templates-${envSuffix}`;
+const appName = process.env.APP_NAME || 'GravyPrompts';
+const tableName = `${appName}-templates`;
 
 console.log(`Deleting templates from table: ${tableName}`);
 console.log(`Region: ${region}`);
@@ -171,7 +169,8 @@ async function main() {
     // Show sample of templates to be deleted
     console.log('\nSample of templates to be deleted:');
     templatesToDelete.slice(0, 5).forEach(template => {
-      console.log(`- ${template.title} by ${template.authorEmail} (${template.tags?.join(', ') || 'no tags'})`);
+      const tags = Array.isArray(template.tags) ? template.tags.join(', ') : (template.tags || 'no tags');
+      console.log(`- ${template.title} by ${template.authorEmail} (${tags})`);
     });
     
     if (templatesToDelete.length > 5) {

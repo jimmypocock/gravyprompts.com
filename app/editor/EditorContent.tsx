@@ -201,9 +201,9 @@ export default function EditorContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">
           {templateId ? 'Edit Template' : 'Create Template'}
         </h1>
 
@@ -213,10 +213,10 @@ export default function EditorContent() {
           </div>
         ) : (
           <>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
                     Title
                   </label>
                   <input
@@ -224,18 +224,18 @@ export default function EditorContent() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter template title..."
-                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full px-3 py-2 border rounded-lg"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
                     Visibility
                   </label>
                   <select
                     value={visibility}
                     onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
-                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                    className="w-full px-3 py-2 border rounded-lg"
                   >
                     <option value="private">Private</option>
                     <option value="public">Public</option>
@@ -244,7 +244,7 @@ export default function EditorContent() {
               </div>
 
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-medium mb-2 text-gray-700">
                   Tags (up to 10)
                 </label>
                 <input
@@ -253,14 +253,14 @@ export default function EditorContent() {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
                   placeholder="Type tags and press Enter (comma-separated for multiple)..."
-                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                  className="w-full px-3 py-2 border rounded-lg"
                 />
                 {tags.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-2">
                     {tags.map(tag => (
                       <span
                         key={tag}
-                        className="px-3 py-1 bg-gray-200 dark:bg-gray-600 rounded-full text-sm flex items-center gap-1"
+                        className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center gap-1"
                       >
                         {tag}
                         <button
@@ -310,7 +310,7 @@ export default function EditorContent() {
                 )}
               </div>
 
-              <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+              <div className="border border-gray-300 rounded-lg overflow-hidden">
                 <GravyJS
                   ref={editorRef}
                   initialValue={content}
@@ -325,9 +325,9 @@ export default function EditorContent() {
             </div>
 
             {populatedContent && (
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="bg-white rounded-lg shadow-lg p-6">
                 <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                  <h3 className="text-xl font-semibold text-gray-800">
                     Populated Content
                   </h3>
                   <div className="flex gap-2">
@@ -346,25 +346,25 @@ export default function EditorContent() {
                   </div>
                 </div>
                 <div
-                  className="prose dark:prose-invert max-w-none"
+                  className="prose max-w-none"
                   dangerouslySetInnerHTML={{ __html: populatedContent.html }}
                 />
               </div>
             )}
 
             {visibility === 'public' && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mb-6">
-                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <div className="bg-yellow-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-yellow-800">
                   <strong>Note:</strong> Public templates will be reviewed for inappropriate content before being made visible to others.
                 </p>
               </div>
             )}
 
-            <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-              <h3 className="text-lg font-semibold mb-2 text-blue-900 dark:text-blue-200">
+            <div className="mt-8 bg-blue-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold mb-2 text-blue-900">
                 💡 How to Use
               </h3>
-              <ol className="list-decimal list-inside space-y-1 text-blue-800 dark:text-blue-300">
+              <ol className="list-decimal list-inside space-y-1 text-blue-800">
                 <li>Type your content in the editor above</li>
                 <li>Use [[variable]] syntax to create placeholders</li>
                 <li>Select snippets from the dropdown or create your own</li>

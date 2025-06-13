@@ -112,13 +112,13 @@ async function validateContext(): Promise<ValidationResult> {
     
     const warnings: string[] = [];
     
-    // Check for required context values
-    if (!context.certificateArn && context.createCertificate !== 'true') {
-      warnings.push('Neither certificateArn nor createCertificate=true is set. Certificate stack may fail.');
+    // Check for context values only if relevant stacks exist
+    if (context.createCertificate === 'true' && !context.certificateArn) {
+      warnings.push('createCertificate=true but no certificateArn provided. Certificate stack may need manual validation.');
     }
     
-    if (!context.notificationEmail) {
-      warnings.push('notificationEmail not set. Monitoring alerts will not be configured.');
+    if (context.amplifyMonitoring === 'true' && !context.notificationEmail) {
+      warnings.push('amplifyMonitoring=true but notificationEmail not set. Monitoring alerts will not be configured.');
     }
     
     return {
@@ -144,15 +144,36 @@ async function main() {
   const appName = process.env.APP_NAME || 'nextjs-app';
   const stackPrefix = process.env.STACK_PREFIX || appName.toUpperCase().replace(/[^A-Z0-9]/g, '');
   
-  const stacks = [
-    `${stackPrefix}-Foundation`,
-    `${stackPrefix}-Certificate`,
-    `${stackPrefix}-EdgeFunctions`,
-    `${stackPrefix}-WAF`,
-    `${stackPrefix}-CDN`,
-    `${stackPrefix}-Monitoring`,
-    `${stackPrefix}-App`
-  ];
+  // Get environment to include auth stack variations
+  const environment = process.env.ENVIRONMENT || 'development';
+  
+  // Get actual stacks from CDK app
+  let availableStacks: string[] = [];
+  try {
+    const { stdout } = await execAsync(
+      'npx cdk list --app "npx ts-node --prefer-ts-exts src/app.ts"',
+      { cwd: path.join(__dirname, '..') }
+    );
+    availableStacks = stdout.trim().split('\n').filter(s => s.startsWith(stackPrefix));
+  } catch (error) {
+    console.warn('Could not list stacks, using defaults');
+    // Fallback to expected stacks
+    availableStacks = [
+      `${stackPrefix}-Auth`,
+      `${stackPrefix}-Auth-Prod`,
+      `${stackPrefix}-API`,
+      `${stackPrefix}-WAF`
+    ];
+  }
+  
+  // Filter stacks based on environment
+  const stacks = availableStacks.filter(stack => {
+    // Only validate stacks that should exist in current environment
+    if (environment === 'development' && stack.includes('-Prod')) return false;
+    if (environment === 'development' && stack === `${stackPrefix}-API`) return false; // Skip API in dev
+    if (environment === 'production' && stack === `${stackPrefix}-Auth` && !stack.includes('-Prod')) return false;
+    return true;
+  });
   
   const results: ValidationResult[] = [];
   

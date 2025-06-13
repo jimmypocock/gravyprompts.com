@@ -13,13 +13,12 @@ export interface AuthStackProps extends StackProps {
 export class AuthStack extends Stack {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
-  public readonly userPoolDomain: cognito.UserPoolDomain;
 
   constructor(scope: Construct, id: string, props: AuthStackProps) {
     super(scope, id, props);
 
     const isProd = props.environment === 'production';
-    const poolName = `${props.appName}-${props.environment}-users`;
+    const poolName = `${props.appName}-users`;
 
     // Create User Pool
     this.userPool = new cognito.UserPool(this, 'UserPool', {
@@ -94,7 +93,7 @@ export class AuthStack extends Stack {
     // Create App Client
     this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
       userPool: this.userPool,
-      userPoolClientName: `${props.appName}-${props.environment}-client`,
+      userPoolClientName: `${props.appName}-client`,
       authFlows: {
         userPassword: true,
         userSrp: true,
@@ -121,17 +120,7 @@ export class AuthStack extends Stack {
         .withCustomAttributes('bio', 'github', 'twitter', 'linkedin'),
     });
 
-    // Create User Pool Domain (for hosted UI if needed later)
-    const domainPrefix = isProd 
-      ? `${props.appName.toLowerCase()}-auth`
-      : `${props.appName.toLowerCase()}-auth-dev`;
-
-    this.userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
-      userPool: this.userPool,
-      cognitoDomain: {
-        domainPrefix: domainPrefix,
-      },
-    });
+    // User Pool Domain removed - not needed for API-only authentication
 
     // Outputs
     new CfnOutput(this, 'UserPoolId', {
@@ -146,11 +135,6 @@ export class AuthStack extends Stack {
       exportName: `${this.stackName}-UserPoolClientId`,
     });
 
-    new CfnOutput(this, 'UserPoolDomainName', {
-      value: this.userPoolDomain.domainName,
-      description: 'Cognito User Pool Domain',
-      exportName: `${this.stackName}-UserPoolDomain`,
-    });
 
     new CfnOutput(this, 'CognitoRegion', {
       value: this.region,

@@ -24,6 +24,7 @@
     "check:cert": "./scripts/check-certificate.sh",
     "deploy:waf": "./scripts/deploy-waf.sh",
     "deploy:auth": "./scripts/deploy-auth.sh",
+    "validate:auth": "./scripts/validate-auth-setup.sh",
     "deploy:api": "./scripts/deploy-api.sh",
     "deploy:all": "./scripts/deploy-all-amplify.sh",
     "deploy:backend": "./scripts/deploy-amplify-backend.sh",

@@ -30,12 +30,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white dark:bg-neutral-800 rounded-lg shadow-lg">
+      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
             <Link href="/signup" className="font-medium text-primary hover:text-primary/80">
               create a new account
@@ -44,7 +44,7 @@ export default function LoginPage() {
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
+            <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
@@ -59,7 +59,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-neutral-700 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -75,7 +75,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white bg-white dark:bg-neutral-700 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 bg-white rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -91,7 +91,7 @@ export default function LoginPage() {
                 type="checkbox"
                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
+              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                 Remember me
               </label>
             </div>
