@@ -45,12 +45,8 @@ const wafStack = new WafStack(app, `${stackPrefix}-WAF`, {
   description: `WAF rules for ${appName}`,
 });
 
-// 3. Auth Stack - Cognito User Pool and Authentication
-const authStackName = environment === 'production' 
-  ? `${stackPrefix}-Auth-Prod`
-  : `${stackPrefix}-Auth`;
-
-const authStack = new AuthStack(app, authStackName, {
+// 3. Auth Stack - Cognito User Pool and Authentication (shared between environments)
+const authStack = new AuthStack(app, `${stackPrefix}-Auth`, {
   appName: appName,
   domainName: domainName,
   environment: environment,
@@ -59,12 +55,14 @@ const authStack = new AuthStack(app, authStackName, {
 });
 
 // 4. API Stack - REST API with Lambda and DynamoDB
+// Note: The API stack will use the auth stack based on the current environment
+// In development, the API is run locally with SAM, so this stack is only deployed for production
 const apiStack = new ApiStack(app, `${stackPrefix}-API`, {
   appName: appName,
   userPool: authStack.userPool,
   userPoolClient: authStack.userPoolClient,
   env: usEast1Env,
-  description: `API and database for ${appName}`,
+  description: `API and database for ${appName} - Production`,
 });
 
 // API stack depends on auth stack

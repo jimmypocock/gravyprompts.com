@@ -11,6 +11,7 @@ Globals:
       Variables:
         TEMPLATES_TABLE: local-templates
         TEMPLATE_VIEWS_TABLE: local-template-views
+        USER_PROMPTS_TABLE: local-user-prompts
         ENVIRONMENT: development
         USER_POOL_ID: local-user-pool
         IS_LOCAL: 'true'

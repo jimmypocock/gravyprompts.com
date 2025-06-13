@@ -74,9 +74,7 @@ html {
   background-color: #ffffff;
 }
 
-[data-theme="dark"] html {
-  background-color: #0a0a0a;
-}
+
 
 body {
   margin: 0;
@@ -143,9 +141,7 @@ body::before {
   overflow: hidden;
 }
 
-[data-theme="dark"] .gradient-orb {
-  opacity: 0.4;
-}
+
 
 .orb1 {
   width: 400px;
@@ -155,9 +151,7 @@ body::before {
   background: radial-gradient(circle at center, rgba(255, 56, 92, 0.3) 0%, rgba(255, 56, 92, 0.15) 50%, transparent 70%);
 }
 
-[data-theme="dark"] .orb1 {
-  background: radial-gradient(circle at center, rgba(255, 56, 92, 0.4) 0%, rgba(255, 56, 92, 0.2) 50%, transparent 70%);
-}
+
 
 .orb2 {
   width: 350px;
@@ -167,9 +161,7 @@ body::before {
   background: radial-gradient(circle at center, rgba(0, 166, 153, 0.3) 0%, rgba(0, 166, 153, 0.15) 50%, transparent 70%);
 }
 
-[data-theme="dark"] .orb2 {
-  background: radial-gradient(circle at center, rgba(0, 179, 166, 0.4) 0%, rgba(0, 179, 166, 0.2) 50%, transparent 70%);
-}
+
 
 .orb3 {
   width: 300px;
@@ -181,9 +173,7 @@ body::before {
   animation-delay: -5s;
 }
 
-[data-theme="dark"] .orb3 {
-  background: radial-gradient(circle at center, rgba(255, 107, 61, 0.4) 0%, rgba(255, 107, 61, 0.2) 50%, transparent 70%);
-}
+
 
 /* Additional orb for more effect */
 .gradient-orb.orb4 {
@@ -195,9 +185,7 @@ body::before {
   animation-delay: -15s;
 }
 
-[data-theme="dark"] .orb4 {
-  background: radial-gradient(circle at center, rgba(255, 90, 95, 0.4) 0%, rgba(255, 90, 95, 0.2) 50%, transparent 70%);
-}
+
 
 /* Simple fade in animation for modal */
 @keyframes fadeIn {
@@ -314,10 +302,7 @@ h3 {
   box-shadow: var(--shadow-card);
 }
 
-[data-theme="dark"] .glass-card {
-  background: rgba(26, 26, 46, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+
 
 /* Input fields with gradient compatibility */
 .input-field {
@@ -326,10 +311,7 @@ h3 {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="dark"] .input-field {
-  background: rgba(10, 10, 10, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+
 
 /* Ad container styling */
 .ad-container {
@@ -338,10 +320,7 @@ h3 {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-[data-theme="dark"] .ad-container {
-  background: rgba(26, 26, 46, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+
 
 /* Ensure text selection works everywhere */
 .select-text {
@@ -361,43 +340,43 @@ textarea, input {
 
 /* GravyJS Custom Styles */
 .gravy-editor {
-  @apply bg-white dark:bg-gray-900 rounded-lg;
+  @apply bg-white rounded-lg;
 }
 
 .gravy-toolbar {
-  @apply bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-2;
+  @apply bg-gray-50 border-b border-gray-200 p-2;
 }
 
 .gravy-toolbar button {
-  @apply px-3 py-1.5 mx-0.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors;
+  @apply px-3 py-1.5 mx-0.5 bg-white border border-gray-300 rounded hover:bg-gray-100 transition-colors;
 }
 
 .gravy-toolbar button.active {
-  @apply bg-blue-100 dark:bg-blue-900 border-blue-300 dark:border-blue-700;
+  @apply bg-blue-100 border-blue-300
 }
 
 .gravy-content {
-  @apply p-4 min-h-[200px] focus:outline-none text-gray-900 dark:text-gray-100;
+  @apply p-4 min-h-[200px] focus:outline-none text-gray-900
 }
 
 .gravy-variable {
-  @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-1 py-0.5 rounded;
+  @apply bg-blue-100 text-blue-800 px-1 py-0.5 rounded;
 }
 
 .gravy-variable-populated {
-  @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-1 py-0.5 rounded;
+  @apply bg-green-100 text-green-800 px-1 py-0.5 rounded;
 }
 
 .gravy-snippets-dropdown {
-  @apply absolute z-10 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-64 overflow-y-auto;
+  @apply absolute z-10 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto;
 }
 
 .gravy-snippet-item {
-  @apply px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer;
+  @apply px-3 py-2 hover:bg-gray-100 cursor-pointer;
 }
 
 .gravy-snippet-item.selected {
-  @apply bg-blue-100 dark:bg-blue-900;
+  @apply bg-blue-100
 }
 
 /* Smooth transitions for split view */

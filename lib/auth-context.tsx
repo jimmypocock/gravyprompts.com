@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Amplify } from 'aws-amplify';
 import {
   signIn as amplifySignIn,
@@ -18,14 +18,9 @@ import {
   type SignUpInput,
 } from 'aws-amplify/auth';
 
-// Configure Amplify
-const isProduction = process.env.NODE_ENV === 'production';
-const userPoolId = isProduction
-  ? process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID_PROD
-  : process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID_DEV;
-const clientId = isProduction
-  ? process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID_PROD
-  : process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID_DEV;
+// Configure Amplify - Single Cognito pool for all environments
+const userPoolId = process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID;
+const clientId = process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID;
 
 if (userPoolId && clientId) {
   Amplify.configure({
@@ -70,6 +65,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Cache for auth session to prevent excessive refreshes
+  const sessionCacheRef = useRef<{
+    session: { tokens?: { idToken?: { toString: () => string } } };
+    timestamp: number;
+  } | null>(null);
 
   // Load user on mount
   useEffect(() => {
@@ -101,6 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loadUser = async () => {
     try {
       setLoading(true);
+      // Clear session cache when loading user to ensure fresh data
+      sessionCacheRef.current = null;
+      
       const currentUser = await getCurrentUser();
       if (currentUser) {
         const attributes = await fetchUserAttributes();
@@ -117,6 +121,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // User is not authenticated
       setUser(null);
+      // Clear session cache on auth failure
+      sessionCacheRef.current = null;
     } finally {
       setLoading(false);
     }
@@ -169,6 +175,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       await amplifySignOut();
       setUser(null);
+      // Clear session cache on sign out
+      sessionCacheRef.current = null;
     } catch (err) {
       setError((err as Error).message || 'Failed to sign out');
       throw err;
@@ -234,13 +242,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const getIdToken = async (): Promise<string> => {
     try {
+      // Check if we have a cached session that's less than 5 minutes old
+      const now = Date.now();
+      if (sessionCacheRef.current && (now - sessionCacheRef.current.timestamp) < 5 * 60 * 1000) {
+        const cachedToken = sessionCacheRef.current.session.tokens?.idToken?.toString();
+        if (cachedToken) {
+          return cachedToken;
+        }
+      }
+
+      // Fetch new session and cache it
       const session = await fetchAuthSession();
+      sessionCacheRef.current = {
+        session,
+        timestamp: now,
+      };
+
       const idToken = session.tokens?.idToken?.toString();
       if (!idToken) {
         throw new Error('No ID token available');
       }
       return idToken;
     } catch {
+      // Clear cache on error
+      sessionCacheRef.current = null;
       throw new Error('Failed to get authentication token');
     }
   };

@@ -157,7 +157,7 @@ export default function TemplateDetailPage() {
           <div className="flex justify-between items-start">
             <div>
               <h1 className="text-4xl font-bold mb-2">{template.title}</h1>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-600">
                 By {template.authorEmail} • {template.viewCount || 0} views • {template.useCount || 0} uses
               </p>
             </div>
@@ -174,7 +174,7 @@ export default function TemplateDetailPage() {
                   <button
                     onClick={handleShare}
                     disabled={sharing}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+                    className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
                   >
                     {sharing ? 'Generating...' : 'Share'}
                   </button>
@@ -188,7 +188,7 @@ export default function TemplateDetailPage() {
               {template.tags.map(tag => (
                 <span
                   key={tag}
-                  className="px-3 py-1 text-sm bg-gray-200 dark:bg-gray-700 rounded-full"
+                  className="px-3 py-1 text-sm bg-gray-200 rounded-full"
                 >
                   {tag}
                 </span>
@@ -198,14 +198,14 @@ export default function TemplateDetailPage() {
         </div>
 
         {shareUrl && (
-          <div className="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+          <div className="mb-8 p-4 bg-blue-50 rounded-lg">
             <p className="text-sm font-medium mb-2">Share this template:</p>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={shareUrl}
                 readOnly
-                className="flex-1 px-3 py-2 bg-white dark:bg-gray-800 border rounded"
+                className="flex-1 px-3 py-2 bg-white border rounded"
               />
               <button
                 onClick={() => copyToClipboard(shareUrl)}
@@ -214,13 +214,13 @@ export default function TemplateDetailPage() {
                 Copy
               </button>
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-xs text-gray-600 mt-2">
               This link will expire in 7 days
             </p>
           </div>
         )}
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <h2 className="text-2xl font-semibold mb-4">Template Editor</h2>
 
           <div className="mb-4">
@@ -230,12 +230,12 @@ export default function TemplateDetailPage() {
             >
               🔄 Populate Template
             </button>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-600 mt-2">
               Click the button above to fill in the variables and generate your content
             </p>
           </div>
 
-          <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
+          <div className="border border-gray-300 rounded-lg overflow-hidden">
             <GravyJS
               ref={editorRef}
               initialValue={editorContent}
@@ -248,13 +248,13 @@ export default function TemplateDetailPage() {
           </div>
 
           {template.variables.length > 0 && (
-            <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded">
+            <div className="mt-4 p-4 bg-gray-50 rounded">
               <p className="text-sm font-medium mb-2">Variables in this template:</p>
               <div className="flex gap-2 flex-wrap">
                 {template.variables.map(variable => (
                   <span
                     key={variable}
-                    className="px-2 py-1 text-sm bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 rounded"
+                    className="px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded"
                   >
                     [[{variable}]]
                   </span>
@@ -266,7 +266,7 @@ export default function TemplateDetailPage() {
 
         {/* Populated Result */}
         {populatedContent && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+          <div className="bg-white rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-semibold">Result</h2>
               <div className="flex gap-2">
@@ -288,7 +288,7 @@ export default function TemplateDetailPage() {
               dangerouslySetInnerHTML={{
                 __html: populatedContent.html
               }}
-              className="prose dark:prose-invert max-w-none"
+              className="prose max-w-none"
             />
           </div>
         )}

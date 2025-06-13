@@ -15,8 +15,10 @@ declare global {
 export default function GoogleCMP() {
   const [showBanner, setShowBanner] = useState(false);
   const [showManageOptions, setShowManageOptions] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Initialize gtag if not already present
     if (!window.gtag) {
       window.gtag = Object.assign(
@@ -81,21 +83,21 @@ export default function GoogleCMP() {
     }
   };
 
-  if (!showBanner && !showManageOptions) return null;
+  if (!mounted || (!showBanner && !showManageOptions)) return null;
 
   return (
     <>
 
       {/* Consent Banner */}
       {showBanner && !showManageOptions && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
           <div className="max-w-screen-xl mx-auto p-6">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   We value your privacy
                 </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-gray-600">
                   We and our partners store and/or access information on a device, such as cookies and process personal data, 
                   such as unique identifiers and standard information sent by a device for personalised advertising and content, 
                   advertising and content measurement, audience research and services development.{' '}
@@ -107,7 +109,7 @@ export default function GoogleCMP() {
               <div className="flex flex-col sm:flex-row gap-3 min-w-fit">
                 <button
                   onClick={handleManageOptions}
-                  className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors"
+                  className="px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-50 rounded transition-colors"
                 >
                   Manage Options
                 </button>
@@ -151,13 +153,13 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Privacy Preferences</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Privacy Preferences</h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              className="text-gray-500 hover:text-gray-700"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -179,8 +181,8 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   } as React.CSSProperties & { '--tw-ring-color': string }}
                 />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Advertising</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="font-medium text-gray-900">Advertising</div>
+                  <div className="text-sm text-gray-600">
                     Allow personalized ads based on your interests and browsing behavior.
                   </div>
                 </div>
@@ -200,8 +202,8 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   } as React.CSSProperties & { '--tw-ring-color': string }}
                 />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Ad Personalization</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="font-medium text-gray-900">Ad Personalization</div>
+                  <div className="text-sm text-gray-600">
                     Customize ads based on your profile and preferences.
                   </div>
                 </div>
@@ -221,8 +223,8 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   } as React.CSSProperties & { '--tw-ring-color': string }}
                 />
                 <div>
-                  <div className="font-medium text-gray-900 dark:text-white">Analytics</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <div className="font-medium text-gray-900">Analytics</div>
+                  <div className="text-sm text-gray-600">
                     Help us understand how you use our site to improve your experience.
                   </div>
                 </div>
@@ -230,7 +232,7 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
             </div>
           </div>
 
-          <div className="flex justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
             <button
               onClick={() => onSave({
                 'ad_storage': 'denied',
@@ -238,14 +240,14 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                 'ad_personalization': 'denied',
                 'analytics_storage': 'denied'
               })}
-              className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline transition-colors"
+              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 underline transition-colors"
             >
               Reject All
             </button>
             <div className="flex space-x-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors"
+                className="px-4 py-2 text-sm border border-gray-300 text-gray-700 hover:bg-gray-50 rounded transition-colors"
               >
                 Cancel
               </button>

@@ -4,18 +4,21 @@ set -e
 # Save command line ENVIRONMENT if provided
 CLI_ENVIRONMENT=$ENVIRONMENT
 
-# Load configuration
+# Load configuration (but preserve CLI environment)
+SAVED_ENV=$ENVIRONMENT
 source "$(dirname "$0")/config.sh"
 
 # Use CLI environment if provided, otherwise use from config/default
-ENVIRONMENT=${CLI_ENVIRONMENT:-${ENVIRONMENT:-development}}
-
-# Use different stack name for production
-if [ "$ENVIRONMENT" = "production" ]; then
-    AUTH_STACK="${STACK_PREFIX}-Auth-Prod"
+if [ ! -z "$CLI_ENVIRONMENT" ]; then
+    ENVIRONMENT=$CLI_ENVIRONMENT
+elif [ ! -z "$SAVED_ENV" ]; then
+    ENVIRONMENT=$SAVED_ENV
 else
-    AUTH_STACK="${STACK_PREFIX}-Auth"
+    ENVIRONMENT=${ENVIRONMENT:-development}
 fi
+
+# Single auth stack shared between environments
+AUTH_STACK="${STACK_PREFIX}-Auth"
 
 echo "🔐 Deploying Auth Stack..."
 echo "📝 Stack name: $AUTH_STACK"
@@ -65,5 +68,8 @@ if [ ! -z "$USER_POOL_ID" ] && [ ! -z "$CLIENT_ID" ]; then
     echo "💡 Add these to your .env.local file:"
     echo "   NEXT_PUBLIC_COGNITO_USER_POOL_ID=$USER_POOL_ID"
     echo "   NEXT_PUBLIC_COGNITO_CLIENT_ID=$CLIENT_ID"
-    echo "   NEXT_PUBLIC_COGNITO_REGION=us-east-1"
+    echo ""
+    echo "💡 For Amplify production, add the same variables:"
+    echo "   NEXT_PUBLIC_COGNITO_USER_POOL_ID=$USER_POOL_ID"
+    echo "   NEXT_PUBLIC_COGNITO_CLIENT_ID=$CLIENT_ID"
 fi

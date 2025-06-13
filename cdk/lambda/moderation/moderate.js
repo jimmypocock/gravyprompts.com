@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const {
   docClient,
   stripHtml,
-} = require('./utils');
+} = require('/opt/nodejs/utils');
 
 /**
  * Simple content moderation without AWS Comprehend

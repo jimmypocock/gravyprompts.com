@@ -6,7 +6,7 @@ const {
   createResponse,
   getUserIdFromEvent,
   sanitizeHtml,
-} = require('./utils');
+} = require('/opt/nodejs/utils');
 
 exports.handler = async (event) => {
   try {

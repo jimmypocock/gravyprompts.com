@@ -73,15 +73,15 @@ function ProfileContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900">
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white dark:bg-neutral-800 shadow rounded-lg">
+        <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
             <div>
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
                 Profile Information
               </h3>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              <p className="mt-1 text-sm text-gray-500">
                 {user?.email}
               </p>
             </div>
@@ -93,14 +93,14 @@ function ProfileContent() {
             </button>
           </div>
 
-          <div className="border-t border-gray-200 dark:border-gray-700">
+          <div className="border-t border-gray-200">
             {error && (
-              <div className="mx-6 mt-4 bg-red-50 dark:bg-red-900/20 border border-red-400 text-red-700 dark:text-red-400 px-4 py-3 rounded">
+              <div className="mx-6 mt-4 bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
                 {error}
               </div>
             )}
             {success && (
-              <div className="mx-6 mt-4 bg-green-50 dark:bg-green-900/20 border border-green-400 text-green-700 dark:text-green-400 px-4 py-3 rounded">
+              <div className="mx-6 mt-4 bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded">
                 {success}
               </div>
             )}
@@ -108,7 +108,7 @@ function ProfileContent() {
             <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label htmlFor="fullname" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
                     Full Name
                   </label>
                   <input
@@ -117,12 +117,12 @@ function ProfileContent() {
                     disabled={!isEditing}
                     value={fullname}
                     onChange={(e) => setFullname(e.target.value)}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
                     Bio
                   </label>
                   <textarea
@@ -132,23 +132,23 @@ function ProfileContent() {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     maxLength={280}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed"
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                     placeholder="Tell us about yourself..."
                   />
-                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="mt-1 text-sm text-gray-500">
                     {bio.length}/280 characters
                   </p>
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Social Links</h4>
+                  <h4 className="text-sm font-medium text-gray-700">Social Links</h4>
                   
                   <div>
-                    <label htmlFor="github" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label htmlFor="github" className="block text-sm font-medium text-gray-700">
                       GitHub Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400 text-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                         github.com/
                       </span>
                       <input
@@ -157,17 +157,17 @@ function ProfileContent() {
                         disabled={!isEditing}
                         value={github}
                         onChange={(e) => setGithub(e.target.value)}
-                        className="flex-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed"
+                        className="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="twitter" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label htmlFor="twitter" className="block text-sm font-medium text-gray-700">
                       Twitter Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400 text-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                         @
                       </span>
                       <input
@@ -176,17 +176,17 @@ function ProfileContent() {
                         disabled={!isEditing}
                         value={twitter}
                         onChange={(e) => setTwitter(e.target.value)}
-                        className="flex-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed"
+                        className="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
                       LinkedIn Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
-                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-neutral-700 text-gray-500 dark:text-gray-400 text-sm">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                         linkedin.com/in/
                       </span>
                       <input
@@ -195,7 +195,7 @@ function ProfileContent() {
                         disabled={!isEditing}
                         value={linkedin}
                         onChange={(e) => setLinkedin(e.target.value)}
-                        className="flex-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white dark:bg-neutral-700 text-gray-900 dark:text-white disabled:bg-gray-50 dark:disabled:bg-neutral-800 disabled:cursor-not-allowed"
+                        className="flex-1 block w-full px-3 py-2 border border-gray-300 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm bg-white text-gray-900 disabled:bg-gray-50 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -216,7 +216,7 @@ function ProfileContent() {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-neutral-700 hover:bg-gray-50 dark:hover:bg-neutral-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                     >
                       Cancel
                     </button>

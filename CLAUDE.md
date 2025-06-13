@@ -14,6 +14,14 @@ GravyPrompts is a production-ready AI prompt template marketplace built with Nex
 - **CORS Proxy** - Built-in proxy for local development to avoid CORS issues
 - **User Prompt Saving** - Save populated templates to user accounts
 
+## Stack Architecture
+
+The project uses clean, simple stack names without environment suffixes:
+- `GRAVYPROMPTS-Auth` - Shared Cognito User Pool for all environments
+- `GRAVYPROMPTS-API` - API Gateway + Lambda functions (production only)
+- `GRAVYPROMPTS-WAF` - Web Application Firewall (optional)
+- `GRAVYPROMPTS-Certificate` - SSL/TLS certificate for custom domain
+
 ## Recent Updates
 
 ### UI/UX Improvements
@@ -83,6 +91,7 @@ npm run deploy:api         # Deploy API Gateway + Lambda
 npm run deploy:waf         # Deploy WAF
 npm run deploy:cert:first  # Initial certificate deployment
 ```
+
 
 #### Frontend (Amplify)
 - Push to GitHub - Amplify auto-deploys

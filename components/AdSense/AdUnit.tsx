@@ -48,7 +48,7 @@ export default function AdUnit({
   // Always show placeholder when ads are enabled
   return (
     <div
-      className={`bg-gray-200 dark:bg-gray-700 border-2 border-dashed border-gray-400 dark:border-gray-500 flex items-center justify-center text-gray-600 dark:text-gray-400 ${className}`}
+      className={`bg-gray-200 border-2 border-dashed border-gray-400 flex items-center justify-center text-gray-600 ${className}`}
       style={{
         minHeight: '90px',
         ...style

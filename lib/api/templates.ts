@@ -122,6 +122,15 @@ class TemplateApi {
     });
 
     if (!response.ok) {
+      // Handle 401 Unauthorized specifically
+      if (response.status === 401 && typeof window !== 'undefined') {
+        // Import dynamically to avoid SSR issues
+        const { signOut } = await import('aws-amplify/auth');
+        await signOut();
+        window.location.href = '/login';
+        throw new TemplateApiError(401, 'Session expired. Please log in again.');
+      }
+      
       const error = await response.json().catch(() => ({ error: 'Unknown error' }));
       throw new TemplateApiError(
         response.status,

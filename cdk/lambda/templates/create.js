@@ -1,22 +1,6 @@
 const { PutCommand } = require('@aws-sdk/lib-dynamodb');
 const { v4: uuidv4 } = require('uuid');
 
-// Use local utils if running locally, otherwise use Lambda layer
-let utils;
-try {
-  // In Lambda, the layer modules are available directly
-  utils = require('./utils');
-} catch (e) {
-  // Fallback for local development
-  try {
-    utils = require('./utils-local');
-  } catch (e2) {
-    console.error('Failed to load utils from layer:', e);
-    console.error('Failed to load utils-local:', e2);
-    throw new Error('Unable to load utils module');
-  }
-}
-
 const {
   docClient,
   sanitizeHtml,
@@ -25,7 +9,7 @@ const {
   getUserIdFromEvent,
   validateTemplate,
   checkRateLimit,
-} = utils;
+} = require('/opt/nodejs/utils');
 
 exports.handler = async (event) => {
   try {
@@ -135,3 +119,4 @@ exports.handler = async (event) => {
       message: process.env.ENVIRONMENT === 'development' ? error.message : undefined,
     });
   }
+};
