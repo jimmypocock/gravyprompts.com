@@ -4,7 +4,7 @@ const {
   createResponse,
   getUserIdFromEvent,
   checkRateLimit,
-} = require('./utils');
+} = require('/opt/nodejs/utils');
 
 exports.handler = async (event) => {
   try {
@@ -78,3 +78,4 @@ exports.handler = async (event) => {
       message: process.env.ENVIRONMENT === 'development' ? error.message : undefined,
     });
   }
+};

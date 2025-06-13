@@ -1,14 +1,24 @@
 #!/bin/bash
 
-# Temporary workaround for SAM Local layer issues
-# This copies only the utils files (not node_modules) to Lambda folders
+# Layer setup for SAM Local
+# With proper layer configuration, SAM Local should handle this automatically
 
-echo "Setting up local layer workaround..."
+echo "Verifying layer structure for local development..."
 
-# Copy utils-local.js as utils.js to templates folder
-cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils.js
-cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/prompts/utils.js
-cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/moderation/utils.js
+# Check if the layer has the required structure
+if [ -f "../lambda-layers/shared/nodejs/utils.js" ]; then
+    echo "✅ Layer structure verified - nodejs/utils.js exists"
+    
+    # Ensure node_modules exist in the layer
+    if [ -d "../lambda-layers/shared/nodejs/node_modules" ]; then
+        echo "✅ Layer dependencies found"
+    else
+        echo "⚠️  Layer dependencies not found - running npm install"
+        cd ../lambda-layers/shared/nodejs && npm install && cd -
+    fi
+else
+    echo "❌ Layer structure invalid - utils.js not found in nodejs directory"
+    exit 1
+fi
 
-echo "✅ Layer workaround applied - utils.js copied to Lambda folders"
-echo "Note: This is a temporary solution for local development only"
+echo "✅ Layer setup complete for local development"

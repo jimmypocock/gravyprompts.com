@@ -31,12 +31,12 @@ echo "Setting up Lambda layers..."
 # cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils.js
 # cp ../lambda-layers/shared/nodejs/utils-local.js ../lambda/templates/utils-local.js
 
-# Verify the Lambda layer has local auth logic
-echo "Verifying local authentication setup..."
-if grep -q "isLocal" ../lambda-layers/shared/nodejs/utils-local.js; then
-    echo "✅ Local authentication is properly configured"
+# Verify the Lambda layer has utils module
+echo "Verifying Lambda layer setup..."
+if [ -f "../lambda-layers/shared/nodejs/utils.js" ]; then
+    echo "✅ Lambda layer utils module is properly configured"
 else
-    echo "❌ Local authentication is NOT configured"
+    echo "❌ Lambda layer utils module is NOT found"
     exit 1
 fi
 
@@ -108,10 +108,11 @@ export AWS_SECRET_ACCESS_KEY=local
 export AWS_REGION=us-east-1
 
 # Run SAM local with environment variables file and layer caching
+echo "Starting SAM Local API Gateway (this may take a while on first run)..."
 sam local start-api \
   --port 7429 \
   --template template-local.yaml \
   --docker-network host \
   --env-vars env.json \
   --layer-cache-basedir .aws-sam/layers-pkg \
-  --force-image-build
+  --skip-pull-image
