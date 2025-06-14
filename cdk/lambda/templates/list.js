@@ -2,8 +2,9 @@ const { QueryCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
 const {
   docClient,
   createResponse,
-  getUserIdFromEvent,
+  checkRateLimit,
 } = require('/opt/nodejs/utils');
+const { getUserFromEvent } = require('/opt/nodejs/auth');
 
 // Simple fuzzy matching for typos (Levenshtein distance)
 function levenshteinDistance(str1, str2) {
@@ -38,8 +39,20 @@ function isFuzzyMatch(str1, str2, maxDistance = 2) {
 
 exports.handler = async (event) => {
   try {
-    // Get user ID from authorizer (might be null for public access)
-    const userId = getUserIdFromEvent(event);
+    // Get user from authorizer (might be null for public access)
+    const user = await getUserFromEvent(event);
+    const userId = user ? user.sub : null;
+    
+    // Check rate limit - use IP for anonymous users
+    const rateLimitKey = userId || event.requestContext?.identity?.sourceIp || 'unknown';
+    const isAllowed = await checkRateLimit(rateLimitKey, 'listTemplates');
+    
+    if (!isAllowed) {
+      return createResponse(429, { 
+        error: 'Too many requests', 
+        message: 'Please slow down your requests' 
+      });
+    }
     
     // Parse query parameters
     const {
@@ -86,50 +99,30 @@ exports.handler = async (event) => {
       }
 
     } else if (filter === 'public' || filter === 'popular') {
-      // Check if we're in local development
-      const isLocal = process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true';
+      // Get public approved templates
+      params = {
+        TableName: process.env.TEMPLATES_TABLE,
+        IndexName: 'visibility-moderationStatus-index',
+        KeyConditionExpression: 'visibility = :visibility AND moderationStatus = :status',
+        ExpressionAttributeValues: {
+          ':visibility': 'public',
+          ':status': 'approved',
+        },
+        Limit: filter === 'popular' ? limitNum * 2 : limitNum, // Get more for popular to sort
+        ScanIndexForward: sortOrder === 'asc',
+      };
+
+      if (nextToken) {
+        params.ExclusiveStartKey = JSON.parse(Buffer.from(nextToken, 'base64').toString());
+      }
+
+      const result = await docClient.send(new QueryCommand(params));
+      items = result.Items || [];
       
-      if (isLocal) {
-        // In local development, use scan to get all public templates regardless of moderation status
-        const { ScanCommand } = require('@aws-sdk/lib-dynamodb');
-        params = {
-          TableName: process.env.TEMPLATES_TABLE,
-          FilterExpression: 'visibility = :visibility',
-          ExpressionAttributeValues: {
-            ':visibility': 'public',
-          },
-          Limit: filter === 'popular' ? limitNum * 3 : limitNum * 2, // Get more for filtering
-        };
-        
-        const result = await docClient.send(new ScanCommand(params));
-        items = result.Items || [];
-        nextToken = null; // Simplify for local dev
+      if (result.LastEvaluatedKey) {
+        nextToken = Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64');
       } else {
-        // Production: Get public approved templates
-        params = {
-          TableName: process.env.TEMPLATES_TABLE,
-          IndexName: 'visibility-moderationStatus-index',
-          KeyConditionExpression: 'visibility = :visibility AND moderationStatus = :status',
-          ExpressionAttributeValues: {
-            ':visibility': 'public',
-            ':status': 'approved',
-          },
-          Limit: filter === 'popular' ? limitNum * 2 : limitNum, // Get more for popular to sort
-          ScanIndexForward: sortOrder === 'asc',
-        };
-
-        if (nextToken) {
-          params.ExclusiveStartKey = JSON.parse(Buffer.from(nextToken, 'base64').toString());
-        }
-
-        const result = await docClient.send(new QueryCommand(params));
-        items = result.Items || [];
-        
-        if (result.LastEvaluatedKey) {
-          nextToken = Buffer.from(JSON.stringify(result.LastEvaluatedKey)).toString('base64');
-        } else {
-          nextToken = null;
-        }
+        nextToken = null;
       }
       
       // For popular filter, force sort by useCount
@@ -265,11 +258,11 @@ exports.handler = async (event) => {
       });
     }
 
-    // Prepare response items
+    // Prepare response items (with limited content preview)
     const responseItems = items.map(item => ({
       templateId: item.templateId,
       title: item.title,
-      content: item.content, // Include content for preview
+      preview: item.content ? item.content.substring(0, 200) + (item.content.length > 200 ? '...' : '') : '', // Limited preview
       variables: item.variables || [], // Include variables
       tags: item.tags,
       visibility: item.visibility,

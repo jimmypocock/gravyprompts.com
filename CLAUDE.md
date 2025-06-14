@@ -233,6 +233,29 @@ See `/docs/CONTENT_MODERATION.md` for details. Current implementation:
 
 The new system is safe to deploy and won't incur any API costs.
 
+## Authentication & Session Management
+
+### Handling "Already Signed In" Errors
+The app now automatically handles authentication conflicts:
+
+1. **Automatic Recovery**: When users encounter "already signed in" errors, the auth context will:
+   - Automatically sign out the existing session
+   - Clear cached auth data
+   - Retry the sign-in operation
+
+2. **Force Logout Page**: Users can visit `/auth/force-logout` to:
+   - Clear all authentication data
+   - Reset their session completely
+   - Automatically redirect to login
+
+3. **Error Recovery**: The login page shows a helpful link when auth conflicts occur
+
+4. **Global Error Handler**: The app-wide error page detects auth issues and provides recovery options
+
+### Debug Commands
+- `npm run debug:auth` - Shows auth configuration and troubleshooting tips
+- Browser console: `await window.getAuthDebugInfo()` - Shows current auth state (dev only)
+
 ## Deployment Checklist
 
 1. Run `npm run lint`

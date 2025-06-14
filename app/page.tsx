@@ -152,8 +152,20 @@ export default function HomePage() {
   };
 
   // Handle template selection
-  const selectTemplate = (template: Template) => {
-    setSelectedTemplate(template);
+  const selectTemplate = async (template: Template) => {
+    // If we only have preview, fetch the full template
+    if (!template.content && template.templateId) {
+      try {
+        const fullTemplate = await api.getTemplate(template.templateId);
+        setSelectedTemplate(fullTemplate);
+      } catch (error) {
+        console.error('Failed to load template details:', error);
+        alert('Failed to load template details');
+        return;
+      }
+    } else {
+      setSelectedTemplate(template);
+    }
     setIsQuickviewOpen(true);
   };
 
@@ -343,7 +355,7 @@ export default function HomePage() {
 
                   {/* Preview text */}
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                    {template.preview || (template.content ? template.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '')}
                   </p>
 
                   {template.tags && template.tags.length > 0 && (

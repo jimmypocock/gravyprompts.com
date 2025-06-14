@@ -105,15 +105,9 @@ exports.handler = async (event) => {
 
 // Check if user has access to the template
 async function checkTemplateAccess(template, userId, event) {
-  // For local development, be more lenient
-  const isLocal = process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true';
-  
-  // Public templates are accessible to everyone
-  if (template.visibility === 'public') {
-    // In local mode, don't check moderation status
-    if (isLocal) return true;
-    // In production, check moderation status
-    if (template.moderationStatus === 'approved') return true;
+  // Public templates are accessible to everyone if approved
+  if (template.visibility === 'public' && template.moderationStatus === 'approved') {
+    return true;
   }
 
   // Owner always has access

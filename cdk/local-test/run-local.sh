@@ -47,48 +47,8 @@ fi
 echo "Setting up environment variables..."
 cat > env.json << 'EOF'
 {
-  "CreateTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
-  },
-  "GetTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "TEMPLATE_VIEWS_TABLE": "local-template-views",
-    "ENVIRONMENT": "development"
-  },
-  "ListTemplatesFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
-  },
-  "UpdateTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
-  },
-  "DeleteTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
-  },
-  "ShareTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
-  },
-  "PopulateTemplateFunction": {
-    "IS_LOCAL": "true",
-    "AWS_SAM_LOCAL": "true",
-    "TEMPLATES_TABLE": "local-templates",
-    "ENVIRONMENT": "development"
+  "Parameters": {
+    "AWS_ENDPOINT_URL_DYNAMODB": "http://host.docker.internal:8000"
   }
 }
 EOF
@@ -101,8 +61,6 @@ echo "📌 DynamoDB Admin UI: http://localhost:8001"
 echo ""
 
 # Export environment variables for local testing
-export AWS_SAM_LOCAL=true
-export IS_LOCAL=true
 export AWS_ACCESS_KEY_ID=local
 export AWS_SECRET_ACCESS_KEY=local
 export AWS_REGION=us-east-1
@@ -112,7 +70,7 @@ echo "Starting SAM Local API Gateway (this may take a while on first run)..."
 sam local start-api \
   --port 7429 \
   --template template-local.yaml \
-  --docker-network host \
+  --docker-network local-test_default \
   --env-vars env.json \
   --layer-cache-basedir .aws-sam/layers-pkg \
   --skip-pull-image

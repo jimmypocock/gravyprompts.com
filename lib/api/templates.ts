@@ -13,7 +13,8 @@ const getApiBaseUrl = () => {
 export interface Template {
   templateId: string;
   title: string;
-  content: string;
+  content?: string;  // Full content (only in get by id)
+  preview?: string;  // Limited preview (in list responses)
   variables: string[];
   variableCount?: number; // Added for list responses
   visibility: 'public' | 'private';
@@ -108,11 +109,7 @@ class TemplateApi {
       ...(options.headers as Record<string, string> || {}),
     };
 
-    // For local development, use a mock token
-    const isLocal = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-    if (isLocal) {
-      headers['Authorization'] = 'Bearer local-dev-token';
-    } else if (token) {
+    if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 

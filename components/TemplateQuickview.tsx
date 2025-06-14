@@ -27,7 +27,7 @@ export default function TemplateQuickview({ template, isOpen, onClose, onSavePro
 
   // Reset when template changes
   useEffect(() => {
-    if (template && editorRef.current) {
+    if (template && editorRef.current && template.content) {
       editorRef.current.setContent(template.content);
       setPopulatedContent(null);
       

@@ -3,8 +3,9 @@ const { v4: uuidv4 } = require('uuid');
 const {
   docClient,
   createResponse,
-  getUserIdFromEvent,
+  checkRateLimit,
 } = require('/opt/nodejs/utils');
+const { getUserFromEvent } = require('/opt/nodejs/auth');
 
 exports.handler = async (event) => {
   try {
@@ -13,8 +14,20 @@ exports.handler = async (event) => {
       return createResponse(400, { error: 'Template ID is required' });
     }
 
-    // Get user ID from authorizer (might be null for public access)
-    const userId = getUserIdFromEvent(event);
+    // Get user from authorizer (might be null for public access)
+    const user = await getUserFromEvent(event);
+    const userId = user ? user.sub : null;
+    
+    // Check rate limit - use IP for anonymous users
+    const rateLimitKey = userId || event.requestContext?.identity?.sourceIp || 'unknown';
+    const isAllowed = await checkRateLimit(rateLimitKey, 'getTemplate');
+    
+    if (!isAllowed) {
+      return createResponse(429, { 
+        error: 'Too many requests', 
+        message: 'Please slow down your requests' 
+      });
+    }
     
     // Get share token from query parameters if provided
     const shareToken = event.queryStringParameters?.token;
@@ -32,10 +45,8 @@ exports.handler = async (event) => {
     const template = result.Item;
 
     // Check access permissions
-    const isLocal = process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true';
     const isOwner = userId && template.userId === userId;
-    // In local mode, don't check moderation status for public templates
-    const isPublic = template.visibility === 'public' && (isLocal || template.moderationStatus === 'approved');
+    const isPublic = template.visibility === 'public' && template.moderationStatus === 'approved';
     const isViewer = userId && template.viewers?.includes(userId);
     const hasValidShareToken = shareToken && template.shareTokens?.[shareToken] && 
       new Date(template.shareTokens[shareToken].expiresAt) > new Date();
@@ -45,9 +56,9 @@ exports.handler = async (event) => {
       return createResponse(403, { error: 'Access denied' });
     }
 
-    // Track view (async, don't wait)
-    if (!isOwner) {
-      trackView(templateId, userId || 'anonymous').catch(console.error);
+    // Track view only for authenticated users (prevent anonymous view bombing)
+    if (!isOwner && userId) {
+      trackView(templateId, userId).catch(console.error);
     }
 
     // Prepare response based on access level

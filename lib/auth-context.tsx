@@ -117,8 +117,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           twitter: attributes['custom:twitter'],
           linkedin: attributes['custom:linkedin'],
         });
+      } else {
+        setUser(null);
       }
-    } catch {
+    } catch (error) {
+      // UserUnAuthenticatedException is expected when user is not logged in
+      if ((error as Error)?.name !== 'UserUnAuthenticatedException') {
+        console.error('Error loading user:', error);
+      }
       // User is not authenticated
       setUser(null);
       // Clear session cache on auth failure
@@ -156,16 +162,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
+    const signInData: SignInInput = {
+      username: email,
+      password,
+    };
+    
     try {
       setError(null);
-      const signInData: SignInInput = {
-        username: email,
-        password,
-      };
       await amplifySignIn(signInData);
+      // Force reload user data
       await loadUser();
     } catch (err) {
-      setError((err as Error).message || 'Failed to sign in');
+      const errorMessage = (err as Error).message || '';
+      
+      // Handle "already signed in" error
+      if (errorMessage.includes('already a signed in user')) {
+        try {
+          // Sign out the existing user first
+          await amplifySignOut();
+          // Clear the session cache
+          sessionCacheRef.current = null;
+          // Try signing in again
+          await amplifySignIn(signInData);
+          // Load the new user
+          await loadUser();
+          return; // Success!
+        } catch (retryErr) {
+          setError((retryErr as Error).message || 'Failed to sign in after clearing session');
+          throw retryErr;
+        }
+      }
+      
+      setError(errorMessage || 'Failed to sign in');
       throw err;
     }
   };

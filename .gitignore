@@ -85,6 +85,10 @@ cdk/*.js.map
 # AWS
 .aws/
 
+# CDK outputs with sensitive information
+cdk/api-outputs.json
+cdk/auth-outputs.json
+
 # IDE
 .vscode/
 .idea/
@@ -123,3 +127,6 @@ temp/
 
 # local dynamodb data
 cdk/local-test/dynamodb-data/
+
+# Claude Code configuration
+.claude/

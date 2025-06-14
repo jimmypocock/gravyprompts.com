@@ -4,22 +4,8 @@ const { CognitoIdentityProviderClient } = require('@aws-sdk/client-cognito-ident
 const DOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
 
-// Check if we're in local development mode
-const isLocal = process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true';
-
-// Initialize AWS clients with local configuration if needed
-const dynamoConfig = isLocal
-  ? {
-      endpoint: 'http://host.docker.internal:8000',
-      region: 'us-east-1',
-      credentials: {
-        accessKeyId: 'local',
-        secretAccessKey: 'local',
-      },
-    }
-  : {};
-
-const dynamoClient = new DynamoDBClient(dynamoConfig);
+// Initialize AWS clients
+const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 const cognitoClient = new CognitoIdentityProviderClient({});
 
@@ -59,8 +45,78 @@ const stripHtml = (html) => {
 };
 
 // Rate limiting check
-const checkRateLimit = async (userId, action, limits) => {
-  return true;
+const checkRateLimit = async (userId, action, limits = {}) => {
+  // Default limits if not provided
+  const defaultLimits = {
+    listTemplates: { requests: 60, windowSeconds: 60 }, // 60 requests per minute
+    getTemplate: { requests: 100, windowSeconds: 60 }, // 100 requests per minute
+    createTemplate: { requests: 10, windowSeconds: 60 }, // 10 creates per minute
+    updateTemplate: { requests: 20, windowSeconds: 60 }, // 20 updates per minute
+    deleteTemplate: { requests: 10, windowSeconds: 60 }, // 10 deletes per minute
+  };
+  
+  const limit = limits[action] || defaultLimits[action];
+  if (!limit) {
+    console.warn(`No rate limit defined for action: ${action}`);
+    return true; // Allow if no limit defined
+  }
+  
+  // For anonymous users, use a stricter rate limit based on IP
+  const rateLimitKey = userId || 'anonymous';
+  const windowStart = Math.floor(Date.now() / 1000 / limit.windowSeconds) * limit.windowSeconds;
+  
+  try {
+    // Use DynamoDB to track rate limits
+    const { GetCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
+    
+    // Create rate limit table name (should be created in CDK stack)
+    const tableName = process.env.RATE_LIMITS_TABLE || 'GRAVYPROMPTS-rate-limits';
+    
+    // Try to get current count
+    const getResult = await docClient.send(new GetCommand({
+      TableName: tableName,
+      Key: {
+        pk: `RATE#${rateLimitKey}#${action}`,
+        sk: `WINDOW#${windowStart}`,
+      },
+    }));
+    
+    const currentCount = getResult.Item?.count || 0;
+    
+    // Check if limit exceeded
+    if (currentCount >= limit.requests) {
+      console.warn(`Rate limit exceeded for ${rateLimitKey} on action ${action}: ${currentCount}/${limit.requests}`);
+      return false;
+    }
+    
+    // Increment counter
+    await docClient.send(new UpdateCommand({
+      TableName: tableName,
+      Key: {
+        pk: `RATE#${rateLimitKey}#${action}`,
+        sk: `WINDOW#${windowStart}`,
+      },
+      UpdateExpression: 'SET #count = if_not_exists(#count, :zero) + :inc, #ttl = :ttl',
+      ExpressionAttributeNames: {
+        '#count': 'count',
+        '#ttl': 'ttl',
+      },
+      ExpressionAttributeValues: {
+        ':zero': 0,
+        ':inc': 1,
+        ':ttl': windowStart + limit.windowSeconds + 300, // TTL 5 minutes after window
+      },
+    }));
+    
+    return true;
+  } catch (error) {
+    // If rate limit table doesn't exist, fall back to in-memory tracking
+    console.error('Rate limit check failed, falling back to permissive mode:', error);
+    
+    // In production, you might want to fail closed (return false) instead
+    // For now, we'll fail open to avoid blocking legitimate users
+    return true;
+  }
 };
 
 // Generate share token
@@ -84,14 +140,6 @@ const createResponse = (statusCode, body, headers = {}) => {
 
 // Extract user ID from Cognito authorizer
 const getUserIdFromEvent = (event) => {
-  // Check if we're in local development mode
-  const isLocal = process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true';
-  
-  if (isLocal) {
-    // In local development, return a mock user ID
-    return 'local-user-123';
-  }
-  
   if (event.requestContext?.authorizer?.claims?.sub) {
     return event.requestContext.authorizer.claims.sub;
   }

@@ -3,6 +3,7 @@ import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
 import { CertificateStack } from './certificate-stack';
 import { WafStack } from './waf-stack';
+import { ApiWafStack } from './api-waf-stack';
 import { MonitoringStackAmplify } from './monitoring-stack-amplify';
 import { AuthStack } from './auth-stack';
 import { ApiStack } from './api-stack';
@@ -67,6 +68,16 @@ const apiStack = new ApiStack(app, `${stackPrefix}-API`, {
 
 // API stack depends on auth stack
 apiStack.addDependency(authStack);
+
+// 4a. API WAF Stack - WAF for API Gateway (Regional)
+const apiWafStack = new ApiWafStack(app, `${stackPrefix}-API-WAF`, {
+  api: apiStack.api,
+  env: usEast1Env,
+  description: `WAF rules for ${appName} API Gateway`,
+});
+
+// API WAF depends on API stack
+apiWafStack.addDependency(apiStack);
 
 // 5. Monitoring Stack for Amplify
 // Only create if explicitly requested for Amplify deployments
