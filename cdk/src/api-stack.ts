@@ -19,6 +19,8 @@ export class ApiStack extends Stack {
   public readonly templatesTable: dynamodb.Table;
   public readonly templateViewsTable: dynamodb.Table;
   public readonly userPromptsTable: dynamodb.Table;
+  public readonly userPermissionsTable: dynamodb.Table;
+  public readonly approvalHistoryTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
@@ -88,6 +90,57 @@ export class ApiStack extends Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // User permissions table
+    this.userPermissionsTable = new dynamodb.Table(this, 'UserPermissionsTable', {
+      tableName: `${props.appName}-user-permissions`,
+      partitionKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'permission', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
+    });
+
+    // Add GSI for querying by permission
+    this.userPermissionsTable.addGlobalSecondaryIndex({
+      indexName: 'permission-userId-index',
+      partitionKey: { name: 'permission', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'userId', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    // Approval history table
+    this.approvalHistoryTable = new dynamodb.Table(this, 'ApprovalHistoryTable', {
+      tableName: `${props.appName}-approval-history`,
+      partitionKey: { name: 'historyId', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+      pointInTimeRecoverySpecification: { pointInTimeRecoveryEnabled: true },
+    });
+
+    // Rate limiting table
+    const rateLimitsTable = new dynamodb.Table(this, 'RateLimitsTable', {
+      tableName: `${props.appName}-rate-limits`,
+      partitionKey: { name: 'key', type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: RemovalPolicy.RETAIN,
+      timeToLiveAttribute: 'ttl', // Auto-delete expired entries
+    });
+
+    // Add GSIs for approval history queries
+    this.approvalHistoryTable.addGlobalSecondaryIndex({
+      indexName: 'templateId-timestamp-index',
+      partitionKey: { name: 'templateId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
+    this.approvalHistoryTable.addGlobalSecondaryIndex({
+      indexName: 'reviewerId-timestamp-index',
+      partitionKey: { name: 'reviewerId', type: dynamodb.AttributeType.STRING },
+      sortKey: { name: 'timestamp', type: dynamodb.AttributeType.STRING },
+      projectionType: dynamodb.ProjectionType.ALL,
+    });
+
     // Create API Gateway
     this.api = new apigateway.RestApi(this, 'TemplatesApi', {
       restApiName: `${props.appName}-api`,
@@ -119,6 +172,57 @@ export class ApiStack extends Stack {
       authorizerName: `${props.appName}-authorizer`,
     });
 
+    // Create request validator
+    const requestValidator = new apigateway.RequestValidator(this, 'BodyValidator', {
+      restApi: this.api,
+      requestValidatorName: 'body-validator',
+      validateRequestBody: true,
+      validateRequestParameters: false,
+    });
+
+    // Create request model for template creation/update
+    const templateModel = new apigateway.Model(this, 'TemplateModel', {
+      restApi: this.api,
+      contentType: 'application/json',
+      modelName: 'TemplateModel',
+      schema: {
+        type: apigateway.JsonSchemaType.OBJECT,
+        required: ['title', 'content'],
+        properties: {
+          title: {
+            type: apigateway.JsonSchemaType.STRING,
+            minLength: 1,
+            maxLength: 200,
+          },
+          content: {
+            type: apigateway.JsonSchemaType.STRING,
+            minLength: 1,
+            maxLength: 50000, // 50KB max
+          },
+          visibility: {
+            type: apigateway.JsonSchemaType.STRING,
+            enum: ['public', 'private'],
+          },
+          tags: {
+            type: apigateway.JsonSchemaType.ARRAY,
+            maxItems: 10,
+            items: {
+              type: apigateway.JsonSchemaType.STRING,
+              minLength: 1,
+              maxLength: 50,
+            },
+          },
+          viewers: {
+            type: apigateway.JsonSchemaType.ARRAY,
+            maxItems: 100,
+            items: {
+              type: apigateway.JsonSchemaType.STRING,
+            },
+          },
+        },
+      },
+    });
+
     // Lambda Layer for shared code
     const sharedLayer = new lambda.LayerVersion(this, 'SharedLayer', {
       code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-layers/shared')),
@@ -138,6 +242,9 @@ export class ApiStack extends Stack {
     this.templatesTable.grantReadWriteData(lambdaRole);
     this.templateViewsTable.grantReadWriteData(lambdaRole);
     this.userPromptsTable.grantReadWriteData(lambdaRole);
+    this.userPermissionsTable.grantReadWriteData(lambdaRole);
+    this.approvalHistoryTable.grantReadWriteData(lambdaRole);
+    rateLimitsTable.grantReadWriteData(lambdaRole);
     
     // Grant stream read permissions for the moderation function
     this.templatesTable.grantStreamRead(lambdaRole);
@@ -149,6 +256,9 @@ export class ApiStack extends Stack {
       TEMPLATES_TABLE: this.templatesTable.tableName,
       TEMPLATE_VIEWS_TABLE: this.templateViewsTable.tableName,
       USER_PROMPTS_TABLE: this.userPromptsTable.tableName,
+      USER_PERMISSIONS_TABLE: this.userPermissionsTable.tableName,
+      APPROVAL_HISTORY_TABLE: this.approvalHistoryTable.tableName,
+      RATE_LIMITS_TABLE: rateLimitsTable.tableName,
       USER_POOL_ID: props.userPool.userPoolId,
     };
 
@@ -277,6 +387,10 @@ export class ApiStack extends Stack {
     templates.addMethod('POST', new apigateway.LambdaIntegration(createTemplateFunction), {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
+      requestValidator,
+      requestModels: {
+        'application/json': templateModel,
+      },
     });
 
     // GET /templates - List templates (includes popular filter)
@@ -296,6 +410,10 @@ export class ApiStack extends Stack {
     templateById.addMethod('PUT', new apigateway.LambdaIntegration(updateTemplateFunction), {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
+      requestValidator,
+      requestModels: {
+        'application/json': templateModel,
+      },
     });
 
     // DELETE /templates/{id} - Delete template
@@ -395,6 +513,94 @@ export class ApiStack extends Stack {
 
     // DELETE /prompts/{id} - Delete user prompt
     promptById.addMethod('DELETE', new apigateway.LambdaIntegration(deletePromptFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+
+    // Admin Lambda Functions
+    const permissionsFunction = new lambda.Function(this, 'PermissionsFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'permissions.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/admin'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
+      environment,
+      role: lambdaRole,
+      layers: [sharedLayer],
+      timeout: Duration.seconds(10),
+      memorySize: 128,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    const approvalFunction = new lambda.Function(this, 'ApprovalFunction', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'approval.handler',
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda/admin'), {
+        exclude: ['node_modules', '*.log', 'package-lock.json'],
+      }),
+      environment,
+      role: lambdaRole,
+      layers: [sharedLayer],
+      timeout: Duration.seconds(30),
+      memorySize: 256,
+      logRetention: logs.RetentionDays.ONE_WEEK,
+    });
+
+    // Admin API Routes
+    const admin = this.api.root.addResource('admin');
+    
+    // Permissions management
+    const permissions = admin.addResource('permissions');
+    
+    // GET /admin/permissions/users - List users with permissions
+    const permissionsUsers = permissions.addResource('users');
+    permissionsUsers.addMethod('GET', new apigateway.LambdaIntegration(permissionsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // GET /admin/permissions/user/{userId} - Get user permissions
+    const permissionsUser = permissions.addResource('user');
+    const permissionsUserById = permissionsUser.addResource('{userId}');
+    permissionsUserById.addMethod('GET', new apigateway.LambdaIntegration(permissionsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // POST /admin/permissions - Grant permission
+    permissions.addMethod('POST', new apigateway.LambdaIntegration(permissionsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // DELETE /admin/permissions/{userId}/{permission} - Revoke permission
+    const permissionsUserByIdAndPermission = permissionsUserById.addResource('{permission}');
+    permissionsUserByIdAndPermission.addMethod('DELETE', new apigateway.LambdaIntegration(permissionsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // Approval management
+    const approval = admin.addResource('approval');
+    
+    // GET /admin/approval/queue - Get approval queue
+    const approvalQueue = approval.addResource('queue');
+    approvalQueue.addMethod('GET', new apigateway.LambdaIntegration(approvalFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // GET /admin/approval/history - Get approval history
+    const approvalHistory = approval.addResource('history');
+    approvalHistory.addMethod('GET', new apigateway.LambdaIntegration(approvalFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
+    // POST /admin/approval/template/{templateId} - Process approval
+    const approvalTemplate = approval.addResource('template');
+    const approvalTemplateById = approvalTemplate.addResource('{templateId}');
+    approvalTemplateById.addMethod('POST', new apigateway.LambdaIntegration(approvalFunction), {
       authorizer,
       authorizationType: apigateway.AuthorizationType.COGNITO,
     });

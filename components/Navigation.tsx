@@ -2,21 +2,36 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { useSearch } from '@/lib/search-context';
 import { usePathname, useRouter } from 'next/navigation';
+import { checkAdminAccess } from '@/lib/api/admin';
 
 export default function Navigation() {
   const { user, loading } = useAuth();
   const { searchQuery, setSearchQuery, isNavSearchVisible } = useSearch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const isHomePage = pathname === '/';
 
   // Show search in nav on all pages except home (unless scrolled on home)
   const showSearch = !isHomePage || isNavSearchVisible;
+
+  // Check admin access when user changes
+  useEffect(() => {
+    async function checkAdmin() {
+      if (user) {
+        const hasAccess = await checkAdminAccess();
+        setIsAdmin(hasAccess);
+      } else {
+        setIsAdmin(false);
+      }
+    }
+    checkAdmin();
+  }, [user]);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -76,12 +91,22 @@ export default function Navigation() {
                 {/* Desktop menu */}
                 <div className="hidden md:flex items-center space-x-4">
                   {user && (
-                    <Link
-                      href="/editor"
-                      className="text-sm font-medium text-primary border-primary hover:bg-primary hover:text-white px-4 py-2 rounded-full border transition-colors"
-                    >
-                      Create Template
-                    </Link>
+                    <>
+                      <Link
+                        href="/editor"
+                        className="text-sm font-medium text-primary border-primary hover:bg-primary hover:text-white px-4 py-2 rounded-full border transition-colors"
+                      >
+                        Create Template
+                      </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                          Admin
+                        </Link>
+                      )}
+                    </>
                   )}
 
                   {user ? (
@@ -142,13 +167,24 @@ export default function Navigation() {
               Browse Templates
             </Link>
             {user && (
-              <Link
-                href="/editor"
-                className="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Create Template
-              </Link>
+              <>
+                <Link
+                  href="/editor"
+                  className="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Create Template
+                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="block px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Admin
+                  </Link>
+                )}
+              </>
             )}
             {user ? (
               <Link

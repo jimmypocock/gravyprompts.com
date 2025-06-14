@@ -1,12 +1,12 @@
 const { PutCommand } = require('@aws-sdk/lib-dynamodb');
 const { v4: uuidv4 } = require('uuid');
+const { getUserFromEvent } = require('/opt/nodejs/auth');
 
 const {
   docClient,
   sanitizeHtml,
   extractVariables,
   createResponse,
-  getUserIdFromEvent,
   validateTemplate,
   checkRateLimit,
 } = require('/opt/nodejs/utils');
@@ -14,22 +14,19 @@ const {
 exports.handler = async (event) => {
   try {
     console.log('Event headers:', event.headers);
-    console.log('IS_LOCAL:', process.env.IS_LOCAL);
-    console.log('AWS_SAM_LOCAL:', process.env.AWS_SAM_LOCAL);
     
-    // Get user ID from authorizer
-    const userId = getUserIdFromEvent(event);
-    console.log('User ID:', userId);
+    // Get user from authorizer
+    const user = await getUserFromEvent(event);
+    console.log('User:', user);
     
-    if (!userId) {
+    if (!user || !user.sub) {
       return createResponse(401, { error: 'Unauthorized' });
     }
+    
+    const userId = user.sub;
 
     // Check rate limit
-    const rateLimitOk = await checkRateLimit(userId, 'create_template', {
-      perMinute: 10,
-      perHour: 100,
-    });
+    const rateLimitOk = await checkRateLimit(userId, 'createTemplate');
     
     if (!rateLimitOk) {
       return createResponse(429, { error: 'Rate limit exceeded' });
@@ -73,10 +70,7 @@ exports.handler = async (event) => {
       viewCount: 0,
       useCount: 0,
       // Moderation fields
-      // In local mode, auto-approve public templates
-      moderationStatus: body.visibility === 'public' 
-        ? (process.env.IS_LOCAL === 'true' || process.env.AWS_SAM_LOCAL === 'true' ? 'approved' : 'pending')
-        : 'not_required',
+      moderationStatus: body.visibility === 'public' ? 'pending' : 'not_required',
       moderationDetails: null,
     };
 

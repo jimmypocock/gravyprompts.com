@@ -12,10 +12,11 @@ Globals:
         TEMPLATES_TABLE: local-templates
         TEMPLATE_VIEWS_TABLE: local-template-views
         USER_PROMPTS_TABLE: local-user-prompts
+        USER_PERMISSIONS_TABLE: local-user-permissions
+        APPROVAL_HISTORY_TABLE: local-approval-history
         ENVIRONMENT: development
         USER_POOL_ID: local-user-pool
-        IS_LOCAL: 'true'
-        AWS_SAM_LOCAL: 'true'
+        AWS_ENDPOINT_URL_DYNAMODB: http://host.docker.internal:8000
 
 Resources:
   SharedLayer:
@@ -179,3 +180,79 @@ Resources:
             RestApiId: !Ref TemplatesApi
             Path: /prompts/{promptId}
             Method: DELETE
+
+  # Admin Functions
+  PermissionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/admin/
+      Handler: permissions.handler
+      Events:
+        ListUsersEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/users
+            Method: GET
+        GetUserPermissionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/user/{userId}
+            Method: GET
+        GrantPermissionEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions
+            Method: POST
+        RevokePermissionEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/{userId}/{permission}
+            Method: DELETE
+
+  ApprovalFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ../lambda/admin/
+      Handler: approval.handler
+      Events:
+        GetQueueEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/approval/queue
+            Method: GET
+        GetHistoryEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/approval/history
+            Method: GET
+        ProcessApprovalEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/approval/template/{templateId}
+            Method: POST
+        # OPTIONS for CORS
+        QueueOptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/approval/queue
+            Method: OPTIONS
+        HistoryOptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/approval/history
+            Method: OPTIONS
+        PermissionsUsersOptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/users
+            Method: OPTIONS

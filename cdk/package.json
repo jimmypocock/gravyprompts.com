@@ -12,11 +12,22 @@
     "diff": "npm run build && cdk diff",
     "synth": "npm run build && cdk synth",
     "validate": "npm run build && npx ts-node --prefer-ts-exts src/validate-stacks.ts",
-    "predeploy": "npm run validate"
+    "predeploy": "npm run validate",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "jest --config=jest.config.unit.js",
+    "test:integration": "jest --config=jest.config.integration.js --runInBand",
+    "test:watch": "jest --config=jest.config.unit.js --watch",
+    "test:coverage": "jest --config=jest.config.unit.js --coverage",
+    "test:search": "jest --config=jest.config.integration.js lambda/templates/__tests__/list.integration.test.js --runInBand"
   },
   "devDependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.828.0",
+    "@aws-sdk/client-dynamodb": "^3.828.0",
+    "@aws-sdk/lib-dynamodb": "^3.828.0",
+    "@types/jest": "^29.5.11",
     "@types/node": "20.11.5",
     "aws-cdk": "^2.1016.1",
+    "jest": "^29.7.0",
     "typescript": "~5.3.3"
   },
   "dependencies": {

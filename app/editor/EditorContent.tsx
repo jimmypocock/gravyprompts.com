@@ -69,11 +69,11 @@ export default function EditorContent() {
 
       setOriginalTemplate(template);
       setTitle(template.title);
-      setContent(template.content);
+      setContent(template.content || '');
       setTags(template.tags);
       setVisibility(template.visibility);
 
-      if (editorRef.current) {
+      if (editorRef.current && template.content) {
         editorRef.current.setContent(template.content);
       }
     } catch {
@@ -240,6 +240,14 @@ export default function EditorContent() {
                     <option value="private">Private</option>
                     <option value="public">Public</option>
                   </select>
+                  {visibility === 'public' && (
+                    <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                      <p className="text-sm text-yellow-800">
+                        <strong>Note:</strong> Public templates require approval before they become visible to other users. 
+                        You&apos;ll be able to view and use your template immediately, but it will only be publicly accessible after review.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

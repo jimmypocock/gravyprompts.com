@@ -1,10 +1,9 @@
 const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
 const { DynamoDBDocumentClient, QueryCommand } = require('@aws-sdk/lib-dynamodb');
+const { getUserFromEvent } = require('/opt/nodejs/auth');
 
 // Initialize DynamoDB client
-const dynamoClient = new DynamoDBClient({
-  endpoint: process.env.AWS_SAM_LOCAL === 'true' ? 'http://dynamodb:8000' : undefined,
-});
+const dynamoClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(dynamoClient);
 
 // Get table name from environment
@@ -13,9 +12,9 @@ const TABLE_NAME = process.env.USER_PROMPTS_TABLE || 'user-prompts';
 exports.handler = async (event) => {
   console.log('List prompts event:', JSON.stringify(event, null, 2));
 
-  // Extract user ID from Cognito authorizer
-  const userId = event.requestContext?.authorizer?.claims?.sub;
-  if (!userId) {
+  // Extract user information from event
+  const user = await getUserFromEvent(event);
+  if (!user || !user.sub) {
     return {
       statusCode: 401,
       headers: {
@@ -25,6 +24,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({ error: 'Unauthorized' }),
     };
   }
+  
+  const userId = user.sub;
 
   // Parse query parameters
   const limit = parseInt(event.queryStringParameters?.limit) || 20;

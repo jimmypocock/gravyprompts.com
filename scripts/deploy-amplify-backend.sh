@@ -12,7 +12,7 @@ echo "📋 This will deploy:"
 echo "  ✓ Certificate Stack (reuse existing if available)"
 echo "  ✓ Auth Stack (Cognito)"
 echo "  ✓ API Stack (Lambda + DynamoDB)"
-echo "  ✓ WAF Stack (optional security)"
+echo "  ✓ API WAF Stack (security for API Gateway)"
 echo ""
 echo "❌ This will NOT deploy:"
 echo "  - Foundation Stack (S3 buckets)"
@@ -61,28 +61,24 @@ fi
 # Deploy Auth Stack
 echo ""
 echo "🔐 Deploying Auth Stack..."
-npx cdk deploy ${STACK_PREFIX}-Auth-${ENVIRONMENT} \
+npx cdk deploy ${STACK_PREFIX}-Auth \
     --require-approval never \
     --outputs-file auth-outputs.json
 
 # Deploy API Stack
 echo ""
 echo "🌐 Deploying API Stack..."
-npx cdk deploy ${STACK_PREFIX}-Api \
+npx cdk deploy ${STACK_PREFIX}-API \
     --require-approval never \
     --outputs-file api-outputs.json
 
-# Deploy WAF Stack (optional)
+# Deploy API WAF Stack
 echo ""
-read -p "Deploy WAF Stack for additional security? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo "🛡️ Deploying WAF Stack..."
-    npx cdk deploy ${STACK_PREFIX}-WAF \
-        --require-approval never
-else
-    echo "⏭️ Skipping WAF Stack"
-fi
+echo "🛡️ Deploying API WAF Stack for enhanced security..."
+npx cdk deploy ${STACK_PREFIX}-API-WAF \
+    --require-approval never
+
+# Note: The CloudFront WAF (${STACK_PREFIX}-WAF) is only needed if using CloudFront CDN
 
 # Extract outputs for Amplify configuration
 echo ""
@@ -92,14 +88,14 @@ echo "📋 Configuration for AWS Amplify:"
 echo "================================"
 
 # Get API URL
-API_URL=$(jq -r ".\"${STACK_PREFIX}-Api\".ApiUrl" api-outputs.json)
+API_URL=$(jq -r ".\"${STACK_PREFIX}-API\".ApiUrl" api-outputs.json)
 echo "NEXT_PUBLIC_API_URL=$API_URL"
 
 # Get Auth configuration
-USER_POOL_ID=$(jq -r ".\"${STACK_PREFIX}-Auth-${ENVIRONMENT}\".UserPoolId" auth-outputs.json)
-CLIENT_ID=$(jq -r ".\"${STACK_PREFIX}-Auth-${ENVIRONMENT}\".UserPoolClientId" auth-outputs.json)
-echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID_PROD=$USER_POOL_ID"
-echo "NEXT_PUBLIC_COGNITO_CLIENT_ID_PROD=$CLIENT_ID"
+USER_POOL_ID=$(jq -r ".\"${STACK_PREFIX}-Auth\".UserPoolId" auth-outputs.json)
+CLIENT_ID=$(jq -r ".\"${STACK_PREFIX}-Auth\".UserPoolClientId" auth-outputs.json)
+echo "NEXT_PUBLIC_COGNITO_USER_POOL_ID=$USER_POOL_ID"
+echo "NEXT_PUBLIC_COGNITO_CLIENT_ID=$CLIENT_ID"
 
 echo ""
 echo "📝 Next steps:"

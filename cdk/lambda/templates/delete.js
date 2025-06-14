@@ -2,17 +2,18 @@ const { GetCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
 const {
   docClient,
   createResponse,
-  getUserIdFromEvent,
   checkRateLimit,
 } = require('/opt/nodejs/utils');
+const { getUserFromEvent } = require('/opt/nodejs/auth');
 
 exports.handler = async (event) => {
   try {
-    // Get user ID from authorizer
-    const userId = getUserIdFromEvent(event);
-    if (!userId) {
+    // Get user from authorizer
+    const user = await getUserFromEvent(event);
+    if (!user || !user.sub) {
       return createResponse(401, { error: 'Unauthorized' });
     }
+    const userId = user.sub;
 
     const templateId = event.pathParameters?.templateId;
     if (!templateId) {
@@ -20,10 +21,7 @@ exports.handler = async (event) => {
     }
 
     // Check rate limit
-    const rateLimitOk = await checkRateLimit(userId, 'delete_template', {
-      perMinute: 10,
-      perHour: 50,
-    });
+    const rateLimitOk = await checkRateLimit(userId, 'deleteTemplate');
     
     if (!rateLimitOk) {
       return createResponse(429, { error: 'Rate limit exceeded' });

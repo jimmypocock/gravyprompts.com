@@ -149,6 +149,121 @@ async function createTables() {
     }
   }
 
+  // User permissions table
+  const userPermissionsTable = {
+    TableName: 'local-user-permissions',
+    KeySchema: [
+      { AttributeName: 'userId', KeyType: 'HASH' },
+      { AttributeName: 'permission', KeyType: 'RANGE' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'userId', AttributeType: 'S' },
+      { AttributeName: 'permission', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'permission-userId-index',
+        KeySchema: [
+          { AttributeName: 'permission', KeyType: 'HASH' },
+          { AttributeName: 'userId', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' },
+        ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  };
+
+  try {
+    console.log('Creating user permissions table...');
+    await client.send(new CreateTableCommand(userPermissionsTable));
+    console.log('User permissions table created successfully');
+  } catch (error) {
+    if (error.name === 'ResourceInUseException') {
+      console.log('User permissions table already exists - skipping');
+    } else {
+      console.error('Error creating user permissions table:', error);
+      throw error;
+    }
+  }
+
+  // Approval history table
+  const approvalHistoryTable = {
+    TableName: 'local-approval-history',
+    KeySchema: [
+      { AttributeName: 'historyId', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'historyId', AttributeType: 'S' },
+      { AttributeName: 'templateId', AttributeType: 'S' },
+      { AttributeName: 'timestamp', AttributeType: 'S' },
+      { AttributeName: 'reviewerId', AttributeType: 'S' }
+    ],
+    GlobalSecondaryIndexes: [
+      {
+        IndexName: 'templateId-timestamp-index',
+        KeySchema: [
+          { AttributeName: 'templateId', KeyType: 'HASH' },
+          { AttributeName: 'timestamp', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' },
+        ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+      },
+      {
+        IndexName: 'reviewerId-timestamp-index',
+        KeySchema: [
+          { AttributeName: 'reviewerId', KeyType: 'HASH' },
+          { AttributeName: 'timestamp', KeyType: 'RANGE' }
+        ],
+        Projection: { ProjectionType: 'ALL' },
+        ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+      }
+    ],
+    BillingMode: 'PAY_PER_REQUEST'
+  };
+
+  try {
+    console.log('Creating approval history table...');
+    await client.send(new CreateTableCommand(approvalHistoryTable));
+    console.log('Approval history table created successfully');
+  } catch (error) {
+    if (error.name === 'ResourceInUseException') {
+      console.log('Approval history table already exists - skipping');
+    } else {
+      console.error('Error creating approval history table:', error);
+      throw error;
+    }
+  }
+
+  // Rate limits table
+  const rateLimitsTable = {
+    TableName: 'local-rate-limits',
+    KeySchema: [
+      { AttributeName: 'key', KeyType: 'HASH' }
+    ],
+    AttributeDefinitions: [
+      { AttributeName: 'key', AttributeType: 'S' }
+    ],
+    TimeToLiveSpecification: {
+      AttributeName: 'ttl',
+      Enabled: true
+    },
+    BillingMode: 'PAY_PER_REQUEST'
+  };
+
+  try {
+    console.log('Creating rate limits table...');
+    await client.send(new CreateTableCommand(rateLimitsTable));
+    console.log('Rate limits table created successfully');
+  } catch (error) {
+    if (error.name === 'ResourceInUseException') {
+      console.log('Rate limits table already exists - skipping');
+    } else {
+      console.error('Error creating rate limits table:', error);
+      throw error;
+    }
+  }
+
   console.log('\n✅ All tables ready!');
   console.log('📊 DynamoDB Admin UI: http://localhost:8001');
 }

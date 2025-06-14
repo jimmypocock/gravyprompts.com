@@ -183,6 +183,31 @@ export default function TemplateDetailPage() {
             </div>
           </div>
 
+          {template.isOwner && template.moderationStatus && template.visibility === 'public' && (
+            <div className={`mt-4 p-3 rounded-md ${
+              template.moderationStatus === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
+              template.moderationStatus === 'rejected' ? 'bg-red-50 border border-red-200' :
+              'bg-green-50 border border-green-200'
+            }`}>
+              <p className={`text-sm ${
+                template.moderationStatus === 'pending' ? 'text-yellow-800' :
+                template.moderationStatus === 'rejected' ? 'text-red-800' :
+                'text-green-800'
+              }`}>
+                <strong>Moderation Status:</strong> {
+                  template.moderationStatus === 'pending' ? 'Pending approval' :
+                  template.moderationStatus === 'rejected' ? 'Rejected' :
+                  'Approved'
+                }
+                {template.moderationDetails?.reason && (
+                  <span className="block mt-1">
+                    <strong>Reason:</strong> {template.moderationDetails.reason}
+                  </span>
+                )}
+              </p>
+            </div>
+          )}
+
           {template.tags && template.tags.length > 0 && (
             <div className="flex gap-2 flex-wrap mt-4">
               {template.tags.map(tag => (
