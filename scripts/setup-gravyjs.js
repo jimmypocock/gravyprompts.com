@@ -54,6 +54,17 @@ packages.forEach((pkg) => {
         env: { ...process.env, GRAVYJS_SETUP_RUNNING: "true" },
       });
       console.log(`✅ ${pkg} dependencies installed`);
+
+      // Build the package if it's gravyjs and we're in CI
+      if (isCI && pkg === "gravyjs") {
+        console.log(`🔨 Building ${pkg} for CI...`);
+        execSync("npm run build", {
+          cwd: pkgPath,
+          stdio: "inherit",
+          env: { ...process.env, GRAVYJS_SETUP_RUNNING: "true" },
+        });
+        console.log(`✅ ${pkg} built successfully`);
+      }
     } catch (error) {
       console.error(
         `❌ Failed to install dependencies for ${pkg}:`,

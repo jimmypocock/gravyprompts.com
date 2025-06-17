@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -76,6 +78,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -108,6 +112,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -144,6 +150,8 @@ jobs:
     if: github.repository == 'gravyprompts/gravyprompts.com' # Only run on main repo
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -177,6 +185,8 @@ jobs:
     if: github.repository == 'gravyprompts/gravyprompts.com'
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
