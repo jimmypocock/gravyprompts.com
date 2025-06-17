@@ -252,7 +252,9 @@ export default function HomePage() {
 
   // Display templates - either search results or popular templates
   const displayTemplates =
-    searchQuery || selectedTags.length > 0 ? templates : popularTemplates;
+    searchQuery || selectedTags.length > 0
+      ? templates || []
+      : popularTemplates || [];
   const showingResults = searchQuery || selectedTags.length > 0;
 
   return (

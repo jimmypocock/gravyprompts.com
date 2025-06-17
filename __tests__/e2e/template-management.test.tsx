@@ -105,11 +105,12 @@ describe("Template Management E2E", () => {
     listTemplates: jest.fn(),
     createTemplate: jest.fn(),
     getPopularTemplates: jest.fn().mockResolvedValue({
-      templates: [],
+      items: [],
     }),
     trackView: jest.fn(),
     trackShare: jest.fn(),
     trackUse: jest.fn(),
+    populateTemplate: jest.fn(),
   };
 
   beforeEach(() => {
@@ -126,8 +127,14 @@ describe("Template Management E2E", () => {
     it("should allow users to browse and search templates", async () => {
       const user = userEvent.setup();
 
-      // Mock API response for template list
+      // Mock API response for popular templates (shown by default)
       const mockTemplates = [mockTemplate];
+      mockApi.getPopularTemplates.mockResolvedValue({
+        items: mockTemplates,
+        count: 1,
+      });
+
+      // Mock API response for search
       mockApi.listTemplates.mockResolvedValue({
         items: mockTemplates,
         count: 1,
@@ -141,15 +148,18 @@ describe("Template Management E2E", () => {
         </AuthProvider>,
       );
 
-      // Wait for templates to load
-      await waitFor(() => {
-        expect(
-          screen.getByText("Email Marketing Template"),
-        ).toBeInTheDocument();
-      });
+      // Wait for popular templates to load
+      await waitFor(
+        () => {
+          expect(
+            screen.getByText("Email Marketing Template"),
+          ).toBeInTheDocument();
+        },
+        { timeout: 3000 },
+      );
 
       // Search for templates
-      const searchInput = screen.getByPlaceholderText(/search templates/i);
+      const searchInput = screen.getByPlaceholderText(/Search for templates/i);
       await user.type(searchInput, "email");
 
       // Click on a template card

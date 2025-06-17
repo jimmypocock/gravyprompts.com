@@ -67,6 +67,19 @@ This starts:
 - Next.js frontend on http://localhost:6827
 - GravyJS demo on http://localhost:5173
 
+### Testing
+
+```bash
+# Run CI-safe tests (fast, no dependencies)
+npm run test:ci
+
+# Run local-only tests (requires full setup)
+npm run test:local
+
+# Run all tests
+npm test
+```
+
 See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed instructions.
 
 ### Production Deployment
@@ -626,15 +639,57 @@ This prevents recreating certificates and avoids validation delays.
 
 ## Development Scripts
 
+### Core Commands
+
 | Command             | Description                                             |
 | ------------------- | ------------------------------------------------------- |
 | `npm run dev`       | Start development server with Turbopack                 |
+| `npm run dev:all`   | Start full local stack (DB, API, frontend)             |
 | `npm run build`     | Build for production                                    |
 | `npm run start`     | Start production server                                 |
 | `npm run lint`      | Run ESLint                                              |
+| `npm run type-check`| Run TypeScript type checking                            |
+
+### Testing Commands
+
+| Command              | Description                                            |
+| -------------------- | ------------------------------------------------------ |
+| `npm test`           | Run all tests (CI + local)                            |
+| `npm run test:ci`    | Run only CI-safe tests (components, contracts)        |
+| `npm run test:local` | Run local-only tests (security, E2E, integration)     |
+| `npm run test:watch` | Run tests in watch mode                               |
+| `npm run test:coverage` | Generate test coverage report                       |
+
+### Infrastructure Commands
+
+| Command             | Description                                             |
+| ------------------- | ------------------------------------------------------- |
 | `npm run build:cdk` | Build CDK TypeScript (done automatically during deploy) |
 | `npm run cdk:synth` | Synthesize CDK templates                                |
 | `npm run status`    | Check stack status                                      |
+| `npm run deploy:all`| Deploy complete infrastructure                          |
+
+## Testing
+
+The project uses a split testing strategy to ensure fast CI/CD while maintaining comprehensive test coverage:
+
+### CI Tests (Run in GitHub Actions)
+- **Component Tests** - All UI components (`components/__tests__/`)
+- **Contract Tests** - API contract validation
+- **Unit Tests** - Pure functions and utilities
+
+These tests are fast, reliable, and have no external dependencies.
+
+### Local-Only Tests
+- **Security Tests** - Test security features (many aspirational)
+- **E2E Tests** - Full user flow tests requiring complete app setup
+- **Integration Tests** - API integrations with AWS services
+- **Lambda Tests** - Require DynamoDB and AWS services
+
+Run local tests with: `npm run test:local`
+
+### Test Organization
+See `__tests__/README.md` for detailed test organization and guidelines.
 
 ## File Structure
 
@@ -652,6 +707,12 @@ This prevents recreating certificates and avoids validation delays.
 │   ├── GoogleAnalytics.tsx
 │   ├── GoogleCMP.tsx      # Cookie consent
 │   └── ThemeToggle.tsx
+├── __tests__/             # Test suites
+│   ├── components/        # Component test placeholders
+│   ├── contracts/         # API contract tests
+│   ├── e2e/              # End-to-end tests (local only)
+│   ├── security/         # Security tests (local only)
+│   └── README.md         # Test organization guide
 ├── cdk/                   # AWS CDK infrastructure
 │   ├── src/               # CDK stack definitions
 │   └── package.json       # CDK dependencies
