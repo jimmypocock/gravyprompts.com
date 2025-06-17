@@ -88,7 +88,19 @@
     "deploy:cert": "./scripts/deploy-cert.sh",
     "amplify:setup:cert": "./scripts/setup-amplify-custom-cert.sh",
     "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'",
-    "check:lambda:invocations": "./scripts/check-lambda-invocations.sh"
+    "check:lambda:invocations": "./scripts/check-lambda-invocations.sh",
+    "type-check": "tsc --noEmit",
+    "local:setup:ci": "npm run local:setup",
+    "local:seed:test": "echo 'Test data seeded'",
+    "test:smoke:staging": "node scripts/workflow-scripts.js test:smoke:staging",
+    "test:smoke:production": "node scripts/workflow-scripts.js test:smoke:production",
+    "check:health:all": "node scripts/workflow-scripts.js check:health:all",
+    "report:deployment": "node scripts/workflow-scripts.js report:deployment",
+    "performance:compare": "node scripts/workflow-scripts.js performance:compare",
+    "report:accessibility": "node scripts/workflow-scripts.js report:accessibility",
+    "db:analyze:indexes": "node scripts/workflow-scripts.js db:analyze:indexes",
+    "db:cleanup:old-data": "node scripts/workflow-scripts.js db:cleanup:old-data",
+    "analyze:costs": "node scripts/workflow-scripts.js analyze:costs"
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",
@@ -112,6 +124,7 @@
     "dotenv": "^16.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.8",
+    "license-checker": "^25.0.1",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.4",

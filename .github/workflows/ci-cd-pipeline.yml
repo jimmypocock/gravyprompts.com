@@ -352,10 +352,6 @@ jobs:
           path: deployment-report.html
           retention-days: 90
 
-# Reusable workflow for hotfixes
-on:
-  workflow_call:
-    inputs:
-      environment:
-        required: true
-        type: string
+# Note: Reusable workflows should be defined in separate files
+# To create a reusable workflow for hotfixes, create a new file:
+# .github/workflows/reusable-deploy.yml

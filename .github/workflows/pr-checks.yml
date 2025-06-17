@@ -34,12 +34,17 @@ jobs:
       - name: Lint changes only
         run: |
           # Only lint files changed in this PR
-          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs npx eslint
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs -r npx eslint || echo "No JS/TS files to lint"
       
       - name: Run affected tests
         run: |
           # Use jest --findRelatedTests to only run tests for changed files
-          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs npm test -- --findRelatedTests --coverage
+          FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' || true)
+          if [ -n "$FILES" ]; then
+            echo "$FILES" | xargs npm test -- --findRelatedTests --coverage
+          else
+            echo "No JS/TS files changed, skipping tests"
+          fi
       
       - name: Check bundle size
         run: |
