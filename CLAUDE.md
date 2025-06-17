@@ -173,6 +173,45 @@ npm run deploy:cert:first  # Initial certificate deployment
   - `local-test/` - Local development configuration
 - `scripts/` - All scripts have npm commands (see SCRIPTS.md)
 - `data/` - Template data files for bulk loading
+- `packages/` - Git submodules (separate repositories)
+  - `gravyjs/` - WYSIWYG editor component (git submodule)
+  - `gravyjs-demo/` - Demo application for gravyjs (git submodule)
+
+## Working with Git Submodules
+
+The `packages/` directory contains two git submodules that are separate repositories:
+
+- **packages/gravyjs** - The WYSIWYG editor component library
+- **packages/gravyjs-demo** - Demo application for testing gravyjs
+
+### Important Notes:
+1. These are **separate git repositories** with their own commit history
+2. Changes inside these directories need to be committed within the submodule first
+3. The main repository tracks which commit of each submodule to use
+4. When you see `modified: packages/gravyjs (modified content)` it means the submodule has uncommitted changes
+
+### Common Submodule Commands:
+```bash
+# Clone repository with submodules
+git clone --recursive [repo-url]
+
+# If you already cloned without --recursive
+git submodule update --init --recursive
+
+# Update submodules to latest commit
+git submodule update --remote
+
+# Work inside a submodule
+cd packages/gravyjs
+git add .
+git commit -m "fix: your changes"
+git push
+
+# Update main repo to use new submodule commit
+cd ../..
+git add packages/gravyjs
+git commit -m "update: gravyjs submodule"
+```
 
 ## Local Development Tips
 
