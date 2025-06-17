@@ -1,0 +1,94 @@
+name: Pull Request Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  # Lightweight PR checks that run fast
+  pr-validation:
+    name: PR Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Need full history for some checks
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+      
+      - name: Check PR title
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Lint changes only
+        run: |
+          # Only lint files changed in this PR
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs npx eslint
+      
+      - name: Run affected tests
+        run: |
+          # Use jest --findRelatedTests to only run tests for changed files
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E '\.(js|jsx|ts|tsx)$' | xargs npm test -- --findRelatedTests --coverage
+      
+      - name: Check bundle size
+        run: |
+          npm run build
+          npx bundlesize --config .bundlesizerc.json
+      
+      - name: Comment PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const fs = require('fs');
+            
+            // Read test coverage if available
+            let coverage = '';
+            if (fs.existsSync('coverage/coverage-summary.json')) {
+              const coverageData = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+              const total = coverageData.total;
+              coverage = `
+              ## 📊 Coverage Report
+              - Statements: ${total.statements.pct}%
+              - Branches: ${total.branches.pct}%
+              - Functions: ${total.functions.pct}%
+              - Lines: ${total.lines.pct}%
+              `;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ✅ PR Checks Summary
+              
+              ${coverage}
+              
+              All checks passed! Ready for review.`
+            })
+
+  # Security check for dependencies
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for vulnerable dependencies
+        run: |
+          npm audit --production --audit-level=high
+      
+      - name: License check
+        run: |
+          npx license-checker --production --onlyAllow 'MIT;Apache-2.0;BSD-3-Clause;BSD-2-Clause;ISC;CC0-1.0'

@@ -13,65 +13,65 @@ const TABLE_NAME = process.env.USER_PROMPTS_TABLE || 'user-prompts';
 exports.handler = async (event) => {
   console.log('Save prompt event:', JSON.stringify(event, null, 2));
 
-  // Parse request body
-  let body;
   try {
-    body = JSON.parse(event.body);
-  } catch (error) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Invalid request body' }),
-    };
-  }
+    // Parse request body
+    let body;
+    try {
+      body = JSON.parse(event.body || '{}');
+    } catch (error) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Invalid request body' }),
+      };
+    }
 
-  // Extract user information from event
-  const user = await getUserFromEvent(event);
-  if (!user || !user.sub) {
-    return {
-      statusCode: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Unauthorized' }),
-    };
-  }
+    // Extract user information from event
+    const user = await getUserFromEvent(event);
+    if (!user || !user.sub) {
+      return {
+        statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
   
-  const userId = user.sub;
+    const userId = user.sub;
 
-  // Validate required fields
-  const { templateId, templateTitle, content, variables } = body;
-  if (!templateTitle || !content) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Missing required fields: templateTitle and content' }),
+    // Validate required fields
+    const { templateId, templateTitle, content, variables } = body;
+    if (!templateTitle || !content) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Missing required fields: templateTitle and content' }),
+      };
+    }
+
+    // Create prompt item
+    const promptId = uuidv4();
+    const timestamp = new Date().toISOString();
+    
+    const promptItem = {
+      promptId,
+      userId,
+      templateId: templateId || null,
+      templateTitle,
+      content,
+      variables: variables || {},
+      createdAt: timestamp,
+      updatedAt: timestamp,
     };
-  }
 
-  // Create prompt item
-  const promptId = uuidv4();
-  const timestamp = new Date().toISOString();
-  
-  const promptItem = {
-    promptId,
-    userId,
-    templateId: templateId || null,
-    templateTitle,
-    content,
-    variables: variables || {},
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  };
-
-  try {
     // Save to DynamoDB
     await docClient.send(new PutCommand({
       TableName: TABLE_NAME,

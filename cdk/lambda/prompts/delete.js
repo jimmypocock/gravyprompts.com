@@ -12,35 +12,34 @@ const TABLE_NAME = process.env.USER_PROMPTS_TABLE || 'user-prompts';
 exports.handler = async (event) => {
   console.log('Delete prompt event:', JSON.stringify(event, null, 2));
 
-  // Extract prompt ID from path parameters
-  const promptId = event.pathParameters?.promptId;
-  if (!promptId) {
-    return {
-      statusCode: 400,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Missing promptId' }),
-    };
-  }
-
-  // Extract user information from event
-  const user = await getUserFromEvent(event);
-  if (!user || !user.sub) {
-    return {
-      statusCode: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Unauthorized' }),
-    };
-  }
-  
-  const userId = user.sub;
-
   try {
+    // Extract prompt ID from path parameters
+    const promptId = event.pathParameters?.promptId;
+    if (!promptId) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Missing promptId' }),
+      };
+    }
+
+    // Extract user information from event
+    const user = await getUserFromEvent(event);
+    if (!user || !user.sub) {
+      return {
+        statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
+    
+    const userId = user.sub;
     // First, get the prompt to verify ownership
     const getResult = await docClient.send(new GetCommand({
       TableName: TABLE_NAME,

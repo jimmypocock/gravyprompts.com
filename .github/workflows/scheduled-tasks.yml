@@ -1,0 +1,220 @@
+name: Scheduled Maintenance Tasks
+
+on:
+  schedule:
+    # Run at 2 AM UTC every Sunday
+    - cron: '0 2 * * 0'
+  workflow_dispatch: # Allow manual triggering
+
+env:
+  NODE_VERSION: '20.x'
+  AWS_REGION: 'us-east-1'
+
+# Permissions needed for OIDC authentication
+permissions:
+  id-token: write    # Required for OIDC
+  contents: read     # Required for actions/checkout
+  issues: write      # Required for creating issues
+
+jobs:
+  # Weekly security audit
+  security-audit:
+    name: Weekly Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Run comprehensive security audit
+        run: |
+          npm audit --json > security-audit.json
+          npm run test -- __tests__/security --coverage
+      
+      - name: Check for outdated dependencies
+        run: |
+          npx npm-check-updates -u --target minor
+          npm outdated > outdated-deps.txt || true
+      
+      - name: Create security report issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const audit = JSON.parse(fs.readFileSync('security-audit.json', 'utf8'));
+            const outdated = fs.readFileSync('outdated-deps.txt', 'utf8');
+            
+            if (audit.metadata.vulnerabilities.total > 0 || outdated.length > 100) {
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔐 Weekly Security Report - ${new Date().toISOString().split('T')[0]}`,
+                body: `## Security Audit Results
+                
+                **Vulnerabilities Found:** ${audit.metadata.vulnerabilities.total}
+                - Critical: ${audit.metadata.vulnerabilities.critical}
+                - High: ${audit.metadata.vulnerabilities.high}
+                - Moderate: ${audit.metadata.vulnerabilities.moderate}
+                - Low: ${audit.metadata.vulnerabilities.low}
+                
+                ## Outdated Dependencies
+                \`\`\`
+                ${outdated}
+                \`\`\`
+                
+                Please review and update dependencies as needed.`,
+                labels: ['security', 'dependencies']
+              });
+            }
+
+  # Performance regression check
+  performance-check:
+    name: Performance Regression Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run performance tests
+        run: |
+          npm test -- __tests__/performance --json --outputFile=performance-results.json
+      
+      - name: Compare with baseline
+        run: |
+          npm run performance:compare
+      
+      - name: Alert on regression
+        if: failure()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: failure
+          text: '⚠️ Performance regression detected in weekly check!'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Accessibility compliance check
+  accessibility-check:
+    name: Accessibility Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+      
+      - name: Run accessibility tests
+        run: |
+          npm test -- __tests__/accessibility
+          npx pa11y-ci --sitemap https://gravyprompts.com/sitemap.xml
+      
+      - name: Generate accessibility report
+        run: |
+          npm run report:accessibility
+      
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-report-${{ github.run_id }}
+          path: accessibility-report.html
+          retention-days: 90
+
+  # Database optimization
+  database-maintenance:
+    name: Database Maintenance
+    runs-on: ubuntu-latest
+    if: github.repository == 'gravyprompts/gravyprompts.com' # Only run on main repo
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Analyze DynamoDB usage
+        run: |
+          aws cloudwatch get-metric-statistics \
+            --namespace AWS/DynamoDB \
+            --metric-name ConsumedReadCapacityUnits \
+            --dimensions Name=TableName,Value=templates \
+            --statistics Sum \
+            --start-time $(date -u -d '7 days ago' +%Y-%m-%dT%H:%M:%S) \
+            --end-time $(date -u +%Y-%m-%dT%H:%M:%S) \
+            --period 86400 > dynamodb-usage.json
+      
+      - name: Check for unused indexes
+        run: |
+          npm run db:analyze:indexes
+      
+      - name: Clean up old data
+        run: |
+          npm run db:cleanup:old-data -- --dry-run
+
+  # Cost optimization check
+  cost-analysis:
+    name: AWS Cost Analysis
+    runs-on: ubuntu-latest
+    if: github.repository == 'gravyprompts/gravyprompts.com'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Get cost report
+        run: |
+          aws ce get-cost-and-usage \
+            --time-period Start=$(date -u -d '7 days ago' +%Y-%m-%d),End=$(date -u +%Y-%m-%d) \
+            --granularity DAILY \
+            --metrics "UnblendedCost" \
+            --group-by Type=DIMENSION,Key=SERVICE > cost-report.json
+      
+      - name: Analyze costs
+        run: |
+          npm run analyze:costs -- cost-report.json
+      
+      - name: Create cost report issue if high
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('cost-analysis.json', 'utf8'));
+            
+            if (report.weeklyTotal > 100) { // Alert if over $100/week
+              github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `💰 High AWS Costs Alert - $${report.weeklyTotal}`,
+                body: `Weekly AWS costs have exceeded $100.
+                
+                ## Cost Breakdown:
+                ${report.breakdown}
+                
+                ## Recommendations:
+                ${report.recommendations}`,
+                labels: ['cost-optimization', 'infrastructure']
+              });
+            }

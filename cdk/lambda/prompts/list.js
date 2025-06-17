@@ -12,28 +12,36 @@ const TABLE_NAME = process.env.USER_PROMPTS_TABLE || 'user-prompts';
 exports.handler = async (event) => {
   console.log('List prompts event:', JSON.stringify(event, null, 2));
 
-  // Extract user information from event
-  const user = await getUserFromEvent(event);
-  if (!user || !user.sub) {
-    return {
-      statusCode: 401,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({ error: 'Unauthorized' }),
-    };
-  }
-  
-  const userId = user.sub;
-
-  // Parse query parameters
-  const limit = parseInt(event.queryStringParameters?.limit) || 20;
-  const lastEvaluatedKey = event.queryStringParameters?.lastKey
-    ? JSON.parse(decodeURIComponent(event.queryStringParameters.lastKey))
-    : undefined;
-
   try {
+    // Extract user information from event
+    const user = await getUserFromEvent(event);
+    if (!user || !user.sub) {
+      return {
+        statusCode: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+        body: JSON.stringify({ error: 'Unauthorized' }),
+      };
+    }
+    
+    const userId = user.sub;
+
+    // Parse query parameters
+    const rawLimit = parseInt(event.queryStringParameters?.limit);
+    const limit = (rawLimit > 0 ? rawLimit : null) || 20;
+    
+    let lastEvaluatedKey;
+    if (event.queryStringParameters?.lastKey) {
+      try {
+        lastEvaluatedKey = JSON.parse(decodeURIComponent(event.queryStringParameters.lastKey));
+      } catch (e) {
+        // Ignore invalid lastKey
+        console.warn('Invalid lastKey parameter:', e.message);
+      }
+    }
+
     // Query user's prompts
     const params = {
       TableName: TABLE_NAME,
@@ -52,7 +60,7 @@ exports.handler = async (event) => {
 
     const result = await docClient.send(new QueryCommand(params));
 
-    console.log(`Found ${result.Items.length} prompts for user ${userId}`);
+    console.log(`Found ${result.Items?.length || 0} prompts for user ${userId}`);
 
     const response = {
       items: result.Items || [],

@@ -1,0 +1,16 @@
+# Debug scripts with hardcoded URLs
+debug-api-browser.js
+debug-api-fixed.js
+debug-templates.js
+get-auth-token.js
+quick-test.js
+test-api-production.sh
+
+# Scripts with sensitive information
+*-prod.js
+*-production.js
+*.local.js
+
+# Temporary files
+*.tmp
+*.log

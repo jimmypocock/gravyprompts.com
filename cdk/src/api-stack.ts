@@ -552,6 +552,13 @@ export class ApiStack extends Stack {
     // Permissions management
     const permissions = admin.addResource('permissions');
     
+    // GET /admin/permissions/me - Get current user's permissions
+    const permissionsMe = permissions.addResource('me');
+    permissionsMe.addMethod('GET', new apigateway.LambdaIntegration(permissionsFunction), {
+      authorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    });
+    
     // GET /admin/permissions/users - List users with permissions
     const permissionsUsers = permissions.addResource('users');
     permissionsUsers.addMethod('GET', new apigateway.LambdaIntegration(permissionsFunction), {

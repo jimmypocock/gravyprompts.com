@@ -24,8 +24,16 @@ export default function Navigation() {
   useEffect(() => {
     async function checkAdmin() {
       if (user) {
-        const hasAccess = await checkAdminAccess();
-        setIsAdmin(hasAccess);
+        try {
+          // Always use the API to check admin access
+          // The server-side will handle any local development shortcuts securely
+          const hasAccess = await checkAdminAccess();
+          setIsAdmin(hasAccess);
+        } catch (error) {
+          // Silently fail admin check - user just won't see admin features
+          console.log('Admin check failed:', error);
+          setIsAdmin(false);
+        }
       } else {
         setIsAdmin(false);
       }

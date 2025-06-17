@@ -264,3 +264,78 @@ The app now automatically handles authentication conflicts:
 4. Deploy backend: `npm run deploy:backend`
 5. Push to GitHub for Amplify deployment
 6. Check deployment: `npm run status:all`
+
+## CRITICAL: Production-Ready Code Standards
+
+**ALWAYS follow the standards in PRODUCTION_STANDARDS.md for ALL code changes.**
+
+Key requirements:
+- NEVER put secrets or hardcoded IDs in client-side code
+- NEVER implement auth logic client-side  
+- ALWAYS handle errors gracefully
+- ALWAYS write tests for new features
+- ALWAYS consider security implications
+- DEFAULT to production-ready solutions even if more complex
+
+If suggesting a development-only shortcut:
+1. Clearly mark as "DEVELOPMENT ONLY"
+2. Explain the security risks
+3. Provide the production-ready alternative
+4. Ensure it cannot leak to production
+
+See PRODUCTION_STANDARDS.md for complete guidelines.
+
+## Testing Requirements
+
+**EVERY code change MUST include appropriate tests following professional standards.**
+
+### When Writing or Modifying Code:
+
+1. **New Features** - Write comprehensive tests BEFORE marking the feature complete:
+   - Unit tests for individual functions/components
+   - Integration tests for feature workflows
+   - Edge case handling tests
+   - Error scenario tests
+
+2. **Bug Fixes** - Add tests that:
+   - Reproduce the bug (fails before fix)
+   - Verify the fix (passes after fix)
+   - Prevent regression
+
+3. **Code Modifications** - Update existing tests to:
+   - Reflect new behavior
+   - Maintain coverage
+   - Test new edge cases
+
+### Test Standards:
+
+1. **Minimum Coverage**: 80% overall, 100% for critical paths
+2. **Test Structure**: Follow existing patterns in test files
+3. **Mock Properly**: Mock external dependencies, not internal logic
+4. **Test Names**: Descriptive - "should [expected behavior] when [condition]"
+5. **No Console Logs**: Remove debug logs from test files
+
+### Test Checklist for Every PR:
+
+- [ ] All new functions have unit tests
+- [ ] All new components have render and interaction tests
+- [ ] All API endpoints have request/response tests
+- [ ] Error paths are tested
+- [ ] Edge cases are covered
+- [ ] Tests pass locally before committing
+- [ ] No skipped or commented-out tests
+
+### Example Test Structure:
+
+```javascript
+describe('FeatureName', () => {
+  describe('methodName', () => {
+    it('should handle successful case', () => {});
+    it('should handle error case', () => {});
+    it('should validate input', () => {});
+    it('should check authorization', () => {});
+  });
+});
+```
+
+See TEST_COVERAGE_PLAN.md for the comprehensive testing roadmap.

@@ -25,6 +25,23 @@ export async function GET(
       },
     });
 
+    // Handle non-JSON responses
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      return NextResponse.json(
+        { error: text || 'Non-JSON response from API' }, 
+        { 
+          status: response.status,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        }
+      );
+    }
+
     const data = await response.json();
     
     return NextResponse.json(data, {
@@ -37,6 +54,13 @@ export async function GET(
     });
   } catch (error) {
     console.error('Proxy error:', error);
+    // Check if it's a connection error
+    if (error instanceof Error && error.message.includes('ECONNREFUSED')) {
+      return NextResponse.json(
+        { error: 'Local API server not running. Please run: npm run dev:all' }, 
+        { status: 503 }
+      );
+    }
     return NextResponse.json({ error: 'Proxy request failed' }, { status: 500 });
   }
 }

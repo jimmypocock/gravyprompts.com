@@ -77,7 +77,7 @@ describe('Permissions Lambda', () => {
       const response = await handler(event);
 
       expect(response.statusCode).toBe(403);
-      expect(JSON.parse(response.body).error).toBe('Forbidden: Admin permission required to manage permissions');
+      expect(JSON.parse(response.body).error).toBe('Forbidden: Admin permission required');
     });
 
     it('should validate required fields', async () => {
@@ -219,6 +219,90 @@ describe('Permissions Lambda', () => {
       expect(response.statusCode).toBe(400);
       const body = JSON.parse(response.body);
       expect(body.error).toContain('Cannot revoke your own admin permission');
+    });
+  });
+
+  describe('GET /admin/permissions/me', () => {
+    it('should return current user permissions', async () => {
+      const user = createMockUser({ sub: 'user-123' });
+      getUserFromEvent.mockResolvedValue(user);
+
+      // Mock user permissions query
+      mockDocClient.mockQuery([
+        { userId: 'user-123', permission: 'approval' },
+        { userId: 'user-123', permission: 'admin' }
+      ]);
+
+      const event = createMockEvent({
+        httpMethod: 'GET',
+        path: '/admin/permissions/me'
+      });
+
+      const response = await handler(event);
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.permissions).toEqual(['approval', 'admin']);
+    });
+
+    it('should auto-grant admin in local development for LOCAL_ADMIN_USER_ID', async () => {
+      // Set up local development environment
+      process.env.AWS_SAM_LOCAL = 'true';
+      process.env.LOCAL_ADMIN_USER_ID = 'local-admin-123';
+
+      const user = createMockUser({ sub: 'local-admin-123' });
+      getUserFromEvent.mockResolvedValue(user);
+
+      const event = createMockEvent({
+        httpMethod: 'GET',
+        path: '/admin/permissions/me'
+      });
+
+      const response = await handler(event);
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.permissions).toEqual(['admin', 'approval']);
+      
+      // Should not query database in local dev for admin user
+      expect(mockDocClient.mockSend).not.toHaveBeenCalled();
+      
+      // Clean up
+      delete process.env.AWS_SAM_LOCAL;
+      delete process.env.LOCAL_ADMIN_USER_ID;
+    });
+
+    it('should return empty array if user has no permissions', async () => {
+      const user = createMockUser({ sub: 'user-123' });
+      getUserFromEvent.mockResolvedValue(user);
+
+      // Mock empty permissions query
+      mockDocClient.mockQuery([]);
+
+      const event = createMockEvent({
+        httpMethod: 'GET',
+        path: '/admin/permissions/me'
+      });
+
+      const response = await handler(event);
+
+      expect(response.statusCode).toBe(200);
+      const body = JSON.parse(response.body);
+      expect(body.permissions).toEqual([]);
+    });
+
+    it('should return 401 if not authenticated', async () => {
+      getUserFromEvent.mockResolvedValue(null);
+
+      const event = createMockEvent({
+        httpMethod: 'GET',
+        path: '/admin/permissions/me'
+      });
+
+      const response = await handler(event);
+
+      expect(response.statusCode).toBe(401);
+      expect(JSON.parse(response.body).error).toBe('Unauthorized');
     });
   });
 });

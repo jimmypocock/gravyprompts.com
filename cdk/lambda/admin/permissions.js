@@ -26,17 +26,57 @@ exports.handler = async (event) => {
       };
     }
 
-    // Check if current user has admin permissions (only admin can manage permissions)
+    // Route based on method and path
+    // Allow users to check their own permissions without admin access
+    if (httpMethod === 'GET' && path === '/admin/permissions/me') {
+      // In local development with SAM Local, auto-grant admin to specific user
+      // This is ONLY for local development and will not work in production
+      if (process.env.AWS_SAM_LOCAL === 'true' && 
+          process.env.LOCAL_ADMIN_USER_ID && 
+          currentUser.sub === process.env.LOCAL_ADMIN_USER_ID) {
+        console.log('Local development: Auto-granting admin permissions');
+        return {
+          statusCode: 200,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ permissions: ['admin', 'approval'] })
+        };
+      }
+      
+      // Get current user's permissions from database
+      return await getUserPermissions(currentUser.sub);
+    }
+    
+    // Check if current user has admin permissions for other operations
     const hasAdminPermission = await checkUserPermission(currentUser.sub, 'admin');
+    
+    // Allow users to check their own permissions even without admin access
+    if (httpMethod === 'GET' && path.startsWith('/admin/permissions/user/')) {
+      const userId = path.split('/').pop();
+      if (userId === currentUser.sub) {
+        // User checking their own permissions
+        return await getUserPermissions(userId);
+      }
+      // Checking another user's permissions requires admin
+      if (!hasAdminPermission) {
+        return {
+          statusCode: 403,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Forbidden: Admin permission required to view other users\' permissions' })
+        };
+      }
+      return await getUserPermissions(userId);
+    }
+    
+    // All other operations require admin permission
     if (!hasAdminPermission) {
       return {
         statusCode: 403,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Forbidden: Admin permission required to manage permissions' })
+        body: JSON.stringify({ error: 'Forbidden: Admin permission required' })
       };
     }
 
-    // Route based on method and path
+    // Admin-only routes
     if (httpMethod === 'GET' && path === '/admin/permissions/users') {
       // List all users with permissions
       return await listUsersWithPermissions(event);

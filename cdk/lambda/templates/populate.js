@@ -174,3 +174,4 @@ function escapeRegExp(string) {
 // Strip HTML tags (simple implementation)
 function stripHtml(html) {
   return html.replace(/<[^>]*>/g, '');
+}

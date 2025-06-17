@@ -1,0 +1,61 @@
+name: Test OIDC Setup
+
+# Manual trigger only for testing
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: 'us-east-1'
+
+# Required permissions for OIDC
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test-oidc-connection:
+    name: Test AWS OIDC Connection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Verify AWS identity
+        run: |
+          echo "🔍 Testing OIDC authentication..."
+          aws sts get-caller-identity
+          echo "✅ OIDC authentication successful!"
+      
+      - name: Test DynamoDB access
+        run: |
+          echo "🔍 Testing DynamoDB access..."
+          aws dynamodb list-tables --region ${{ env.AWS_REGION }}
+          echo "✅ DynamoDB access successful!"
+      
+      - name: Test Lambda access
+        run: |
+          echo "🔍 Testing Lambda access..."
+          aws lambda list-functions --region ${{ env.AWS_REGION }} --query 'Functions[?starts_with(FunctionName, `GRAVYPROMPTS-`)].FunctionName'
+          echo "✅ Lambda access successful!"
+      
+      - name: Test S3 access
+        run: |
+          echo "🔍 Testing S3 access..."
+          aws s3 ls | grep gravyprompts || echo "No gravyprompts buckets found (this is OK)"
+          echo "✅ S3 access test complete!"
+      
+      - name: Summary
+        run: |
+          echo "🎉 All OIDC tests passed successfully!"
+          echo ""
+          echo "You can now:"
+          echo "1. Remove this test workflow"
+          echo "2. Complete the migration following MIGRATION-GUIDE-IAM-TO-OIDC.md"
+          echo "3. Remove AWS access key secrets from GitHub"

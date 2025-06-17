@@ -145,10 +145,32 @@ export async function processApproval(
 // Check if current user has admin permissions (approval or admin)
 export async function checkAdminAccess(): Promise<boolean> {
   try {
-    // Try to fetch the approval queue - if it succeeds, user has at least approval permission
-    const response = await fetchWithAuth(`${getApiBaseUrl()}/admin/approval/queue?limit=1`);
-    return response.ok;
-  } catch {
+    // Use the /me endpoint to get current user's permissions
+    const response = await fetchWithAuth(`${getApiBaseUrl()}/admin/permissions/me`);
+    
+    if (!response.ok) {
+      console.log('Failed to fetch user permissions:', response.status);
+      return false;
+    }
+    
+    const data = await response.json();
+    const permissions = data.permissions || [];
+    
+    // Check if user has admin or approval permission
+    const hasAdminAccess = permissions.includes('admin') || permissions.includes('approval');
+    
+    if (hasAdminAccess) {
+      console.log('User has admin access with permissions:', permissions);
+    }
+    
+    return hasAdminAccess;
+  } catch (error) {
+    // Log the actual error for debugging
+    if (error instanceof Error) {
+      console.log('Admin access check failed:', error.message);
+    } else {
+      console.log('Admin access check failed:', error);
+    }
     return false;
   }
 }
