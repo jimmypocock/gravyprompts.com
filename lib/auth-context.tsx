@@ -43,7 +43,7 @@ export interface UserProfile {
   linkedin?: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
   error: string | null;
@@ -59,7 +59,7 @@ interface AuthContextType {
   getIdToken: () => Promise<string>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);

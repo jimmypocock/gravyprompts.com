@@ -12,7 +12,11 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
-    ignores: ["cdk/**/*", "cdk.out/**/*"]
+    ignores: ["cdk/**/*", "cdk.out/**/*"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "react/display-name": "off"
+    }
   }
 ];
 

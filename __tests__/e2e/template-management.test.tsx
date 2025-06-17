@@ -8,9 +8,13 @@ import { useAuth, AuthProvider } from '@/lib/auth-context';
 import { SearchProvider } from '@/lib/search-context';
 import { savePrompt } from '@/lib/api/prompts';
 
+// Import mocked functions
+const { getTemplate, updateTemplate, deleteTemplate } = jest.requireMock('@/lib/api/templates');
+
 // Mock dependencies
 jest.mock('next/navigation', () => ({
   useRouter: jest.fn(),
+  useParams: jest.fn(),
   useSearchParams: jest.fn(() => ({
     get: jest.fn()
   }))
@@ -331,6 +335,11 @@ describe('Template Management E2E', () => {
   });
 
   describe('Template Detail Page', () => {
+    beforeEach(() => {
+      const { useParams } = require('next/navigation');
+      (useParams as jest.Mock).mockReturnValue({ id: mockTemplate.templateId });
+    });
+
     it('should display full template details', async () => {
       (getTemplate as jest.Mock).mockResolvedValue({
         template: mockTemplate
@@ -338,7 +347,7 @@ describe('Template Management E2E', () => {
 
       render(
         <AuthProvider>
-          <TemplateDetailPage params={{ id: mockTemplate.templateId }} />
+          <TemplateDetailPage />
         </AuthProvider>
       );
 
@@ -358,7 +367,7 @@ describe('Template Management E2E', () => {
 
       render(
         <AuthProvider>
-          <TemplateDetailPage params={{ id: mockTemplate.templateId }} />
+          <TemplateDetailPage />
         </AuthProvider>
       );
 
@@ -386,7 +395,7 @@ describe('Template Management E2E', () => {
 
       render(
         <AuthProvider>
-          <TemplateDetailPage params={{ id: mockTemplate.templateId }} />
+          <TemplateDetailPage />
         </AuthProvider>
       );
 
@@ -408,7 +417,7 @@ describe('Template Management E2E', () => {
 
       render(
         <AuthProvider>
-          <TemplateDetailPage params={{ id: mockTemplate.templateId }} />
+          <TemplateDetailPage />
         </AuthProvider>
       );
 

@@ -26,6 +26,7 @@ export interface Template {
   useCount: number;
   isOwner?: boolean;
   moderationStatus?: string;
+  moderationDetails?: any; // Details about moderation
 }
 
 export interface CreateTemplateRequest {

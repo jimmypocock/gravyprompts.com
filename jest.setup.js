@@ -1,5 +1,9 @@
 // Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom'
+import { toHaveNoViolations } from 'jest-axe'
+
+// Add jest-axe matchers
+expect.extend(toHaveNoViolations)
 
 // Mock next/navigation
 jest.mock('next/navigation', () => ({

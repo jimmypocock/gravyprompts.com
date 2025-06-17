@@ -711,7 +711,7 @@ describe('Accessibility Tests', () => {
       expect(screen.getByRole('radio', { name: 'Private' })).toBeInTheDocument();
     });
 
-    it('should provide clear form validation feedback', () => {
+    it('should provide clear form validation feedback', async () => {
       const MockValidationForm = () => {
         const [submitted, setSubmitted] = React.useState(false);
         const [values, setValues] = React.useState({ email: '', password: '' });

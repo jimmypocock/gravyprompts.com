@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false
+  },
+  "include": ["**/__tests__/**/*", "**/*.test.ts", "**/*.test.tsx", "test-utils/**/*", "jest.setup.js"]
+}

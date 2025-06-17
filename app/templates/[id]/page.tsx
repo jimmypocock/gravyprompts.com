@@ -37,12 +37,12 @@ export default function TemplateDetailPage() {
 
       const data = await api.getTemplate(templateId, shareToken || undefined);
       setTemplate(data);
-      setEditorContent(data.content);
+      setEditorContent(data.content || '');
 
       // Wait for next tick and set content in editor
       setTimeout(() => {
         if (editorRef.current) {
-          editorRef.current.setContent(data.content);
+          editorRef.current.setContent(data.content || '');
         }
       }, 100);
     } catch (err) {
