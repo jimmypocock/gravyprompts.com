@@ -51,7 +51,15 @@
 
 ### Bugs
 
-<!-- Add bug fixes here -->
+- [ ] **Fix Search Bug** - Popularity boost prevents empty results (found in search integration tests)
+
+### Security Fixes (HIGH PRIORITY)
+
+- [ ] **Fix Rate Limiting** - `checkRateLimit` function returns true without any implementation
+- [ ] **Disable Anonymous View Tracking** - Every view creates DynamoDB records (cost risk!)
+- [ ] **Add IP Rate Limiting** - Public endpoints have no protection against abuse
+- [ ] **Reduce Response Sizes** - Don't return full content in list responses
+- [ ] **Deploy WAF** - Run `npm run deploy:waf` if not already deployed
 
 ### Testing
 
@@ -111,6 +119,30 @@
 - [ ] Infrastructure monitoring - CloudWatch dashboards and alerts
 - [ ] Backup and disaster recovery - Automated DynamoDB backups
 - [ ] Cost optimization - AWS cost monitoring and optimization
+
+### Lambda Protection (Prevent Infinite Loops)
+
+- [ ] Set reserved concurrency limits on experimental functions - Conservative limits to prevent runaway costs
+- [ ] Implement dead letter queues (DLQ) - Catch and analyze failed invocations
+- [ ] Set up AWS X-Ray tracing - Trace execution paths and identify loops ($5/million traces)
+- [ ] Add circuit breaker patterns - Prevent cascading failures in Lambda code
+- [ ] Configure maximum retry attempts - Limit automatic retries on failures
+- [ ] Add timeout configurations - Ensure functions don't run indefinitely
+
+### Enhanced Cost Management
+
+- [ ] Configure AWS Budgets with Actions - Automatically stop services at thresholds (free for 2 budgets)
+  - [ ] Set daily budget alerts at $5, $10, $25
+  - [ ] Configure auto-stop actions for non-critical services
+  - [ ] Create separate budgets for dev/staging/production
+- [ ] Enable AWS Free Tier alerts - Proactive notifications before limits (free)
+- [ ] Evaluate Vantage.sh integration - Advanced anomaly detection (free tier available)
+- [ ] Set up CloudWatch billing alarms - Real-time metric monitoring (10 free/month)
+  - [ ] Daily spend threshold alarm
+  - [ ] Unusual activity detection
+  - [ ] Service-specific cost alarms
+- [ ] Implement cost allocation tags - Track spending by feature/service
+- [ ] Create cost optimization dashboard - Visualize spending patterns
 
 ### Critical API Optimizations (HIGH PRIORITY)
 
