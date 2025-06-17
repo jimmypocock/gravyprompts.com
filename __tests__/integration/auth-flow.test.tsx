@@ -312,7 +312,10 @@ describe("Authentication Flow Integration", () => {
 
       let signInResult: any;
       await act(async () => {
-        signInResult = await result.current.signIn("user@example.com", "password");
+        signInResult = await result.current.signIn(
+          "user@example.com",
+          "password",
+        );
       });
 
       expect(signInResult).toHaveProperty("nextStep");

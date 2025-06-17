@@ -56,9 +56,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Billing",
             metricName: "EstimatedCharges",
-            dimensionsMap: { 
+            dimensionsMap: {
               Currency: "USD",
-              ServiceName: "AmazonDynamoDB"
+              ServiceName: "AmazonDynamoDB",
             },
             statistic: "Maximum",
             label: "DynamoDB",
@@ -66,9 +66,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Billing",
             metricName: "EstimatedCharges",
-            dimensionsMap: { 
+            dimensionsMap: {
               Currency: "USD",
-              ServiceName: "AWSLambda"
+              ServiceName: "AWSLambda",
             },
             statistic: "Maximum",
             label: "Lambda",
@@ -76,9 +76,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Billing",
             metricName: "EstimatedCharges",
-            dimensionsMap: { 
+            dimensionsMap: {
               Currency: "USD",
-              ServiceName: "AmazonApiGateway"
+              ServiceName: "AmazonApiGateway",
             },
             statistic: "Maximum",
             label: "API Gateway",
@@ -86,9 +86,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Billing",
             metricName: "EstimatedCharges",
-            dimensionsMap: { 
+            dimensionsMap: {
               Currency: "USD",
-              ServiceName: "AWSAmplify"
+              ServiceName: "AWSAmplify",
             },
             statistic: "Maximum",
             label: "Amplify",
@@ -211,15 +211,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // Lambda Invocations
       new cloudwatch.GraphWidget({
         title: "Lambda Invocations",
-        left: lambdaFunctions.map(fn => 
-          new cloudwatch.Metric({
-            namespace: "AWS/Lambda",
-            metricName: "Invocations",
-            dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
-            statistic: "Sum",
-            period: Duration.minutes(5),
-            label: fn.replace("Function", ""),
-          })
+        left: lambdaFunctions.map(
+          (fn) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/Lambda",
+              metricName: "Invocations",
+              dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
+              statistic: "Sum",
+              period: Duration.minutes(5),
+              label: fn.replace("Function", ""),
+            }),
         ),
         width: 12,
         height: 6,
@@ -229,15 +230,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // Lambda Errors
       new cloudwatch.GraphWidget({
         title: "Lambda Errors",
-        left: lambdaFunctions.map(fn => 
-          new cloudwatch.Metric({
-            namespace: "AWS/Lambda",
-            metricName: "Errors",
-            dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
-            statistic: "Sum",
-            period: Duration.minutes(5),
-            label: fn.replace("Function", ""),
-          })
+        left: lambdaFunctions.map(
+          (fn) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/Lambda",
+              metricName: "Errors",
+              dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
+              statistic: "Sum",
+              period: Duration.minutes(5),
+              label: fn.replace("Function", ""),
+            }),
         ),
         width: 6,
         height: 6,
@@ -250,15 +252,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // Lambda Duration
       new cloudwatch.GraphWidget({
         title: "Lambda Duration (Avg)",
-        left: lambdaFunctions.map(fn => 
-          new cloudwatch.Metric({
-            namespace: "AWS/Lambda",
-            metricName: "Duration",
-            dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
-            statistic: "Average",
-            period: Duration.minutes(5),
-            label: fn.replace("Function", ""),
-          })
+        left: lambdaFunctions.map(
+          (fn) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/Lambda",
+              metricName: "Duration",
+              dimensionsMap: { FunctionName: `${props.stackPrefix}-API-${fn}` },
+              statistic: "Average",
+              period: Duration.minutes(5),
+              label: fn.replace("Function", ""),
+            }),
         ),
         width: 6,
         height: 6,
@@ -276,15 +279,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // DynamoDB Read Capacity
       new cloudwatch.GraphWidget({
         title: "DynamoDB Consumed Read Capacity",
-        left: tables.map(table => 
-          new cloudwatch.Metric({
-            namespace: "AWS/DynamoDB",
-            metricName: "ConsumedReadCapacityUnits",
-            dimensionsMap: { TableName: table },
-            statistic: "Sum",
-            period: Duration.minutes(5),
-            label: table,
-          })
+        left: tables.map(
+          (table) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/DynamoDB",
+              metricName: "ConsumedReadCapacityUnits",
+              dimensionsMap: { TableName: table },
+              statistic: "Sum",
+              period: Duration.minutes(5),
+              label: table,
+            }),
         ),
         width: 8,
         height: 6,
@@ -293,15 +297,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // DynamoDB Write Capacity
       new cloudwatch.GraphWidget({
         title: "DynamoDB Consumed Write Capacity",
-        left: tables.map(table => 
-          new cloudwatch.Metric({
-            namespace: "AWS/DynamoDB",
-            metricName: "ConsumedWriteCapacityUnits",
-            dimensionsMap: { TableName: table },
-            statistic: "Sum",
-            period: Duration.minutes(5),
-            label: table,
-          })
+        left: tables.map(
+          (table) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/DynamoDB",
+              metricName: "ConsumedWriteCapacityUnits",
+              dimensionsMap: { TableName: table },
+              statistic: "Sum",
+              period: Duration.minutes(5),
+              label: table,
+            }),
         ),
         width: 8,
         height: 6,
@@ -310,15 +315,16 @@ export class ComprehensiveMonitoringStack extends Stack {
       // DynamoDB Throttles
       new cloudwatch.GraphWidget({
         title: "DynamoDB Throttled Requests",
-        left: tables.map(table => 
-          new cloudwatch.Metric({
-            namespace: "AWS/DynamoDB",
-            metricName: "UserErrors",
-            dimensionsMap: { TableName: table },
-            statistic: "Sum",
-            period: Duration.minutes(5),
-            label: table,
-          })
+        left: tables.map(
+          (table) =>
+            new cloudwatch.Metric({
+              namespace: "AWS/DynamoDB",
+              metricName: "UserErrors",
+              dimensionsMap: { TableName: table },
+              statistic: "Sum",
+              period: Duration.minutes(5),
+              label: table,
+            }),
         ),
         width: 8,
         height: 6,
@@ -338,9 +344,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Cognito",
             metricName: "SignUpSuccesses",
-            dimensionsMap: { 
+            dimensionsMap: {
               UserPool: `${props.stackPrefix}-Auth-UserPool`,
-              UserPoolClient: `${props.stackPrefix}-Auth-UserPoolClient`
+              UserPoolClient: `${props.stackPrefix}-Auth-UserPoolClient`,
             },
             statistic: "Sum",
             period: Duration.hours(1),
@@ -350,9 +356,9 @@ export class ComprehensiveMonitoringStack extends Stack {
           new cloudwatch.Metric({
             namespace: "AWS/Cognito",
             metricName: "SignInSuccesses",
-            dimensionsMap: { 
+            dimensionsMap: {
               UserPool: `${props.stackPrefix}-Auth-UserPool`,
-              UserPoolClient: `${props.stackPrefix}-Auth-UserPoolClient`
+              UserPoolClient: `${props.stackPrefix}-Auth-UserPoolClient`,
             },
             statistic: "Sum",
             period: Duration.hours(1),

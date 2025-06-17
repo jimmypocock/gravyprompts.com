@@ -26,6 +26,7 @@ npm run dev:all
 ```
 
 This single command will:
+
 1. Clean up any existing Docker containers
 2. Start DynamoDB Local on port 8000
 3. Create all necessary database tables
@@ -58,6 +59,7 @@ NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXXX
 ## Authentication in Local Development
 
 Local development uses mock authentication:
+
 - Any `Authorization` header will work
 - User IDs are automatically generated as `local-user-{timestamp}`
 - No actual AWS Cognito calls are made
@@ -66,11 +68,13 @@ Local development uses mock authentication:
 ## Local Services Architecture
 
 ### Mock Services
+
 - **Cognito**: Returns mock user IDs for any authorization header
 - **Comprehend**: Always returns safe content (no moderation blocks)
 - **DynamoDB**: Local Docker container with persistent data
 
 ### Port Usage
+
 - **6827**: Next.js application
 - **7429**: API Gateway (SAM Local)
 - **8000**: DynamoDB Local
@@ -82,16 +86,19 @@ Local development uses mock authentication:
 ### 1. Making Code Changes
 
 **Frontend Changes** (React/Next.js):
+
 - Edit files in `app/`, `components/`, or `lib/`
 - Changes hot-reload automatically
 - No restart needed
 
 **Lambda Function Changes**:
+
 - Edit files in `cdk/lambda/templates/`
 - SAM Local reloads automatically
 - Test immediately via API calls
 
 **Infrastructure Changes** (CDK):
+
 - Edit files in `cdk/src/`
 - Run `npm run build:cdk` to compile
 - Deploy with appropriate deploy command
@@ -99,6 +106,7 @@ Local development uses mock authentication:
 ### 2. Testing Your Changes
 
 **API Testing**:
+
 ```bash
 # Create a template
 curl -X POST http://localhost:7429/templates \
@@ -120,6 +128,7 @@ npm run local:test:api
 ```
 
 **Frontend Testing**:
+
 ```bash
 # Run all tests
 npm test
@@ -134,15 +143,18 @@ npm run test:coverage
 ### 3. Database Management
 
 **View Data**:
+
 - Open http://localhost:8001 for DynamoDB Admin UI
 - Browse tables, items, and run queries
 
 **Load Sample Data**:
+
 ```bash
 npm run templates:load:local -- --file ./data/sample-templates.json
 ```
 
 **Clear All Data**:
+
 ```bash
 npm run local:clear:all
 ```
@@ -152,12 +164,14 @@ npm run local:clear:all
 ### Common Issues
 
 **Templates not loading?**
+
 ```bash
 # Reload sample templates
 npm run templates:load:local -- --file ./data/consolidated-templates.json
 ```
 
 **Port conflicts?**
+
 ```bash
 # Clean up all services
 npm run local:cleanup
@@ -167,6 +181,7 @@ npm run dev:all
 ```
 
 **Authentication errors?**
+
 ```bash
 # Fix local auth setup
 npm run local:fix-auth
@@ -176,6 +191,7 @@ npm run dev:all
 ```
 
 **Docker issues?**
+
 ```bash
 # Reset Docker containers
 docker-compose -f cdk/local-test/docker-compose.yml down -v
@@ -188,14 +204,15 @@ docker-compose -f cdk/local-test/docker-compose.yml down -v
 1. **Lambda Logs**: Watch the terminal running `npm run dev:all`
 2. **Network Requests**: Use browser DevTools Network tab
 3. **Database State**: Check DynamoDB Admin UI
-4. **Add Debug Logs**: 
+4. **Add Debug Logs**:
    ```javascript
-   console.log('Debug:', variable);
+   console.log("Debug:", variable);
    ```
 
 ### Environment Variables
 
 Local Lambda functions have access to:
+
 - `IS_LOCAL=true` - Triggers local auth mode
 - `TEMPLATES_TABLE=local-templates`
 - `TEMPLATE_VIEWS_TABLE=local-template-views`
@@ -234,11 +251,13 @@ IS_LOCAL=true node local-test.js
 To test against real AWS services:
 
 1. Deploy your backend:
+
    ```bash
    npm run deploy:backend
    ```
 
 2. Update `.env.local`:
+
    ```env
    NEXT_PUBLIC_API_URL=https://your-api-id.execute-api.us-east-1.amazonaws.com/production
    NEXT_PUBLIC_USER_POOL_ID=us-east-1_XXXXXXXXX

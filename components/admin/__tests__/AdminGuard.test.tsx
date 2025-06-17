@@ -17,7 +17,11 @@ const mockCheckAdminAccess = jest.mocked(checkAdminAccess);
 const mockUseAuth = jest.mocked(useAuth);
 
 // Helper to create mock auth context
-const createMockAuthContext = (user: any = null, loading = false, error: string | null = null) => ({
+const createMockAuthContext = (
+  user: any = null,
+  loading = false,
+  error: string | null = null,
+) => ({
   user,
   loading,
   error,
@@ -48,7 +52,7 @@ describe("AdminGuard", () => {
 
   it("should show loading spinner while checking authentication", () => {
     mockUseAuth.mockReturnValue(
-      createMockAuthContext(null, true) as ReturnType<typeof useAuth>
+      createMockAuthContext(null, true) as ReturnType<typeof useAuth>,
     );
 
     render(
@@ -63,7 +67,7 @@ describe("AdminGuard", () => {
 
   it("should redirect to login if user is not authenticated", async () => {
     mockUseAuth.mockReturnValue(
-      createMockAuthContext(null, false) as ReturnType<typeof useAuth>
+      createMockAuthContext(null, false) as ReturnType<typeof useAuth>,
     );
 
     render(
@@ -83,8 +87,8 @@ describe("AdminGuard", () => {
     mockUseAuth.mockReturnValue(
       createMockAuthContext(
         { email: "user@test.com", emailVerified: true },
-        false
-      ) as ReturnType<typeof useAuth>
+        false,
+      ) as ReturnType<typeof useAuth>,
     );
     mockCheckAdminAccess.mockResolvedValue(false);
 
@@ -106,8 +110,8 @@ describe("AdminGuard", () => {
     mockUseAuth.mockReturnValue(
       createMockAuthContext(
         { email: "admin@test.com", emailVerified: true },
-        false
-      ) as ReturnType<typeof useAuth>
+        false,
+      ) as ReturnType<typeof useAuth>,
     );
     mockCheckAdminAccess.mockResolvedValue(true);
 
@@ -131,8 +135,8 @@ describe("AdminGuard", () => {
     mockUseAuth.mockReturnValue(
       createMockAuthContext(
         { email: "user@test.com", emailVerified: true },
-        false
-      ) as ReturnType<typeof useAuth>
+        false,
+      ) as ReturnType<typeof useAuth>,
     );
     mockCheckAdminAccess.mockRejectedValue(new Error("Network error"));
 
@@ -157,7 +161,7 @@ describe("AdminGuard", () => {
 
   it("should not check access while auth is still loading", () => {
     mockUseAuth.mockReturnValue(
-      createMockAuthContext(null, true) as ReturnType<typeof useAuth>
+      createMockAuthContext(null, true) as ReturnType<typeof useAuth>,
     );
 
     render(
@@ -179,7 +183,7 @@ describe("AdminGuard", () => {
 
     // Initial render with no user
     mockUseAuth.mockReturnValue(
-      createMockAuthContext(null, false) as ReturnType<typeof useAuth>
+      createMockAuthContext(null, false) as ReturnType<typeof useAuth>,
     );
 
     rerender(
@@ -196,8 +200,8 @@ describe("AdminGuard", () => {
     mockUseAuth.mockReturnValue(
       createMockAuthContext(
         { email: "admin@test.com", emailVerified: true },
-        false
-      ) as ReturnType<typeof useAuth>
+        false,
+      ) as ReturnType<typeof useAuth>,
     );
     mockCheckAdminAccess.mockResolvedValue(true);
     mockPush.mockClear();

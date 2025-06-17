@@ -7,22 +7,28 @@
 
   // Get API URL from environment or prompt user
   let API_URL = null;
-  
+
   // Try to get from window object (if set by app)
-  if (typeof window !== 'undefined' && window.ENV && window.ENV.NEXT_PUBLIC_API_URL) {
+  if (
+    typeof window !== "undefined" &&
+    window.ENV &&
+    window.ENV.NEXT_PUBLIC_API_URL
+  ) {
     API_URL = window.ENV.NEXT_PUBLIC_API_URL;
   }
-  
+
   // If not found, ask user to provide it
   if (!API_URL) {
-    API_URL = prompt("Enter your API URL (e.g., https://your-api-id.execute-api.us-east-1.amazonaws.com/production):");
+    API_URL = prompt(
+      "Enter your API URL (e.g., https://your-api-id.execute-api.us-east-1.amazonaws.com/production):",
+    );
     if (!API_URL) {
       console.error("❌ API URL is required for debugging");
       return;
     }
   }
 
-  console.log(`🔗 Using API URL: ${API_URL.replace(/\/[^\/]*$/, '/***')}`); // Mask last part for security
+  console.log(`🔗 Using API URL: ${API_URL.replace(/\/[^\/]*$/, "/***")}`); // Mask last part for security
 
   // Get the auth token
   const idTokenKey = Object.keys(localStorage).find((k) =>
@@ -139,17 +145,22 @@
 
     // Clean up - delete the test template
     console.log("   🧹 Cleaning up test template...");
-    const deleteResponse = await fetch(`${API_URL}/templates/${data.templateId}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const deleteResponse = await fetch(
+      `${API_URL}/templates/${data.templateId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     if (deleteResponse.ok) {
       console.log("   ✅ Test template cleaned up");
     } else {
-      console.log("   ⚠️ Could not clean up test template - you may need to delete it manually");
+      console.log(
+        "   ⚠️ Could not clean up test template - you may need to delete it manually",
+      );
     }
   } catch (error) {
     console.error("❌ Error testing template creation:", error.message);

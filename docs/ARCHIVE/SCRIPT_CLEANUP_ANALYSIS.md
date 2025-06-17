@@ -1,6 +1,7 @@
 # Script Cleanup Analysis - 98 Files is TOO MANY!
 
 ## 🚨 Current State: **BLOATED**
+
 - **98 files** in `/scripts/` directory
 - Many debug scripts that were one-off tools
 - Generated files that don't belong in version control
@@ -9,23 +10,26 @@
 ## 🎯 **ESSENTIAL SCRIPTS ONLY** (Target: ~15-20 scripts)
 
 ### Core Deployment (5 scripts)
+
 ```bash
 ✅ KEEP: deploy-auth.sh          # Deploy Cognito
-✅ KEEP: deploy-api.sh           # Deploy API Gateway + Lambda  
+✅ KEEP: deploy-api.sh           # Deploy API Gateway + Lambda
 ✅ KEEP: deploy-backend.sh       # Deploy all backend (main script)
 ✅ KEEP: deploy-budget.sh        # Deploy cost monitoring
 ✅ KEEP: deploy-dashboard.sh     # Deploy monitoring dashboard
 ```
 
 ### Core Development (4 scripts)
+
 ```bash
 ✅ KEEP: local-setup.sh          # Setup local environment
 ✅ KEEP: local-start.sh          # Start local services
-✅ KEEP: local-stop.sh           # Stop local services  
+✅ KEEP: local-stop.sh           # Stop local services
 ✅ KEEP: local-cleanup.sh        # Clean local environment
 ```
 
 ### Core Monitoring (3 scripts)
+
 ```bash
 ✅ KEEP: check-stack-status.sh   # Check AWS stack status
 ✅ KEEP: check-budget-status.sh  # Check AWS costs
@@ -33,6 +37,7 @@
 ```
 
 ### Core Data Management (3 scripts)
+
 ```bash
 ✅ KEEP: load-templates.sh       # Load template data
 ✅ KEEP: check-templates.sh      # Verify templates
@@ -42,6 +47,7 @@
 ## 🗑️ **DELETE THESE** (Target: ~75+ files to remove)
 
 ### Debug Scripts (DELETE ALL)
+
 ```bash
 ❌ DELETE: debug-*.js                    # One-off debugging tools
 ❌ DELETE: test-api-*.sh                 # Ad-hoc API testing
@@ -52,14 +58,16 @@
 ```
 
 ### Generated Files (DELETE ALL)
+
 ```bash
 ❌ DELETE: deployment-report.html        # Auto-generated report
-❌ DELETE: *.log                         # Log files  
+❌ DELETE: *.log                         # Log files
 ❌ DELETE: *.tmp                         # Temporary files
 ❌ DELETE: workflow-scripts.js           # Generated CI helper
 ```
 
 ### Redundant/Deprecated (DELETE ALL)
+
 ```bash
 ❌ DELETE: *-old.sh                      # Old versions
 ❌ DELETE: *-backup.sh                   # Backup scripts
@@ -68,6 +76,7 @@
 ```
 
 ### Documentation Overkill (DELETE MOST)
+
 ```bash
 ❌ DELETE: SCRIPT_REGISTRY.md            # Excessive documentation
 ❌ DELETE: SCRIPTS.md                    # Auto-generated docs
@@ -80,7 +89,7 @@
 ```bash
 # Remove debug scripts
 rm scripts/debug-*.js
-rm scripts/test-api-*.sh  
+rm scripts/test-api-*.sh
 rm scripts/quick-*.js
 rm scripts/analyze-*.js
 rm scripts/verify-*.js
@@ -112,18 +121,18 @@ Replace the 50+ npm scripts with just these essentials:
     // Development
     "dev:all": "npm run local:setup && npm run local:start && npm run dev",
     "local:setup": "./scripts/local-setup.sh",
-    "local:start": "./scripts/local-start.sh", 
+    "local:start": "./scripts/local-start.sh",
     "local:stop": "./scripts/local-stop.sh",
-    
+
     // Deployment
     "deploy:backend": "./scripts/deploy-backend.sh",
     "deploy:budget": "./scripts/deploy-budget.sh",
     "deploy:dashboard": "./scripts/deploy-dashboard.sh",
-    
+
     // Monitoring
     "status": "./scripts/check-stack-status.sh",
     "check:budget": "./scripts/check-budget-status.sh",
-    
+
     // Data
     "templates:load": "./scripts/load-templates.sh"
   }
@@ -133,18 +142,21 @@ Replace the 50+ npm scripts with just these essentials:
 ## 🎯 **BENEFITS OF CLEANUP**
 
 ### Reduced Complexity
+
 - ✅ 15 scripts instead of 98
 - ✅ Clear purpose for each script
 - ✅ No redundant functionality
 - ✅ Easier to maintain
 
-### Better Developer Experience  
+### Better Developer Experience
+
 - ✅ Less cognitive overhead
 - ✅ Faster onboarding
 - ✅ Clear documentation
 - ✅ No confusion about which script to use
 
 ### Security Benefits
+
 - ✅ Fewer attack vectors
 - ✅ Less code to audit
 - ✅ No forgotten debug tools
@@ -153,13 +165,15 @@ Replace the 50+ npm scripts with just these essentials:
 ## 🚀 **RECOMMENDED ACTION**
 
 **Execute the cleanup immediately!** The current state is:
+
 - 🔴 **Unmaintainable** (98 files)
 - 🔴 **Confusing** (too many options)
 - 🔴 **Security risk** (forgotten debug tools)
 - 🔴 **Bloated** (generated files in git)
 
 Target state:
+
 - ✅ **Clean** (~15 essential scripts)
-- ✅ **Focused** (clear purposes)  
+- ✅ **Focused** (clear purposes)
 - ✅ **Secure** (no debug bloat)
 - ✅ **Maintainable** (simple structure)

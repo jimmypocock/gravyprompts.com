@@ -185,12 +185,14 @@ The `packages/` directory contains two git submodules that are separate reposito
 - **packages/gravyjs-demo** - Demo application for testing gravyjs
 
 ### Important Notes:
+
 1. These are **separate git repositories** with their own commit history
 2. Changes inside these directories need to be committed within the submodule first
 3. The main repository tracks which commit of each submodule to use
 4. When you see `modified: packages/gravyjs (modified content)` it means the submodule has uncommitted changes
 
 ### Common Submodule Commands:
+
 ```bash
 # Clone repository with submodules
 git clone --recursive [repo-url]

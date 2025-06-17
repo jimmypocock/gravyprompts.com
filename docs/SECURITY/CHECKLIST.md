@@ -5,6 +5,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 ## Pre-Deployment Security Checklist
 
 ### Code Security
+
 - [ ] No hardcoded API keys, credentials, or secrets in any files
 - [ ] All sensitive configuration uses environment variables
 - [ ] No debug console.log statements with sensitive data
@@ -14,6 +15,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] CSRF protection on state-changing operations
 
 ### Configuration Files
+
 - [ ] `.env` files are in `.gitignore`
 - [ ] `.env.example` contains only placeholder values
 - [ ] No real AWS account IDs in example files
@@ -21,6 +23,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] AWS profile names are generic (not personal)
 
 ### API Security
+
 - [ ] Rate limiting is enabled and configured
 - [ ] Authentication required on all protected endpoints
 - [ ] CORS properly configured for production domain
@@ -28,6 +31,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Error messages are generic (no stack traces)
 
 ### Infrastructure
+
 - [ ] WAF rules are active and configured
 - [ ] DynamoDB encryption is enabled
 - [ ] Lambda functions have appropriate timeouts
@@ -39,6 +43,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 ### Before Making Repository Public
 
 #### Environment & Configuration
+
 - [ ] Remove all `.env` files (keep only `.env.example`)
 - [ ] Verify `.gitignore` includes all sensitive file patterns
 - [ ] Check `git log` for accidentally committed secrets
@@ -46,6 +51,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Replace production URLs with placeholders
 
 #### Scripts & Debug Files
+
 - [ ] Remove or sanitize debug scripts with hardcoded values
 - [ ] Check all `.sh` scripts for embedded credentials
 - [ ] Remove temporary test files
@@ -53,6 +59,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Verify no API tokens in test files
 
 #### Documentation
+
 - [ ] Remove internal email addresses
 - [ ] Remove internal URLs or endpoints
 - [ ] Sanitize example commands
@@ -60,6 +67,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Add SECURITY.md for vulnerability reporting
 
 #### AWS & Infrastructure
+
 - [ ] CDK outputs don't contain sensitive values
 - [ ] CloudFormation templates use parameters, not hardcoded values
 - [ ] Remove AWS account IDs from documentation
@@ -67,6 +75,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Remove internal domain names
 
 #### Git History
+
 - [ ] Run `git-secrets` scan on entire history
 - [ ] Use `git filter-branch` if secrets found in history
 - [ ] Consider fresh repository if extensive cleanup needed
@@ -75,6 +84,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 ### Post-Public Checklist
 
 #### Monitoring
+
 - [ ] Set up GitHub secret scanning alerts
 - [ ] Enable Dependabot security alerts
 - [ ] Configure branch protection rules
@@ -82,6 +92,7 @@ This checklist ensures the GravyPrompts application maintains security standards
 - [ ] Enable security policy
 
 #### Access Control
+
 - [ ] Review collaborator permissions
 - [ ] Disable force pushes to main branch
 - [ ] Require PR reviews for main branch
@@ -110,6 +121,7 @@ git log -p | grep -i "secret\|key\|token\|password"
 ## Security Tools Integration
 
 ### Recommended GitHub Apps
+
 - [ ] GitHub Advanced Security (if available)
 - [ ] GitGuardian
 - [ ] Snyk
@@ -117,6 +129,7 @@ git log -p | grep -i "secret\|key\|token\|password"
 - [ ] Renovate / Dependabot
 
 ### Pre-commit Hooks
+
 ```bash
 # Install pre-commit hooks
 npm install --save-dev husky
@@ -124,7 +137,9 @@ npx husky add .husky/pre-commit "npm run security:scan"
 ```
 
 ### Security Scanning Script
+
 Create `scripts/security-scan.sh`:
+
 ```bash
 #!/bin/bash
 # Basic security scan before commits
@@ -154,18 +169,21 @@ If secrets are accidentally exposed:
 ## Regular Security Reviews
 
 ### Weekly
+
 - [ ] Review CloudWatch logs for anomalies
 - [ ] Check rate limiting effectiveness
 - [ ] Review failed authentication attempts
 - [ ] Monitor API usage patterns
 
 ### Monthly
+
 - [ ] Full repository secret scan
 - [ ] Dependency vulnerability check
 - [ ] IAM permission audit
 - [ ] Cost anomaly review
 
 ### Quarterly
+
 - [ ] Penetration testing
 - [ ] Security training update
 - [ ] Incident response drill

@@ -17,50 +17,62 @@ The application has undergone significant security hardening with multiple layer
 ## Implemented Security Measures
 
 ### 1. Anonymous View Tracking Protection
+
 **Problem**: Every anonymous page view created DynamoDB records, creating cost vulnerability
-**Solution**: 
+**Solution**:
+
 - Removed anonymous view tracking entirely
 - Views now only tracked for authenticated users
 - Eliminated potential for DDoS via view tracking
 
 ### 2. Rate Limiting Implementation
+
 **Problem**: No rate limiting on public endpoints
 **Solution**:
+
 - Implemented proper rate limiting logic in `utils.js`
 - 100 requests per minute per IP for anonymous users
 - 1000 requests per minute for authenticated users
 - Rate limit data stored in DynamoDB with TTL
 
 ### 3. Web Application Firewall (WAF)
+
 **Problem**: No protection against common web attacks
 **Solution**:
+
 - Deployed AWS WAF with managed rule sets
 - Protection against SQL injection, XSS, and known bad IPs
 - Automatic blocking of malicious requests
 - Cost: ~$60/month (consider if necessary for your use case)
 
 ### 4. API Response Optimization
+
 **Problem**: List endpoints returned full template content
 **Solution**:
+
 - Modified list endpoints to return only metadata
 - Reduced response sizes by 80-90%
 - Improved performance and reduced data transfer costs
 
 ### 5. Input Validation & Sanitization
+
 **Problem**: Limited input validation on user-provided data
 **Solution**:
+
 - Added comprehensive input validation for all endpoints
 - Template title/content length limits
 - HTML sanitization for template content
 - Rejection of malformed requests
 
 ### 6. Authentication & Authorization
+
 - AWS Cognito for user authentication
 - JWT token validation on all protected endpoints
 - Admin role enforcement for sensitive operations
 - Proper CORS configuration for API access
 
 ### 7. Infrastructure Security
+
 - All data encrypted at rest (DynamoDB)
 - HTTPS enforcement on all endpoints
 - Least privilege IAM roles
@@ -71,17 +83,20 @@ The application has undergone significant security hardening with multiple layer
 ### Defense in Depth Layers
 
 1. **Network Layer**
+
    - CloudFront CDN with AWS Shield Standard
    - WAF rules for malicious request filtering
    - HTTPS/TLS 1.2+ enforcement
 
 2. **Application Layer**
+
    - API Gateway request validation
    - Lambda function input validation
    - Rate limiting per IP/user
    - CORS policy enforcement
 
 3. **Data Layer**
+
    - DynamoDB encryption at rest
    - IAM policies for data access
    - No direct database access
@@ -95,18 +110,21 @@ The application has undergone significant security hardening with multiple layer
 ## Security Best Practices
 
 ### Development
+
 - Never commit credentials or secrets
 - Use environment variables for configuration
 - Regular dependency updates
 - Security testing in CI/CD pipeline
 
 ### Deployment
+
 - Use AWS Secrets Manager for sensitive data
 - Enable AWS GuardDuty for threat detection
 - Regular security audits
 - Automated vulnerability scanning
 
 ### Operations
+
 - Monitor CloudWatch logs for anomalies
 - Review budget alerts daily
 - Incident response plan in place
@@ -115,6 +133,7 @@ The application has undergone significant security hardening with multiple layer
 ## Security Checklist
 
 ### Before Each Deployment
+
 - [ ] No hardcoded credentials in code
 - [ ] Environment variables properly configured
 - [ ] Rate limiting enabled and tested
@@ -123,6 +142,7 @@ The application has undergone significant security hardening with multiple layer
 - [ ] WAF rules up to date
 
 ### Weekly Reviews
+
 - [ ] Check CloudWatch dashboards
 - [ ] Review budget spend
 - [ ] Analyze rate limit violations
@@ -130,6 +150,7 @@ The application has undergone significant security hardening with multiple layer
 - [ ] Review access logs
 
 ### Monthly Reviews
+
 - [ ] Full security audit
 - [ ] Dependency updates
 - [ ] IAM permission review
@@ -141,18 +162,20 @@ The application has undergone significant security hardening with multiple layer
 ### If You Suspect a Security Issue
 
 1. **Immediate Actions**
+
    ```bash
    # Stop all Lambda functions
    npm run script:emergency-stop
-   
+
    # Check current costs
    npm run check:budget
-   
+
    # Review CloudWatch logs
    aws logs tail /aws/lambda/templates-list --follow
    ```
 
 2. **Investigation**
+
    - Check CloudWatch metrics for anomalies
    - Review WAF logs for blocked requests
    - Analyze DynamoDB usage patterns
@@ -173,6 +196,7 @@ The application has undergone significant security hardening with multiple layer
 ## Ongoing Security Tasks
 
 See TODO.md for current security enhancement tasks:
+
 - Lambda concurrency limits
 - Dead letter queues
 - Enhanced cost monitoring

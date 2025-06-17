@@ -9,12 +9,12 @@ export class BudgetStack extends cdk.Stack {
     super(scope, id, props);
 
     // Get email from context or environment
-    const alertEmail = this.node.tryGetContext("alertEmail") || 
-                      process.env.BUDGET_ALERT_EMAIL;
-    
+    const alertEmail =
+      this.node.tryGetContext("alertEmail") || process.env.BUDGET_ALERT_EMAIL;
+
     if (!alertEmail || alertEmail === "your-email@example.com") {
       throw new Error(
-        "BUDGET_ALERT_EMAIL must be set in your .env file or passed via --context alertEmail=your-email@example.com"
+        "BUDGET_ALERT_EMAIL must be set in your .env file or passed via --context alertEmail=your-email@example.com",
       );
     }
 
@@ -25,7 +25,7 @@ export class BudgetStack extends cdk.Stack {
 
     // Add email subscription
     budgetTopic.addSubscription(
-      new subscriptions.EmailSubscription(alertEmail)
+      new subscriptions.EmailSubscription(alertEmail),
     );
 
     // Overall monthly budget for the entire AWS account
@@ -92,12 +92,21 @@ export class BudgetStack extends cdk.Stack {
             unit: "USD",
           },
           costFilters: {
-            Service: [service.name === "Lambda" ? "AWS Lambda" : 
-                     service.name === "DynamoDB" ? "Amazon DynamoDB" :
-                     service.name === "API Gateway" ? "Amazon API Gateway" :
-                     service.name === "CloudWatch" ? "AmazonCloudWatch" :
-                     service.name === "S3" ? "Amazon Simple Storage Service" :
-                     service.name === "Amplify" ? "AWS Amplify" : service.name],
+            Service: [
+              service.name === "Lambda"
+                ? "AWS Lambda"
+                : service.name === "DynamoDB"
+                  ? "Amazon DynamoDB"
+                  : service.name === "API Gateway"
+                    ? "Amazon API Gateway"
+                    : service.name === "CloudWatch"
+                      ? "AmazonCloudWatch"
+                      : service.name === "S3"
+                        ? "Amazon Simple Storage Service"
+                        : service.name === "Amplify"
+                          ? "AWS Amplify"
+                          : service.name,
+            ],
           },
         },
         notificationsWithSubscribers: [

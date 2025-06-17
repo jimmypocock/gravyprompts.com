@@ -641,39 +641,40 @@ This prevents recreating certificates and avoids validation delays.
 
 ### Core Commands
 
-| Command             | Description                                             |
-| ------------------- | ------------------------------------------------------- |
-| `npm run dev`       | Start development server with Turbopack                 |
-| `npm run dev:all`   | Start full local stack (DB, API, frontend)             |
-| `npm run build`     | Build for production                                    |
-| `npm run start`     | Start production server                                 |
-| `npm run lint`      | Run ESLint                                              |
-| `npm run type-check`| Run TypeScript type checking                            |
+| Command              | Description                                |
+| -------------------- | ------------------------------------------ |
+| `npm run dev`        | Start development server with Turbopack    |
+| `npm run dev:all`    | Start full local stack (DB, API, frontend) |
+| `npm run build`      | Build for production                       |
+| `npm run start`      | Start production server                    |
+| `npm run lint`       | Run ESLint                                 |
+| `npm run type-check` | Run TypeScript type checking               |
 
 ### Testing Commands
 
-| Command              | Description                                            |
-| -------------------- | ------------------------------------------------------ |
-| `npm test`           | Run all tests (CI + local)                            |
-| `npm run test:ci`    | Run only CI-safe tests (components, contracts)        |
-| `npm run test:local` | Run local-only tests (security, E2E, integration)     |
-| `npm run test:watch` | Run tests in watch mode                               |
-| `npm run test:coverage` | Generate test coverage report                       |
+| Command                 | Description                                       |
+| ----------------------- | ------------------------------------------------- |
+| `npm test`              | Run all tests (CI + local)                        |
+| `npm run test:ci`       | Run only CI-safe tests (components, contracts)    |
+| `npm run test:local`    | Run local-only tests (security, E2E, integration) |
+| `npm run test:watch`    | Run tests in watch mode                           |
+| `npm run test:coverage` | Generate test coverage report                     |
 
 ### Infrastructure Commands
 
-| Command             | Description                                             |
-| ------------------- | ------------------------------------------------------- |
-| `npm run build:cdk` | Build CDK TypeScript (done automatically during deploy) |
-| `npm run cdk:synth` | Synthesize CDK templates                                |
-| `npm run status`    | Check stack status                                      |
-| `npm run deploy:all`| Deploy complete infrastructure                          |
+| Command              | Description                                             |
+| -------------------- | ------------------------------------------------------- |
+| `npm run build:cdk`  | Build CDK TypeScript (done automatically during deploy) |
+| `npm run cdk:synth`  | Synthesize CDK templates                                |
+| `npm run status`     | Check stack status                                      |
+| `npm run deploy:all` | Deploy complete infrastructure                          |
 
 ## Testing
 
 The project uses a split testing strategy to ensure fast CI/CD while maintaining comprehensive test coverage:
 
 ### CI Tests (Run in GitHub Actions)
+
 - **Component Tests** - All UI components (`components/__tests__/`)
 - **Contract Tests** - API contract validation
 - **Unit Tests** - Pure functions and utilities
@@ -681,6 +682,7 @@ The project uses a split testing strategy to ensure fast CI/CD while maintaining
 These tests are fast, reliable, and have no external dependencies.
 
 ### Local-Only Tests
+
 - **Security Tests** - Test security features (many aspirational)
 - **E2E Tests** - Full user flow tests requiring complete app setup
 - **Integration Tests** - API integrations with AWS services
@@ -689,6 +691,7 @@ These tests are fast, reliable, and have no external dependencies.
 Run local tests with: `npm run test:local`
 
 ### Test Organization
+
 See `__tests__/README.md` for detailed test organization and guidelines.
 
 ## File Structure
