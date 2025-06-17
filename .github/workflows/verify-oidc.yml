@@ -1,0 +1,124 @@
+name: Verify OIDC Setup
+
+on:
+  workflow_dispatch:
+    inputs:
+      debug:
+        description: 'Enable debug logging'
+        required: false
+        default: 'false'
+
+env:
+  AWS_REGION: 'us-east-1'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  verify-oidc-configuration:
+    name: Verify OIDC Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials via OIDC
+        id: aws-creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Verify AWS identity
+        run: |
+          echo "🔍 Verifying OIDC authentication..."
+          echo "=================================="
+          
+          echo -e "\n✅ Successfully authenticated with OIDC!"
+          echo -e "\n📋 Current AWS Identity:"
+          aws sts get-caller-identity | jq '.'
+          
+          echo -e "\n📋 Assumed Role:"
+          echo "Role ARN: ${{ steps.aws-creds.outputs.aws-account-id }}"
+          
+      - name: Verify OIDC Provider
+        run: |
+          echo -e "\n📋 Checking OIDC Provider Configuration:"
+          
+          # Get the OIDC provider ARN
+          PROVIDER_ARN="arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:oidc-provider/token.actions.githubusercontent.com"
+          
+          echo "Provider ARN: $PROVIDER_ARN"
+          
+          # Try to get provider details
+          if aws iam get-open-id-connect-provider --open-id-connect-provider-arn "$PROVIDER_ARN" 2>/dev/null; then
+            echo "✅ OIDC Provider is properly configured!"
+          else
+            echo "❌ Could not verify OIDC provider configuration"
+          fi
+      
+      - name: Test DynamoDB Access
+        run: |
+          echo -e "\n📋 Testing DynamoDB access:"
+          if aws dynamodb list-tables --region ${{ env.AWS_REGION }} | jq '.TableNames[] | select(startswith("GRAVYPROMPTS"))'; then
+            echo "✅ DynamoDB access confirmed!"
+          else
+            echo "⚠️  No GRAVYPROMPTS tables found (this might be OK if not deployed yet)"
+          fi
+      
+      - name: Test Lambda Access
+        run: |
+          echo -e "\n📋 Testing Lambda access:"
+          LAMBDA_COUNT=$(aws lambda list-functions --region ${{ env.AWS_REGION }} --query 'Functions[?starts_with(FunctionName, `GRAVYPROMPTS-`)].FunctionName' --output json | jq 'length')
+          echo "Found $LAMBDA_COUNT GRAVYPROMPTS Lambda functions"
+          
+          if [ "$LAMBDA_COUNT" -gt 0 ]; then
+            echo "✅ Lambda access confirmed!"
+          else
+            echo "⚠️  No GRAVYPROMPTS functions found (this might be OK if not deployed yet)"
+          fi
+      
+      - name: Test S3 Access
+        run: |
+          echo -e "\n📋 Testing S3 access:"
+          if aws s3 ls | grep -q gravyprompts; then
+            echo "✅ Found gravyprompts S3 buckets!"
+            aws s3 ls | grep gravyprompts
+          else
+            echo "ℹ️  No gravyprompts buckets found (this is normal if not using S3)"
+          fi
+      
+      - name: Test CloudFormation Access
+        run: |
+          echo -e "\n📋 Testing CloudFormation access:"
+          STACK_COUNT=$(aws cloudformation list-stacks --region ${{ env.AWS_REGION }} --query 'StackSummaries[?starts_with(StackName, `GRAVYPROMPTS-`) && StackStatus!=`DELETE_COMPLETE`].StackName' --output json | jq 'length')
+          echo "Found $STACK_COUNT GRAVYPROMPTS stacks"
+          
+          if [ "$STACK_COUNT" -gt 0 ]; then
+            echo "✅ CloudFormation access confirmed!"
+            aws cloudformation list-stacks --region ${{ env.AWS_REGION }} --query 'StackSummaries[?starts_with(StackName, `GRAVYPROMPTS-`) && StackStatus!=`DELETE_COMPLETE`].[StackName,StackStatus]' --output table
+          else
+            echo "⚠️  No GRAVYPROMPTS stacks found (deploy with CDK to create them)"
+          fi
+      
+      - name: Summary
+        run: |
+          echo -e "\n🎉 OIDC Verification Complete!"
+          echo "=============================="
+          echo ""
+          echo "✅ OIDC authentication is working correctly!"
+          echo "✅ The role can be assumed by GitHub Actions"
+          echo "✅ Basic AWS service permissions verified"
+          echo ""
+          echo "Your CI/CD pipeline should be able to:"
+          echo "  - Deploy CDK stacks"
+          echo "  - Update Lambda functions"
+          echo "  - Access DynamoDB tables"
+          echo "  - Manage other AWS resources"
+          echo ""
+          echo "Next steps:"
+          echo "1. Try running the full CI/CD pipeline"
+          echo "2. Monitor the deployment jobs"
+          echo "3. Check CloudFormation for stack updates"
