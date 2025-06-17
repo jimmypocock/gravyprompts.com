@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from "react";
 
 interface SearchContextType {
   searchQuery: string;
@@ -12,7 +12,7 @@ interface SearchContextType {
 const SearchContext = createContext<SearchContextType | undefined>(undefined);
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isNavSearchVisible, setNavSearchVisible] = useState(false);
 
   const handleSetSearchQuery = useCallback((query: string) => {
@@ -40,7 +40,7 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
 export function useSearch() {
   const context = useContext(SearchContext);
   if (!context) {
-    throw new Error('useSearch must be used within a SearchProvider');
+    throw new Error("useSearch must be used within a SearchProvider");
   }
   return context;
 }

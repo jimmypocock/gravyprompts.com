@@ -5,6 +5,7 @@ This guide addresses the persistent issue where macOS repeatedly asks for keycha
 ## Problem Description
 
 You're constantly seeing alerts like:
+
 > "docker-credential-osxkeychain wants to use your confidential information stored in 'docker credentials' in your keychain"
 
 This happens repeatedly, requiring password entry multiple times, making Docker usage frustrating on macOS.
@@ -48,6 +49,7 @@ nano ~/.docker/config.json
 ```
 
 Change from:
+
 ```json
 {
   "credsStore": "osxkeychain"
@@ -55,6 +57,7 @@ Change from:
 ```
 
 To:
+
 ```json
 {
   "credsStore": ""
@@ -142,6 +145,7 @@ docker context use mycontext
 ## Last Resort
 
 If none of the above solutions work, consider:
+
 - Using Docker through a VM or container
 - Using alternative tools like OrbStack or Colima
 - Reporting the issue to Docker support with your specific macOS and Docker versions

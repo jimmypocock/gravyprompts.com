@@ -13,7 +13,7 @@ export default {
         foreground: "var(--text-primary)",
         // Airbnb-inspired brand colors
         primary: "var(--primary)",
-        secondary: "var(--secondary)", 
+        secondary: "var(--secondary)",
         accent: "var(--accent)",
         neutral: "var(--neutral)",
         // Additional color utilities

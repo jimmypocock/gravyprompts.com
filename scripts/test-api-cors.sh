@@ -1,6 +1,14 @@
 #!/bin/bash
 
-API_URL="https://umrabm5742.execute-api.us-east-1.amazonaws.com/api"
+# Load environment variables
+if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+fi
+
+# Use API URL from environment variable or default
+API_URL="${NEXT_PUBLIC_API_URL:-https://your-api-id.execute-api.us-east-1.amazonaws.com/production}"
 
 echo "Testing API CORS headers..."
 echo "=============================="

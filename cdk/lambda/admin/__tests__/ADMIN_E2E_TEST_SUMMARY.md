@@ -7,7 +7,9 @@ We've successfully created comprehensive end-to-end integration tests that verif
 ## 🔍 What We're Testing
 
 ### Complete Admin Workflow ✅
+
 1. **Grant Permission Flow**
+
    - Admin grants approval permission to new user
    - New approver views pending templates queue
    - Approver approves a template
@@ -19,19 +21,23 @@ We've successfully created comprehensive end-to-end integration tests that verif
    - Non-approvers cannot access approval queue (403)
 
 ### Rejection Workflow ✅
+
 1. **Template Rejection**
    - Approver can reject templates with reason
    - Rejected templates don't appear in public search
    - Rejection reason is required (400 if missing)
 
 ### Permission Management ✅
+
 1. **User Permission Operations**
    - List users with specific permissions
    - Admin can revoke permissions
    - Users cannot revoke their own admin permission
 
 ### Edge Cases & Security ✅
+
 1. **Error Handling**
+
    - Handles approval of already approved templates
    - Handles non-existent template IDs gracefully
    - Validates permission types (admin/approval only)
@@ -43,19 +49,23 @@ We've successfully created comprehensive end-to-end integration tests that verif
 ## 🏗️ Test Infrastructure
 
 ### Real Integration Testing
+
 - Uses actual DynamoDB Local (no mocks!)
 - Seeds realistic test data
 - Tests real Lambda handlers
 - Verifies actual database operations
 
 ### Key Components
+
 1. **Test Users**
+
    - Admin user
    - Approver user
    - Regular user (no permissions)
    - Template author
 
 2. **Test Templates**
+
    - Pending templates for approval
    - Already approved templates
    - Templates from different users
@@ -68,6 +78,7 @@ We've successfully created comprehensive end-to-end integration tests that verif
 ## 🐛 Bugs Fixed During Testing
 
 1. **Reserved Keyword Issue**
+
    - "permission" is a DynamoDB reserved keyword
    - Fixed by using ExpressionAttributeNames
    - Updated in both approval.js and permissions.js
@@ -98,6 +109,7 @@ We've successfully created comprehensive end-to-end integration tests that verif
 ## 📝 What This Means
 
 You can now:
+
 - Trust that admin/approval functionality works without manual UI testing
 - Make changes confidently knowing tests will catch regressions
 - Understand the complete permission model

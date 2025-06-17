@@ -1,6 +1,6 @@
-import { Stack, StackProps, CfnOutput } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import * as acm from 'aws-cdk-lib/aws-certificatemanager';
+import { Stack, StackProps, CfnOutput } from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 
 export interface CertificateStackProps extends StackProps {
   domainName: string;
@@ -23,36 +23,37 @@ export class CertificateStack extends Stack {
       // Import existing certificate
       this.certificate = acm.Certificate.fromCertificateArn(
         this,
-        'Certificate',
-        props.certificateArn
+        "Certificate",
+        props.certificateArn,
       );
       this.certificateArn = props.certificateArn;
-      
-      new CfnOutput(this, 'CertificateArn', {
+
+      new CfnOutput(this, "CertificateArn", {
         value: this.certificateArn,
-        description: 'Imported Certificate ARN',
+        description: "Imported Certificate ARN",
         exportName: `${this.stackName}-CertificateArn`,
       });
     } else {
       // Create new certificate
-      const cert = new acm.Certificate(this, 'Certificate', {
+      const cert = new acm.Certificate(this, "Certificate", {
         domainName: props.domainName,
         subjectAlternativeNames: [`www.${props.domainName}`],
         validation: acm.CertificateValidation.fromDns(),
       });
-      
+
       this.certificate = cert;
       this.certificateArn = cert.certificateArn;
-      
-      new CfnOutput(this, 'CertificateArn', {
+
+      new CfnOutput(this, "CertificateArn", {
         value: this.certificateArn,
-        description: 'Certificate ARN - SAVE THIS VALUE!',
+        description: "Certificate ARN - SAVE THIS VALUE!",
         exportName: `${this.stackName}-CertificateArn`,
       });
-      
-      new CfnOutput(this, 'IMPORTANT_SAVE_ARN', {
+
+      new CfnOutput(this, "IMPORTANT_SAVE_ARN", {
         value: `SAVE THIS ARN TO YOUR .env FILE: CERTIFICATE_ARN=${this.certificateArn}`,
-        description: 'Action required to prevent certificate deletion on next deployment',
+        description:
+          "Action required to prevent certificate deletion on next deployment",
       });
     }
   }

@@ -7,6 +7,7 @@ This guide helps you migrate from using IAM users with long-term access keys to 
 AWS explicitly states: **"Do not give [third parties] access to an IAM user and its long-term credentials"**
 
 Current risks with IAM users:
+
 - ❌ Long-term credentials can be leaked
 - ❌ Manual rotation required
 - ❌ Secrets stored in GitHub
@@ -14,6 +15,7 @@ Current risks with IAM users:
 - ❌ Poor audit trail
 
 Benefits of OIDC:
+
 - ✅ No secrets in GitHub
 - ✅ Automatic credential rotation
 - ✅ Temporary credentials only
@@ -23,6 +25,7 @@ Benefits of OIDC:
 ## 📋 Pre-Migration Checklist
 
 Before starting:
+
 - [ ] List all workflows using AWS credentials
 - [ ] Document current IAM user permissions
 - [ ] Identify AWS resources accessed
@@ -34,6 +37,7 @@ Before starting:
 ### Step 1: Create OIDC Setup (Without Breaking Existing)
 
 1. **Follow the CICD-SETUP-GUIDE-SECURE.md** to create:
+
    - OIDC Identity Provider
    - IAM Role with proper trust policy
    - Permission policies
@@ -54,7 +58,7 @@ git checkout -b migration/oidc-setup
 name: Test OIDC Setup
 
 on:
-  workflow_dispatch:  # Manual trigger only
+  workflow_dispatch: # Manual trigger only
 
 permissions:
   id-token: write
@@ -63,26 +67,27 @@ permissions:
 jobs:
   test-oidc:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Configure AWS credentials (OIDC)
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
-        aws-region: us-east-1
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+          aws-region: us-east-1
 
-    - name: Test AWS access
-      run: |
-        echo "Testing AWS access with OIDC..."
-        aws sts get-caller-identity
-        aws s3 ls
-        echo "✅ OIDC setup working!"
+      - name: Test AWS access
+        run: |
+          echo "Testing AWS access with OIDC..."
+          aws sts get-caller-identity
+          aws s3 ls
+          echo "✅ OIDC setup working!"
 ```
 
 2. **Push and test**:
+
 ```bash
 git add .github/workflows/test-oidc.yml
 git commit -m "test: Add OIDC test workflow"
@@ -96,6 +101,7 @@ git push origin migration/oidc-setup
 For each workflow using AWS credentials:
 
 **Before (IAM User):**
+
 ```yaml
 - name: Configure AWS credentials
   uses: aws-actions/configure-aws-credentials@v4
@@ -106,17 +112,18 @@ For each workflow using AWS credentials:
 ```
 
 **After (OIDC):**
+
 ```yaml
 permissions:
-  id-token: write    # Add this at job or workflow level
+  id-token: write # Add this at job or workflow level
   contents: read
 
 steps:
-- name: Configure AWS credentials
-  uses: aws-actions/configure-aws-credentials@v4
-  with:
-    role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
-    aws-region: us-east-1
+  - name: Configure AWS credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/gravyprompts-github-actions-oidc
+      aws-region: us-east-1
 ```
 
 ### Step 5: Test Each Updated Workflow
@@ -136,6 +143,7 @@ steps:
 ⚠️ **Only do this after confirming all workflows work with OIDC!**
 
 1. **Disable IAM user first** (don't delete immediately):
+
 ```bash
 aws iam update-access-key \
   --access-key-id AKIAXXXXXXXX \
@@ -146,6 +154,7 @@ aws iam update-access-key \
 2. **Wait 1 week** to ensure no issues
 
 3. **Delete IAM user**:
+
 ```bash
 # Delete access keys
 aws iam delete-access-key \
@@ -169,6 +178,7 @@ aws iam delete-user --user-name gravyprompts-cicd
 ## 🔍 Verification Steps
 
 ### Check Role Assumptions
+
 ```bash
 # View recent role assumptions
 aws cloudtrail lookup-events \
@@ -177,11 +187,13 @@ aws cloudtrail lookup-events \
 ```
 
 ### Verify Workflows
+
 - Check Actions tab for successful runs
 - Review deployment logs
 - Test application functionality
 
 ### Monitor for Issues
+
 - Set up CloudWatch alarms for failed assumptions
 - Check Slack/email notifications
 - Review error logs
@@ -191,6 +203,7 @@ aws cloudtrail lookup-events \
 If issues occur:
 
 1. **Re-enable IAM user** (if not deleted):
+
 ```bash
 aws iam update-access-key \
   --access-key-id AKIAXXXXXXXX \
@@ -199,6 +212,7 @@ aws iam update-access-key \
 ```
 
 2. **Revert workflow changes**:
+
 ```bash
 git revert <commit-hash>
 git push origin main
@@ -222,6 +236,7 @@ Recommended timeline for zero-downtime migration:
 ## ❓ Common Issues
 
 ### "Could not assume role"
+
 ```yaml
 # Ensure permissions are set
 permissions:
@@ -230,11 +245,13 @@ permissions:
 ```
 
 ### "Trust policy error"
+
 - Verify repository name in trust policy
 - Check branch restrictions
 - Ensure OIDC provider exists
 
 ### "AccessDenied on resource"
+
 - Compare IAM user policies with role policies
 - Add missing permissions to role
 - Check resource ARNs

@@ -1,9 +1,9 @@
-import Script from 'next/script';
+import Script from "next/script";
 
 export default function AdSenseScript() {
   const adClient = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
-  
-  if (!adClient || process.env.NODE_ENV !== 'production') {
+
+  if (!adClient || process.env.NODE_ENV !== "production") {
     return null;
   }
 

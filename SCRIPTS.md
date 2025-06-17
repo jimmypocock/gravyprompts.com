@@ -118,6 +118,7 @@ npm run demo:setup       # Setup demo configuration
 ### Local Development Setup
 
 The `npm run dev:all` command orchestrates:
+
 1. Docker containers for DynamoDB and LocalStack
 2. SAM Local API Gateway on port 7429
 3. Next.js development server on port 3000
@@ -126,16 +127,19 @@ The `npm run dev:all` command orchestrates:
 ### Template Loading
 
 Load templates from CSV:
+
 ```bash
 npm run templates:load -- --file ./data/templates.csv
 ```
 
 Load templates from JSON:
+
 ```bash
 npm run templates:load:local -- --file ./data/templates.json
 ```
 
 The scripts support both CSV and JSON formats and automatically:
+
 - Extract variables from content
 - Assign unique IDs
 - Set proper timestamps
@@ -144,12 +148,14 @@ The scripts support both CSV and JSON formats and automatically:
 ### Deployment Workflow
 
 1. **First-time setup:**
+
    ```bash
    npm run deploy:cert:first  # Deploy certificate
    npm run deploy:backend     # Deploy all backend services
    ```
 
 2. **Updates:**
+
    ```bash
    npm run deploy:api        # Update API only
    npm run deploy:auth       # Update auth only
@@ -164,17 +170,20 @@ The scripts support both CSV and JSON formats and automatically:
 ### Common Issues
 
 1. **Port already in use:**
+
    ```bash
    npm run local:stop
    npm run local:cleanup
    ```
 
 2. **Templates not showing:**
+
    ```bash
    npm run templates:load:local -- --file ./data/consolidated-templates.json
    ```
 
 3. **CORS errors:**
+
    - The app now uses a proxy in development
    - Check that you're accessing via http://localhost:3000
 
@@ -186,6 +195,7 @@ The scripts support both CSV and JSON formats and automatically:
 ## 📝 Environment Variables
 
 Create `.env.local` with:
+
 ```env
 # API Configuration
 NEXT_PUBLIC_API_URL=http://localhost:7429
@@ -204,12 +214,14 @@ NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX
 ## 🔄 Script Execution Order
 
 ### For New Developers:
+
 1. `npm install`
 2. `npm run local:setup`
 3. `npm run templates:load:local -- --file ./data/consolidated-templates.json`
 4. `npm run dev:all`
 
 ### For Deployment:
+
 1. `npm run build:cdk`
 2. `npm run pre-flight`
 3. `npm run deploy:backend`

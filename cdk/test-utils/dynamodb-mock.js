@@ -4,38 +4,38 @@
 
 const createMockDocClient = () => {
   const mockSend = jest.fn();
-  
+
   return {
     send: mockSend,
     mockSend,
-    
+
     // Helper methods for common operations
     mockQuery: (items = []) => {
       mockSend.mockResolvedValueOnce({ Items: items });
     },
-    
+
     mockGet: (item = null) => {
       mockSend.mockResolvedValueOnce({ Item: item });
     },
-    
+
     mockPut: () => {
       mockSend.mockResolvedValueOnce({});
     },
-    
+
     mockDelete: () => {
       mockSend.mockResolvedValueOnce({});
     },
-    
+
     mockScan: (items = [], lastEvaluatedKey = null) => {
-      mockSend.mockResolvedValueOnce({ 
+      mockSend.mockResolvedValueOnce({
         Items: items,
-        ...(lastEvaluatedKey && { LastEvaluatedKey: lastEvaluatedKey })
+        ...(lastEvaluatedKey && { LastEvaluatedKey: lastEvaluatedKey }),
       });
     },
-    
+
     mockError: (error) => {
       mockSend.mockRejectedValueOnce(error);
-    }
+    },
   };
 };
 
@@ -48,30 +48,30 @@ const createDynamoDBError = (code, message) => {
 
 const createMockEvent = (overrides = {}) => {
   return {
-    httpMethod: 'GET',
-    path: '/test',
+    httpMethod: "GET",
+    path: "/test",
     headers: {
-      'Content-Type': 'application/json'
+      "Content-Type": "application/json",
     },
     body: null,
     queryStringParameters: null,
     pathParameters: null,
     requestContext: {
       authorizer: {},
-      requestId: 'test-request-id'
+      requestId: "test-request-id",
     },
-    ...overrides
+    ...overrides,
   };
 };
 
 const createMockUser = (overrides = {}) => {
   return {
-    sub: 'test-user-123',
-    email: 'test@example.com',
-    name: 'Test User',
+    sub: "test-user-123",
+    email: "test@example.com",
+    name: "Test User",
     email_verified: true,
-    username: 'testuser',
-    ...overrides
+    username: "testuser",
+    ...overrides,
   };
 };
 
@@ -79,5 +79,5 @@ module.exports = {
   createMockDocClient,
   createDynamoDBError,
   createMockEvent,
-  createMockUser
+  createMockUser,
 };

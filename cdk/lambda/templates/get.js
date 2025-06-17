@@ -1,59 +1,70 @@
-const { GetCommand, PutCommand, UpdateCommand } = require('@aws-sdk/lib-dynamodb');
-const { v4: uuidv4 } = require('uuid');
+const {
+  GetCommand,
+  PutCommand,
+  UpdateCommand,
+} = require("@aws-sdk/lib-dynamodb");
+const { v4: uuidv4 } = require("uuid");
 const {
   docClient,
   createResponse,
   checkRateLimit,
-} = require('/opt/nodejs/utils');
-const { getUserFromEvent } = require('/opt/nodejs/auth');
+} = require("/opt/nodejs/utils");
+const { getUserFromEvent } = require("/opt/nodejs/auth");
 
 exports.handler = async (event) => {
   try {
     const templateId = event.pathParameters?.templateId;
     if (!templateId) {
-      return createResponse(400, { error: 'Template ID is required' });
+      return createResponse(400, { error: "Template ID is required" });
     }
 
     // Get user from authorizer (might be null for public access)
     const user = await getUserFromEvent(event);
     const userId = user ? user.sub : null;
-    
+
     // Check rate limit - use IP for anonymous users
-    const rateLimitKey = userId || event.requestContext?.identity?.sourceIp || 'unknown';
-    const isAllowed = await checkRateLimit(rateLimitKey, 'getTemplate');
-    
+    const rateLimitKey =
+      userId || event.requestContext?.identity?.sourceIp || "unknown";
+    const isAllowed = await checkRateLimit(rateLimitKey, "getTemplate");
+
     if (!isAllowed) {
-      return createResponse(429, { 
-        error: 'Too many requests', 
-        message: 'Please slow down your requests' 
+      return createResponse(429, {
+        error: "Too many requests",
+        message: "Please slow down your requests",
       });
     }
-    
+
     // Get share token from query parameters if provided
     const shareToken = event.queryStringParameters?.token;
 
     // Get template from DynamoDB
-    const result = await docClient.send(new GetCommand({
-      TableName: process.env.TEMPLATES_TABLE,
-      Key: { templateId },
-    }));
+    const result = await docClient.send(
+      new GetCommand({
+        TableName: process.env.TEMPLATES_TABLE,
+        Key: { templateId },
+      }),
+    );
 
     if (!result.Item) {
-      return createResponse(404, { error: 'Template not found' });
+      return createResponse(404, { error: "Template not found" });
     }
 
     const template = result.Item;
 
     // Check access permissions
     const isOwner = userId && template.userId === userId;
-    const isPublic = template.visibility === 'public' && template.moderationStatus === 'approved';
+    const isPublic =
+      template.visibility === "public" &&
+      template.moderationStatus === "approved";
     const isViewer = userId && template.viewers?.includes(userId);
-    const hasValidShareToken = shareToken && template.shareTokens?.[shareToken] && 
+    const hasValidShareToken =
+      shareToken &&
+      template.shareTokens?.[shareToken] &&
       new Date(template.shareTokens[shareToken].expiresAt) > new Date();
 
     // Owner can always see their own templates regardless of moderation status
     if (!isOwner && !isPublic && !isViewer && !hasValidShareToken) {
-      return createResponse(403, { error: 'Access denied' });
+      return createResponse(403, { error: "Access denied" });
     }
 
     // Track view only for authenticated users (prevent anonymous view bombing)
@@ -93,12 +104,12 @@ exports.handler = async (event) => {
     }
 
     return createResponse(200, response);
-
   } catch (error) {
-    console.error('Error getting template:', error);
-    return createResponse(500, { 
-      error: 'Internal server error',
-      message: process.env.ENVIRONMENT === 'development' ? error.message : undefined,
+    console.error("Error getting template:", error);
+    return createResponse(500, {
+      error: "Internal server error",
+      message:
+        process.env.ENVIRONMENT === "development" ? error.message : undefined,
     });
   }
 };
@@ -107,27 +118,31 @@ exports.handler = async (event) => {
 async function trackView(templateId, viewerId) {
   const viewId = uuidv4();
   const timestamp = new Date().toISOString();
-  const ttl = Math.floor(Date.now() / 1000) + (90 * 24 * 60 * 60); // 90 days
+  const ttl = Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60; // 90 days
 
   // Record view
-  await docClient.send(new PutCommand({
-    TableName: process.env.TEMPLATE_VIEWS_TABLE,
-    Item: {
-      viewId,
-      templateId,
-      viewerId,
-      timestamp,
-      ttl,
-    },
-  }));
+  await docClient.send(
+    new PutCommand({
+      TableName: process.env.TEMPLATE_VIEWS_TABLE,
+      Item: {
+        viewId,
+        templateId,
+        viewerId,
+        timestamp,
+        ttl,
+      },
+    }),
+  );
 
   // Increment view count on template
-  await docClient.send(new UpdateCommand({
-    TableName: process.env.TEMPLATES_TABLE,
-    Key: { templateId },
-    UpdateExpression: 'ADD viewCount :inc',
-    ExpressionAttributeValues: {
-      ':inc': 1,
-    },
-  }));
+  await docClient.send(
+    new UpdateCommand({
+      TableName: process.env.TEMPLATES_TABLE,
+      Key: { templateId },
+      UpdateExpression: "ADD viewCount :inc",
+      ExpressionAttributeValues: {
+        ":inc": 1,
+      },
+    }),
+  );
 }

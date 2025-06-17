@@ -16,6 +16,7 @@ NEXT_PUBLIC_COGNITO_CLIENT_ID=<your-client-id>
 ## Deployment
 
 Deploy the auth stack:
+
 ```bash
 npm run deploy:auth
 ```
@@ -25,11 +26,13 @@ This will output the User Pool ID and Client ID that you need to set in your env
 ## Local Development
 
 ### With Real Authentication (default)
+
 - Uses the shared Cognito User Pool
 - Real sign up/sign in flow
 - Useful for testing auth features
 
 ### With Mocked Authentication
+
 - The local SAM API always returns `local-user-123` as the user ID
 - No actual JWT validation happens
 - Useful for rapid feature development
@@ -43,7 +46,7 @@ This will output the User Pool ID and Client ID that you need to set in your env
 ## Stack Names
 
 - **Auth**: `GRAVYPROMPTS-Auth`
-- **API**: `GRAVYPROMPTS-API` 
+- **API**: `GRAVYPROMPTS-API`
 - **WAF**: `GRAVYPROMPTS-WAF`
 
 All stacks follow the same naming convention without environment suffixes.
@@ -69,6 +72,7 @@ If deployments fail:
 ### Validation
 
 Check your auth setup:
+
 ```bash
 npm run check:auth
 ```

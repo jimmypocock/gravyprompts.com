@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this template
-title: '[FEATURE] '
-labels: ['enhancement']
-assignees: ''
-
+title: "[FEATURE] "
+labels: ["enhancement"]
+assignees: ""
 ---
 
 **Is your feature request related to a problem? Please describe.**

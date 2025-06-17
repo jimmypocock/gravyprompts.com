@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { useTemplateApi, type Template } from '@/lib/api/templates';
-import GravyJS from 'gravyjs';
-import type { GravyJSRef } from 'gravyjs';
-import 'gravyjs/dist/index.css';
+import { useState, useEffect, useRef } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { useTemplateApi, type Template } from "@/lib/api/templates";
+import GravyJS from "gravyjs";
+import type { GravyJSRef } from "gravyjs";
+import "gravyjs/dist/index.css";
 
 export default function TemplateDetailPage() {
   const params = useParams();
@@ -15,19 +15,22 @@ export default function TemplateDetailPage() {
   const editorRef = useRef<GravyJSRef | null>(null);
 
   const templateId = params.id as string;
-  const shareToken = searchParams.get('token');
+  const shareToken = searchParams.get("token");
 
   const [template, setTemplate] = useState<Template | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [populatedContent, setPopulatedContent] = useState<{html: string, plainText: string} | null>(null);
+  const [populatedContent, setPopulatedContent] = useState<{
+    html: string;
+    plainText: string;
+  } | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
-  const [editorContent, setEditorContent] = useState('');
+  const [editorContent, setEditorContent] = useState("");
 
   useEffect(() => {
     loadTemplate();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId, shareToken]);
 
   const loadTemplate = async () => {
@@ -37,16 +40,16 @@ export default function TemplateDetailPage() {
 
       const data = await api.getTemplate(templateId, shareToken || undefined);
       setTemplate(data);
-      setEditorContent(data.content || '');
+      setEditorContent(data.content || "");
 
       // Wait for next tick and set content in editor
       setTimeout(() => {
         if (editorRef.current) {
-          editorRef.current.setContent(data.content || '');
+          editorRef.current.setContent(data.content || "");
         }
       }, 100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load template');
+      setError(err instanceof Error ? err.message : "Failed to load template");
     } finally {
       setLoading(false);
     }
@@ -54,17 +57,17 @@ export default function TemplateDetailPage() {
 
   const handlePopulate = async () => {
     if (!editorRef.current) {
-      console.error('Editor ref not available');
+      console.error("Editor ref not available");
       return;
     }
 
     // Debug: Check current content
     const currentContent = editorRef.current.getContent();
-    console.log('Current editor content:', currentContent);
+    console.log("Current editor content:", currentContent);
 
     // Use GravyJS's built-in populate function
     const result = await editorRef.current.populateVariables();
-    console.log('Populate result:', result);
+    console.log("Populate result:", result);
 
     if (result) {
       setPopulatedContent(result);
@@ -74,10 +77,10 @@ export default function TemplateDetailPage() {
         await api.populateTemplate(
           templateId,
           { variables: result.variables || {} },
-          shareToken || undefined
+          shareToken || undefined,
         );
       } catch {
-        console.error('Failed to track usage');
+        console.error("Failed to track usage");
       }
     }
   };
@@ -88,40 +91,44 @@ export default function TemplateDetailPage() {
     try {
       setSharing(true);
       const response = await api.shareTemplate(templateId, {
-        action: 'generate_link',
+        action: "generate_link",
         expiresIn: 7,
       });
       setShareUrl(response.shareUrl || null);
     } catch {
-      alert('Failed to generate share link');
+      alert("Failed to generate share link");
     } finally {
       setSharing(false);
     }
   };
 
-  const copyToClipboard = async (text: string, type = 'plain') => {
+  const copyToClipboard = async (text: string, type = "plain") => {
     try {
-      if (type === 'html' && populatedContent) {
+      if (type === "html" && populatedContent) {
         await navigator.clipboard.write([
           new ClipboardItem({
-            'text/html': new Blob([populatedContent.html], { type: 'text/html' }),
-            'text/plain': new Blob([populatedContent.plainText], { type: 'text/plain' })
-          })
+            "text/html": new Blob([populatedContent.html], {
+              type: "text/html",
+            }),
+            "text/plain": new Blob([populatedContent.plainText], {
+              type: "text/plain",
+            }),
+          }),
         ]);
-        alert('Copied to clipboard with formatting!');
+        alert("Copied to clipboard with formatting!");
       } else {
         await navigator.clipboard.writeText(text);
-        alert('Copied to clipboard!');
+        alert("Copied to clipboard!");
       }
     } catch {
       // Fallback method
-      const tempTextarea = document.createElement('textarea');
+      const tempTextarea = document.createElement("textarea");
       tempTextarea.value = text;
       document.body.appendChild(tempTextarea);
       tempTextarea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(tempTextarea);
-      alert('Copied to clipboard!');
+      alert("Copied to clipboard!");
     }
   };
 
@@ -137,7 +144,7 @@ export default function TemplateDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Template not found'}</p>
+          <p className="text-red-600 mb-4">{error || "Template not found"}</p>
           <Link href="/templates" className="text-primary hover:underline">
             Back to Templates
           </Link>
@@ -150,7 +157,10 @@ export default function TemplateDetailPage() {
     <div className="min-h-screen p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <Link href="/templates" className="text-primary hover:underline mb-4 inline-block">
+          <Link
+            href="/templates"
+            className="text-primary hover:underline mb-4 inline-block"
+          >
             ← Back to Templates
           </Link>
 
@@ -158,7 +168,8 @@ export default function TemplateDetailPage() {
             <div>
               <h1 className="text-4xl font-bold mb-2">{template.title}</h1>
               <p className="text-gray-600">
-                By {template.authorEmail} • {template.viewCount || 0} views • {template.useCount || 0} uses
+                By {template.authorEmail} • {template.viewCount || 0} views •{" "}
+                {template.useCount || 0} uses
               </p>
             </div>
 
@@ -176,41 +187,53 @@ export default function TemplateDetailPage() {
                     disabled={sharing}
                     className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 transition"
                   >
-                    {sharing ? 'Generating...' : 'Share'}
+                    {sharing ? "Generating..." : "Share"}
                   </button>
                 </>
               )}
             </div>
           </div>
 
-          {template.isOwner && template.moderationStatus && template.visibility === 'public' && (
-            <div className={`mt-4 p-3 rounded-md ${
-              template.moderationStatus === 'pending' ? 'bg-yellow-50 border border-yellow-200' :
-              template.moderationStatus === 'rejected' ? 'bg-red-50 border border-red-200' :
-              'bg-green-50 border border-green-200'
-            }`}>
-              <p className={`text-sm ${
-                template.moderationStatus === 'pending' ? 'text-yellow-800' :
-                template.moderationStatus === 'rejected' ? 'text-red-800' :
-                'text-green-800'
-              }`}>
-                <strong>Moderation Status:</strong> {
-                  template.moderationStatus === 'pending' ? 'Pending approval' :
-                  template.moderationStatus === 'rejected' ? 'Rejected' :
-                  'Approved'
-                }
-                {template.moderationDetails?.reason && (
-                  <span className="block mt-1">
-                    <strong>Reason:</strong> {template.moderationDetails.reason}
-                  </span>
-                )}
-              </p>
-            </div>
-          )}
+          {template.isOwner &&
+            template.moderationStatus &&
+            template.visibility === "public" && (
+              <div
+                className={`mt-4 p-3 rounded-md ${
+                  template.moderationStatus === "pending"
+                    ? "bg-yellow-50 border border-yellow-200"
+                    : template.moderationStatus === "rejected"
+                      ? "bg-red-50 border border-red-200"
+                      : "bg-green-50 border border-green-200"
+                }`}
+              >
+                <p
+                  className={`text-sm ${
+                    template.moderationStatus === "pending"
+                      ? "text-yellow-800"
+                      : template.moderationStatus === "rejected"
+                        ? "text-red-800"
+                        : "text-green-800"
+                  }`}
+                >
+                  <strong>Moderation Status:</strong>{" "}
+                  {template.moderationStatus === "pending"
+                    ? "Pending approval"
+                    : template.moderationStatus === "rejected"
+                      ? "Rejected"
+                      : "Approved"}
+                  {template.moderationDetails?.reason && (
+                    <span className="block mt-1">
+                      <strong>Reason:</strong>{" "}
+                      {template.moderationDetails.reason}
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
 
           {template.tags && template.tags.length > 0 && (
             <div className="flex gap-2 flex-wrap mt-4">
-              {template.tags.map(tag => (
+              {template.tags.map((tag) => (
                 <span
                   key={tag}
                   className="px-3 py-1 text-sm bg-gray-200 rounded-full"
@@ -256,7 +279,8 @@ export default function TemplateDetailPage() {
               🔄 Populate Template
             </button>
             <p className="text-sm text-gray-600 mt-2">
-              Click the button above to fill in the variables and generate your content
+              Click the button above to fill in the variables and generate your
+              content
             </p>
           </div>
 
@@ -274,9 +298,11 @@ export default function TemplateDetailPage() {
 
           {template.variables.length > 0 && (
             <div className="mt-4 p-4 bg-gray-50 rounded">
-              <p className="text-sm font-medium mb-2">Variables in this template:</p>
+              <p className="text-sm font-medium mb-2">
+                Variables in this template:
+              </p>
               <div className="flex gap-2 flex-wrap">
-                {template.variables.map(variable => (
+                {template.variables.map((variable) => (
                   <span
                     key={variable}
                     className="px-2 py-1 text-sm bg-blue-100 text-blue-800 rounded"
@@ -296,13 +322,15 @@ export default function TemplateDetailPage() {
               <h2 className="text-2xl font-semibold">Result</h2>
               <div className="flex gap-2">
                 <button
-                  onClick={() => copyToClipboard(populatedContent.html, 'html')}
+                  onClick={() => copyToClipboard(populatedContent.html, "html")}
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
                 >
                   📋 Copy with Formatting
                 </button>
                 <button
-                  onClick={() => copyToClipboard(populatedContent.plainText, 'plain')}
+                  onClick={() =>
+                    copyToClipboard(populatedContent.plainText, "plain")
+                  }
                   className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
                 >
                   📄 Copy as Text
@@ -311,7 +339,7 @@ export default function TemplateDetailPage() {
             </div>
             <div
               dangerouslySetInnerHTML={{
-                __html: populatedContent.html
+                __html: populatedContent.html,
               }}
               className="prose max-w-none"
             />

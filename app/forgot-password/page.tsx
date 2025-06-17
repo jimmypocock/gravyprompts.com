@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [step, setStep] = useState<'request' | 'reset'>('request');
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [step, setStep] = useState<"request" | "reset">("request");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const { forgotPassword, confirmForgotPassword } = useAuth();
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
       await forgotPassword(email);
-      setSuccess('Reset code sent! Check your email.');
-      setStep('reset');
+      setSuccess("Reset code sent! Check your email.");
+      setStep("reset");
     } catch (err) {
-      setError((err as Error).message || 'Failed to send reset code');
+      setError((err as Error).message || "Failed to send reset code");
     } finally {
       setLoading(false);
     }
@@ -34,11 +34,11 @@ export default function ForgotPasswordPage() {
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
@@ -46,9 +46,9 @@ export default function ForgotPasswordPage() {
 
     try {
       await confirmForgotPassword(email, code, newPassword);
-      setSuccess('Password reset successfully! You can now sign in.');
+      setSuccess("Password reset successfully! You can now sign in.");
     } catch (err) {
-      setError((err as Error).message || 'Failed to reset password');
+      setError((err as Error).message || "Failed to reset password");
     } finally {
       setLoading(false);
     }
@@ -62,8 +62,11 @@ export default function ForgotPasswordPage() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Remember your password?{' '}
-            <Link href="/login" className="font-medium text-primary hover:text-primary/80">
+            Remember your password?{" "}
+            <Link
+              href="/login"
+              className="font-medium text-primary hover:text-primary/80"
+            >
               Sign in
             </Link>
           </p>
@@ -72,7 +75,7 @@ export default function ForgotPasswordPage() {
         {success && !error && (
           <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded">
             {success}
-            {step === 'reset' && (
+            {step === "reset" && (
               <Link href="/login" className="block mt-2 text-sm underline">
                 Go to login page
               </Link>
@@ -86,10 +89,13 @@ export default function ForgotPasswordPage() {
           </div>
         )}
 
-        {step === 'request' ? (
+        {step === "request" ? (
           <form className="mt-8 space-y-6" onSubmit={handleRequestReset}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <input
@@ -111,14 +117,17 @@ export default function ForgotPasswordPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Sending...' : 'Send reset code'}
+                {loading ? "Sending..." : "Send reset code"}
               </button>
             </div>
           </form>
         ) : (
           <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
             <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="code"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Reset Code
               </label>
               <input
@@ -134,7 +143,10 @@ export default function ForgotPasswordPage() {
             </div>
 
             <div>
-              <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 New Password
               </label>
               <input
@@ -149,12 +161,16 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setNewPassword(e.target.value)}
               />
               <p className="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters with uppercase, lowercase, numbers, and symbols
+                Must be at least 8 characters with uppercase, lowercase,
+                numbers, and symbols
               </p>
             </div>
 
             <div>
-              <label htmlFor="confirm-new-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirm-new-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm New Password
               </label>
               <input
@@ -176,17 +192,17 @@ export default function ForgotPasswordPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Resetting...' : 'Reset password'}
+                {loading ? "Resetting..." : "Reset password"}
               </button>
-              
+
               <button
                 type="button"
                 onClick={() => {
-                  setStep('request');
-                  setCode('');
-                  setNewPassword('');
-                  setConfirmPassword('');
-                  setError('');
+                  setStep("request");
+                  setCode("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                  setError("");
                 }}
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >

@@ -22,6 +22,7 @@ npm run dev:all
 ```
 
 This single command will:
+
 1. Clean up any existing Docker containers
 2. Start DynamoDB Local on port 8000
 3. Create all necessary database tables
@@ -41,6 +42,7 @@ This single command will:
 ## What's Included
 
 When you run `npm run dev:all`, you get:
+
 - 10 sample templates pre-loaded with various categories
 - Full API functionality with mocked authentication
 - Hot reload for all code changes
@@ -53,13 +55,17 @@ Press `Ctrl+C` in the terminal where you ran `npm run dev:all`. This will stop a
 ## Troubleshooting
 
 ### Templates not loading?
+
 Templates are automatically loaded when starting with `npm run dev:all`. If you need to reload them:
+
 ```bash
 npm run templates:load:local -- --file ./data/sample-templates.json
 ```
 
 ### Port conflicts
+
 The following ports are used:
+
 - **6827**: Next.js application
 - **7429**: API Gateway
 - **8000**: DynamoDB
@@ -67,7 +73,9 @@ The following ports are used:
 - **5173**: GravyJS Demo
 
 ### Docker issues
+
 If containers won't start:
+
 ```bash
 # Stop everything and clean up
 docker-compose -f cdk/local-test/docker-compose.yml down -v
@@ -79,6 +87,7 @@ npm run dev:all
 ## Authentication in Local Development
 
 Authentication is mocked for local development:
+
 - Any `Authorization` header will work
 - User IDs are automatically generated
 - No actual AWS Cognito calls are made

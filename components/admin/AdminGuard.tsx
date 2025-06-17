@@ -1,11 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { checkAdminAccess } from '@/lib/api/admin';
-import { useAuth } from '@/lib/auth-context';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { checkAdminAccess } from "@/lib/api/admin";
+import { useAuth } from "@/lib/auth-context";
 
-export default function AdminGuard({ children }: { children: React.ReactNode }) {
+export default function AdminGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
   const router = useRouter();
@@ -14,9 +18,9 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     async function checkAccess() {
       if (authLoading) return;
-      
+
       if (!user) {
-        router.push('/login');
+        router.push("/login");
         return;
       }
 
@@ -24,11 +28,11 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         const access = await checkAdminAccess();
         setHasAccess(access);
         if (!access) {
-          router.push('/');
+          router.push("/");
         }
       } catch (error) {
-        console.error('Error checking admin access:', error);
-        router.push('/');
+        console.error("Error checking admin access:", error);
+        router.push("/");
       } finally {
         setIsLoading(false);
       }
@@ -40,7 +44,10 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   if (isLoading || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div data-testid="loading-spinner" className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div
+          data-testid="loading-spinner"
+          className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"
+        ></div>
       </div>
     );
   }

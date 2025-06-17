@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { getApprovalHistory, ApprovalHistoryItem } from '@/lib/api/admin';
-import { formatDistanceToNow } from 'date-fns';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { getApprovalHistory, ApprovalHistoryItem } from "@/lib/api/admin";
+import { formatDistanceToNow } from "date-fns";
+import { CheckCircle, XCircle } from "lucide-react";
 
 export default function ApprovalHistory() {
   const [history, setHistory] = useState<ApprovalHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'approved' | 'rejected'>('all');
+  const [filter, setFilter] = useState<"all" | "approved" | "rejected">("all");
 
   useEffect(() => {
     loadHistory();
@@ -20,15 +20,18 @@ export default function ApprovalHistory() {
       const data = await getApprovalHistory({ limit: 50 });
       setHistory(data.history);
     } catch (error) {
-      console.error('Error loading history:', error);
+      console.error("Error loading history:", error);
     } finally {
       setLoading(false);
     }
   }
 
-  const filteredHistory = history.filter(item => {
-    if (filter === 'all') return true;
-    return item.action === filter.replace('approved', 'approve').replace('rejected', 'reject');
+  const filteredHistory = history.filter((item) => {
+    if (filter === "all") return true;
+    return (
+      item.action ===
+      filter.replace("approved", "approve").replace("rejected", "reject")
+    );
   });
 
   if (loading) {
@@ -45,31 +48,31 @@ export default function ApprovalHistory() {
       <div className="bg-white shadow rounded-lg p-4">
         <div className="flex gap-4">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => setFilter("all")}
             className={`px-4 py-2 rounded transition-colors ${
-              filter === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filter === "all"
+                ? "bg-primary text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             All
           </button>
           <button
-            onClick={() => setFilter('approved')}
+            onClick={() => setFilter("approved")}
             className={`px-4 py-2 rounded transition-colors ${
-              filter === 'approved'
-                ? 'bg-green-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filter === "approved"
+                ? "bg-green-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             Approved
           </button>
           <button
-            onClick={() => setFilter('rejected')}
+            onClick={() => setFilter("rejected")}
             className={`px-4 py-2 rounded transition-colors ${
-              filter === 'rejected'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              filter === "rejected"
+                ? "bg-red-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             Rejected
@@ -124,7 +127,7 @@ export default function ApprovalHistory() {
                     {item.templateAuthor.substring(0, 8)}...
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {item.action === 'approve' ? (
+                    {item.action === "approve" ? (
                       <span className="flex items-center text-green-600">
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Approved

@@ -1,14 +1,17 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import AdUnit from './AdUnit';
+import { useState } from "react";
+import AdUnit from "./AdUnit";
 
 interface AdStickyBottomProps {
   adSlot: string;
   testMode?: boolean;
 }
 
-export default function AdStickyBottom({ adSlot, testMode = false }: AdStickyBottomProps) {
+export default function AdStickyBottom({
+  adSlot,
+  testMode = false,
+}: AdStickyBottomProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
@@ -26,7 +29,7 @@ export default function AdStickyBottom({ adSlot, testMode = false }: AdStickyBot
         <AdUnit
           adSlot={adSlot}
           adFormat="horizontal"
-          style={{ width: '320px', height: '50px' }}
+          style={{ width: "320px", height: "50px" }}
           className="mx-auto"
           testMode={testMode}
         />

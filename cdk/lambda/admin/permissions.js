@@ -1,57 +1,68 @@
-const { getUserFromEvent } = require('/opt/nodejs/auth');
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, PutCommand, DeleteCommand, QueryCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
+const { getUserFromEvent } = require("/opt/nodejs/auth");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  PutCommand,
+  DeleteCommand,
+  QueryCommand,
+  ScanCommand,
+} = require("@aws-sdk/lib-dynamodb");
 
 // Initialize DynamoDB client
 const ddbClient = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(ddbClient);
 
 const USER_PERMISSIONS_TABLE = process.env.USER_PERMISSIONS_TABLE;
-const ALLOWED_PERMISSIONS = ['approval', 'admin'];
+const ALLOWED_PERMISSIONS = ["approval", "admin"];
 
 exports.handler = async (event) => {
-  console.log('Event:', JSON.stringify(event, null, 2));
+  console.log("Event:", JSON.stringify(event, null, 2));
 
   try {
     const httpMethod = event.httpMethod;
     const path = event.path;
-    
+
     // Get the current user
     const currentUser = await getUserFromEvent(event);
     if (!currentUser) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Unauthorized' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Unauthorized" }),
       };
     }
 
     // Route based on method and path
     // Allow users to check their own permissions without admin access
-    if (httpMethod === 'GET' && path === '/admin/permissions/me') {
+    if (httpMethod === "GET" && path === "/admin/permissions/me") {
       // In local development with SAM Local, auto-grant admin to specific user
       // This is ONLY for local development and will not work in production
-      if (process.env.AWS_SAM_LOCAL === 'true' && 
-          process.env.LOCAL_ADMIN_USER_ID && 
-          currentUser.sub === process.env.LOCAL_ADMIN_USER_ID) {
-        console.log('Local development: Auto-granting admin permissions');
+      if (
+        process.env.AWS_SAM_LOCAL === "true" &&
+        process.env.LOCAL_ADMIN_USER_ID &&
+        currentUser.sub === process.env.LOCAL_ADMIN_USER_ID
+      ) {
+        console.log("Local development: Auto-granting admin permissions");
         return {
           statusCode: 200,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ permissions: ['admin', 'approval'] })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ permissions: ["admin", "approval"] }),
         };
       }
-      
+
       // Get current user's permissions from database
       return await getUserPermissions(currentUser.sub);
     }
-    
+
     // Check if current user has admin permissions for other operations
-    const hasAdminPermission = await checkUserPermission(currentUser.sub, 'admin');
-    
+    const hasAdminPermission = await checkUserPermission(
+      currentUser.sub,
+      "admin",
+    );
+
     // Allow users to check their own permissions even without admin access
-    if (httpMethod === 'GET' && path.startsWith('/admin/permissions/user/')) {
-      const userId = path.split('/').pop();
+    if (httpMethod === "GET" && path.startsWith("/admin/permissions/user/")) {
+      const userId = path.split("/").pop();
       if (userId === currentUser.sub) {
         // User checking their own permissions
         return await getUserPermissions(userId);
@@ -60,52 +71,64 @@ exports.handler = async (event) => {
       if (!hasAdminPermission) {
         return {
           statusCode: 403,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ error: 'Forbidden: Admin permission required to view other users\' permissions' })
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            error:
+              "Forbidden: Admin permission required to view other users' permissions",
+          }),
         };
       }
       return await getUserPermissions(userId);
     }
-    
+
     // All other operations require admin permission
     if (!hasAdminPermission) {
       return {
         statusCode: 403,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Forbidden: Admin permission required' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Forbidden: Admin permission required" }),
       };
     }
 
     // Admin-only routes
-    if (httpMethod === 'GET' && path === '/admin/permissions/users') {
+    if (httpMethod === "GET" && path === "/admin/permissions/users") {
       // List all users with permissions
       return await listUsersWithPermissions(event);
-    } else if (httpMethod === 'GET' && path.startsWith('/admin/permissions/user/')) {
+    } else if (
+      httpMethod === "GET" &&
+      path.startsWith("/admin/permissions/user/")
+    ) {
       // Get permissions for a specific user
-      const userId = path.split('/').pop();
+      const userId = path.split("/").pop();
       return await getUserPermissions(userId);
-    } else if (httpMethod === 'POST' && path === '/admin/permissions') {
+    } else if (httpMethod === "POST" && path === "/admin/permissions") {
       // Grant permission to user
       return await grantPermission(event);
-    } else if (httpMethod === 'DELETE' && path.startsWith('/admin/permissions/')) {
+    } else if (
+      httpMethod === "DELETE" &&
+      path.startsWith("/admin/permissions/")
+    ) {
       // Revoke permission from user
-      const pathParts = path.split('/');
+      const pathParts = path.split("/");
       const userId = pathParts[3];
       const permission = pathParts[4];
       return await revokePermission(userId, permission, currentUser);
     } else {
       return {
         statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Not found' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Not found" }),
       };
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error', details: error.message })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Internal server error",
+        details: error.message,
+      }),
     };
   }
 };
@@ -116,37 +139,40 @@ async function checkUserPermission(userId, permission) {
       TableName: USER_PERMISSIONS_TABLE,
       Key: {
         userId,
-        permission
-      }
-    };
-    
-    const response = await docClient.send(new QueryCommand({
-      TableName: USER_PERMISSIONS_TABLE,
-      KeyConditionExpression: 'userId = :userId AND #permission = :permission',
-      ExpressionAttributeNames: {
-        '#permission': 'permission'
+        permission,
       },
-      ExpressionAttributeValues: {
-        ':userId': userId,
-        ':permission': permission
-      }
-    }));
-    
+    };
+
+    const response = await docClient.send(
+      new QueryCommand({
+        TableName: USER_PERMISSIONS_TABLE,
+        KeyConditionExpression:
+          "userId = :userId AND #permission = :permission",
+        ExpressionAttributeNames: {
+          "#permission": "permission",
+        },
+        ExpressionAttributeValues: {
+          ":userId": userId,
+          ":permission": permission,
+        },
+      }),
+    );
+
     return response.Items && response.Items.length > 0;
   } catch (error) {
-    console.error('Error checking permission:', error);
+    console.error("Error checking permission:", error);
     return false;
   }
 }
 
 async function listUsersWithPermissions(event) {
   const permission = event.queryStringParameters?.permission;
-  
+
   if (permission && !ALLOWED_PERMISSIONS.includes(permission)) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid permission type' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Invalid permission type" }),
     };
   }
 
@@ -156,35 +182,35 @@ async function listUsersWithPermissions(event) {
       // Query by specific permission
       params = {
         TableName: USER_PERMISSIONS_TABLE,
-        IndexName: 'permission-userId-index',
-        KeyConditionExpression: '#permission = :permission',
+        IndexName: "permission-userId-index",
+        KeyConditionExpression: "#permission = :permission",
         ExpressionAttributeNames: {
-          '#permission': 'permission'
+          "#permission": "permission",
         },
         ExpressionAttributeValues: {
-          ':permission': permission
-        }
+          ":permission": permission,
+        },
       };
     } else {
       // Scan all permissions
       params = {
-        TableName: USER_PERMISSIONS_TABLE
+        TableName: USER_PERMISSIONS_TABLE,
       };
     }
-    
+
     const response = await docClient.send(
-      permission ? new QueryCommand(params) : new ScanCommand(params)
+      permission ? new QueryCommand(params) : new ScanCommand(params),
     );
-    
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        users: response.Items || []
-      })
+        users: response.Items || [],
+      }),
     };
   } catch (error) {
-    console.error('Error listing users:', error);
+    console.error("Error listing users:", error);
     throw error;
   }
 }
@@ -193,24 +219,24 @@ async function getUserPermissions(userId) {
   try {
     const params = {
       TableName: USER_PERMISSIONS_TABLE,
-      KeyConditionExpression: 'userId = :userId',
+      KeyConditionExpression: "userId = :userId",
       ExpressionAttributeValues: {
-        ':userId': userId
-      }
+        ":userId": userId,
+      },
     };
-    
+
     const response = await docClient.send(new QueryCommand(params));
-    
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId,
-        permissions: response.Items?.map(item => item.permission) || []
-      })
+        permissions: response.Items?.map((item) => item.permission) || [],
+      }),
     };
   } catch (error) {
-    console.error('Error getting user permissions:', error);
+    console.error("Error getting user permissions:", error);
     throw error;
   }
 }
@@ -222,16 +248,16 @@ async function grantPermission(event) {
   if (!userId || !permission) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'userId and permission are required' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "userId and permission are required" }),
     };
   }
 
   if (!ALLOWED_PERMISSIONS.includes(permission)) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid permission type' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Invalid permission type" }),
     };
   }
 
@@ -242,23 +268,23 @@ async function grantPermission(event) {
         userId,
         permission,
         grantedAt: new Date().toISOString(),
-        grantedBy: grantedBy || 'system'
-      }
+        grantedBy: grantedBy || "system",
+      },
     };
-    
+
     await docClient.send(new PutCommand(params));
-    
+
     return {
       statusCode: 201,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: 'Permission granted successfully',
+        message: "Permission granted successfully",
         userId,
-        permission
-      })
+        permission,
+      }),
     };
   } catch (error) {
-    console.error('Error granting permission:', error);
+    console.error("Error granting permission:", error);
     throw error;
   }
 }
@@ -267,17 +293,19 @@ async function revokePermission(userId, permission, currentUser) {
   if (!userId || !permission) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'userId and permission are required' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "userId and permission are required" }),
     };
   }
-  
+
   // Prevent users from revoking their own admin permission
-  if (userId === currentUser.sub && permission === 'admin') {
+  if (userId === currentUser.sub && permission === "admin") {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Cannot revoke your own admin permission' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Cannot revoke your own admin permission",
+      }),
     };
   }
 
@@ -286,23 +314,23 @@ async function revokePermission(userId, permission, currentUser) {
       TableName: USER_PERMISSIONS_TABLE,
       Key: {
         userId,
-        permission
-      }
+        permission,
+      },
     };
-    
+
     await docClient.send(new DeleteCommand(params));
-    
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: 'Permission revoked successfully',
+        message: "Permission revoked successfully",
         userId,
-        permission
-      })
+        permission,
+      }),
     };
   } catch (error) {
-    console.error('Error revoking permission:', error);
+    console.error("Error revoking permission:", error);
     throw error;
   }
 }

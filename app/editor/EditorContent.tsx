@@ -1,31 +1,32 @@
-'use client';
+"use client";
 
-import { useRef, useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import GravyJS from 'gravyjs';
-import type { GravyJSRef } from 'gravyjs';
-import 'gravyjs/dist/index.css';
-import { useAuth } from '@/lib/auth-context';
-import { useTemplateApi, type Template } from '@/lib/api/templates';
+import { useRef, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import GravyJS from "gravyjs";
+import type { GravyJSRef } from "gravyjs";
+import "gravyjs/dist/index.css";
+import { useAuth } from "@/lib/auth-context";
+import { useTemplateApi, type Template } from "@/lib/api/templates";
 
 const sampleSnippets = [
   {
-    title: 'Email Signature',
+    title: "Email Signature",
     content: `
       <p>Best regards,<br>
       [[name]]<br>
       [[title]]<br>
       [[company]]</p>
-    `
+    `,
   },
   {
-    title: 'Meeting Reminder',
-    content: '<p>Don\'t forget about our meeting at [[time]] on [[date]].</p>'
+    title: "Meeting Reminder",
+    content: "<p>Don't forget about our meeting at [[time]] on [[date]].</p>",
   },
   {
-    title: 'Welcome Message',
-    content: '<p>Welcome to [[company]], [[name]]! We\'re excited to have you on board.</p>'
-  }
+    title: "Welcome Message",
+    content:
+      "<p>Welcome to [[company]], [[name]]! We're excited to have you on board.</p>",
+  },
 ];
 
 export default function EditorContent() {
@@ -34,24 +35,29 @@ export default function EditorContent() {
   const searchParams = useSearchParams();
   const api = useTemplateApi();
 
-  const templateId = searchParams.get('templateId');
+  const templateId = searchParams.get("templateId");
 
-  const [content, setContent] = useState('');
-  const [title, setTitle] = useState('');
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [visibility, setVisibility] = useState<'public' | 'private'>('private');
-  const [populatedContent, setPopulatedContent] = useState<{html: string, plainText: string} | null>(null);
+  const [tagInput, setTagInput] = useState("");
+  const [visibility, setVisibility] = useState<"public" | "private">("private");
+  const [populatedContent, setPopulatedContent] = useState<{
+    html: string;
+    plainText: string;
+  } | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [originalTemplate, setOriginalTemplate] = useState<Template | null>(null);
+  const [originalTemplate, setOriginalTemplate] = useState<Template | null>(
+    null,
+  );
   const editorRef = useRef<GravyJSRef | null>(null);
 
   useEffect(() => {
     if (templateId) {
       loadTemplate();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId]);
 
   const loadTemplate = async () => {
@@ -62,14 +68,14 @@ export default function EditorContent() {
       const template = await api.getTemplate(templateId);
 
       if (!template.isOwner) {
-        alert('You can only edit your own templates');
-        router.push('/templates');
+        alert("You can only edit your own templates");
+        router.push("/templates");
         return;
       }
 
       setOriginalTemplate(template);
       setTitle(template.title);
-      setContent(template.content || '');
+      setContent(template.content || "");
       setTags(template.tags);
       setVisibility(template.visibility);
 
@@ -77,8 +83,8 @@ export default function EditorContent() {
         editorRef.current.setContent(template.content);
       }
     } catch {
-      alert('Failed to load template');
-      router.push('/templates');
+      alert("Failed to load template");
+      router.push("/templates");
     } finally {
       setLoading(false);
     }
@@ -95,17 +101,17 @@ export default function EditorContent() {
 
   const handleSave = async () => {
     if (!user) {
-      alert('Please log in to save templates');
+      alert("Please log in to save templates");
       return;
     }
 
     if (!title.trim()) {
-      alert('Please enter a title');
+      alert("Please enter a title");
       return;
     }
 
     if (!content.trim()) {
-      alert('Please add some content');
+      alert("Please add some content");
       return;
     }
 
@@ -119,7 +125,7 @@ export default function EditorContent() {
           tags,
           visibility,
         });
-        alert('Template updated successfully!');
+        alert("Template updated successfully!");
       } else {
         const result = await api.createTemplate({
           title,
@@ -127,22 +133,24 @@ export default function EditorContent() {
           tags,
           visibility,
         });
-        alert('Template created successfully!');
+        alert("Template created successfully!");
         router.push(`/templates/${result.templateId}`);
       }
     } catch (err) {
-      console.error('Save template error:', err);
+      console.error("Save template error:", err);
       if (err instanceof Error) {
         // Check if it's a TemplateApiError with details
         const apiError = err as Error & { details?: string[] };
         if (apiError.details) {
-          console.error('Validation details:', apiError.details);
-          alert(`Validation failed:\n${Array.isArray(apiError.details) ? apiError.details.join('\n') : apiError.message}`);
+          console.error("Validation details:", apiError.details);
+          alert(
+            `Validation failed:\n${Array.isArray(apiError.details) ? apiError.details.join("\n") : apiError.message}`,
+          );
         } else {
           alert(err.message);
         }
       } else {
-        alert('Failed to save template');
+        alert("Failed to save template");
       }
     } finally {
       setSaving(false);
@@ -150,53 +158,57 @@ export default function EditorContent() {
   };
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
+    if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault();
-      
+
       // Split by comma to support comma-separated tags
       const newTags = tagInput
-        .split(',')
-        .map(tag => tag.trim().toLowerCase())
-        .filter(tag => tag.length > 0 && !tags.includes(tag));
-      
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => tag.length > 0 && !tags.includes(tag));
+
       // Add all new tags (up to the limit)
       const remainingSlots = 10 - tags.length;
       const tagsToAdd = newTags.slice(0, remainingSlots);
-      
+
       if (tagsToAdd.length > 0) {
         setTags([...tags, ...tagsToAdd]);
-        setTagInput('');
+        setTagInput("");
       }
     }
   };
 
   const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
+    setTags(tags.filter((t) => t !== tag));
   };
 
-  const copyToClipboard = async (text: string, type = 'html') => {
+  const copyToClipboard = async (text: string, type = "html") => {
     try {
-      if (type === 'html' && populatedContent) {
+      if (type === "html" && populatedContent) {
         await navigator.clipboard.write([
           new ClipboardItem({
-            'text/html': new Blob([populatedContent.html], { type: 'text/html' }),
-            'text/plain': new Blob([populatedContent.plainText], { type: 'text/plain' })
-          })
+            "text/html": new Blob([populatedContent.html], {
+              type: "text/html",
+            }),
+            "text/plain": new Blob([populatedContent.plainText], {
+              type: "text/plain",
+            }),
+          }),
         ]);
-        alert('Content copied to clipboard with formatting!');
+        alert("Content copied to clipboard with formatting!");
       } else {
         await navigator.clipboard.writeText(text);
-        alert('Content copied to clipboard!');
+        alert("Content copied to clipboard!");
       }
     } catch (error) {
-      console.error('Failed to copy:', error);
-      const tempTextarea = document.createElement('textarea');
+      console.error("Failed to copy:", error);
+      const tempTextarea = document.createElement("textarea");
       tempTextarea.value = text;
       document.body.appendChild(tempTextarea);
       tempTextarea.select();
-      document.execCommand('copy');
+      document.execCommand("copy");
       document.body.removeChild(tempTextarea);
-      alert('Content copied to clipboard!');
+      alert("Content copied to clipboard!");
     }
   };
 
@@ -204,7 +216,7 @@ export default function EditorContent() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">
-          {templateId ? 'Edit Template' : 'Create Template'}
+          {templateId ? "Edit Template" : "Create Template"}
         </h1>
 
         {loading ? (
@@ -234,17 +246,21 @@ export default function EditorContent() {
                   </label>
                   <select
                     value={visibility}
-                    onChange={(e) => setVisibility(e.target.value as 'public' | 'private')}
+                    onChange={(e) =>
+                      setVisibility(e.target.value as "public" | "private")
+                    }
                     className="w-full px-3 py-2 border rounded-lg"
                   >
                     <option value="private">Private</option>
                     <option value="public">Public</option>
                   </select>
-                  {visibility === 'public' && (
+                  {visibility === "public" && (
                     <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                       <p className="text-sm text-yellow-800">
-                        <strong>Note:</strong> Public templates require approval before they become visible to other users. 
-                        You&apos;ll be able to view and use your template immediately, but it will only be publicly accessible after review.
+                        <strong>Note:</strong> Public templates require approval
+                        before they become visible to other users. You&apos;ll
+                        be able to view and use your template immediately, but
+                        it will only be publicly accessible after review.
                       </p>
                     </div>
                   )}
@@ -265,7 +281,7 @@ export default function EditorContent() {
                 />
                 {tags.length > 0 && (
                   <div className="flex gap-2 flex-wrap mt-2">
-                    {tags.map(tag => (
+                    {tags.map((tag) => (
                       <span
                         key={tag}
                         className="px-3 py-1 bg-gray-200 rounded-full text-sm flex items-center gap-1"
@@ -289,7 +305,11 @@ export default function EditorContent() {
                   disabled={saving}
                   className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50"
                 >
-                  {saving ? 'Saving...' : (templateId ? '💾 Update Template' : '💾 Save Template')}
+                  {saving
+                    ? "Saving..."
+                    : templateId
+                      ? "💾 Update Template"
+                      : "💾 Save Template"}
                 </button>
                 <button
                   onClick={handlePopulateVariables}
@@ -300,7 +320,7 @@ export default function EditorContent() {
                 <button
                   onClick={() => {
                     if (editorRef.current) {
-                      editorRef.current.setContent('');
+                      editorRef.current.setContent("");
                     }
                     setPopulatedContent(null);
                   }}
@@ -340,13 +360,17 @@ export default function EditorContent() {
                   </h3>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => copyToClipboard(populatedContent.html, 'html')}
+                      onClick={() =>
+                        copyToClipboard(populatedContent.html, "html")
+                      }
                       className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
                     >
                       📋 Copy with Formatting
                     </button>
                     <button
-                      onClick={() => copyToClipboard(populatedContent.plainText, 'plain')}
+                      onClick={() =>
+                        copyToClipboard(populatedContent.plainText, "plain")
+                      }
                       className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors text-sm"
                     >
                       📄 Copy as Plain Text
@@ -360,10 +384,11 @@ export default function EditorContent() {
               </div>
             )}
 
-            {visibility === 'public' && (
+            {visibility === "public" && (
               <div className="bg-yellow-50 rounded-lg p-4 mb-6">
                 <p className="text-sm text-yellow-800">
-                  <strong>Note:</strong> Public templates will be reviewed for inappropriate content before being made visible to others.
+                  <strong>Note:</strong> Public templates will be reviewed for
+                  inappropriate content before being made visible to others.
                 </p>
               </div>
             )}
@@ -376,7 +401,9 @@ export default function EditorContent() {
                 <li>Type your content in the editor above</li>
                 <li>Use [[variable]] syntax to create placeholders</li>
                 <li>Select snippets from the dropdown or create your own</li>
-                <li>Click &quot;Populate Variables&quot; to fill in the values</li>
+                <li>
+                  Click &quot;Populate Variables&quot; to fill in the values
+                </li>
                 <li>Copy the result with formatting preserved</li>
               </ol>
             </div>

@@ -7,8 +7,9 @@ We created **real integration tests** that verify the actual search functionalit
 ### Test Coverage (18/19 passing)
 
 #### 🔍 Search Functionality Tests
+
 - ✅ Exact title match returns correct template first
-- ✅ Partial matches find all relevant templates  
+- ✅ Partial matches find all relevant templates
 - ✅ Fuzzy matching handles typos (e.g., "emial" finds "email")
 - ✅ Content search finds terms within template body
 - ✅ Multi-term search (e.g., "marketing strategy") works correctly
@@ -16,34 +17,40 @@ We created **real integration tests** that verify the actual search functionalit
 - ✅ Respects visibility filters (no private templates in public search)
 - ✅ Filters by moderation status (no pending templates)
 - ✅ Tag filtering combines with search
-- ⚠️  Empty search results - KNOWN BUG (see below)
+- ⚠️ Empty search results - KNOWN BUG (see below)
 
-#### 🎛️ Filter Options Tests  
+#### 🎛️ Filter Options Tests
+
 - ✅ "public" filter returns only public approved templates
 - ✅ "popular" filter sorts by usage count
 - ✅ "mine" filter works with authentication
 
 #### 📄 Pagination Tests
+
 - ✅ Respects limit parameter
 - ✅ Handles nextToken for pagination
 
 #### 🛡️ Error Handling Tests
+
 - ✅ Handles missing query parameters
 - ✅ Handles invalid parameters gracefully
 
 ## 🐛 Known Issues
 
 ### 1. Empty Search Results Bug
+
 **Issue**: Searches never return empty results because popularity boost (useCount/viewCount) adds points even when there are no text matches.
 
 **Location**: `list.js` lines 228-229
+
 ```javascript
 // Current (buggy):
 score += Math.min(item.useCount || 0, 50) / 10;
 score += Math.min(item.viewCount || 0, 100) / 50;
 
 // Should be:
-if (score > 0) { // Only boost if there's already a match
+if (score > 0) {
+  // Only boost if there's already a match
   score += Math.min(item.useCount || 0, 50) / 10;
   score += Math.min(item.viewCount || 0, 100) / 50;
 }
@@ -52,12 +59,14 @@ if (score > 0) { // Only boost if there's already a match
 ## 🏗️ Test Infrastructure
 
 ### Real DynamoDB Integration
+
 - Uses DynamoDB Local running in Docker
 - Seeds realistic test data matching UI expectations
 - Tests actual query operations, not mocks
 - Cleans up after each test suite
 
 ### Test Data
+
 - 7 realistic templates with varying:
   - Titles, content, tags
   - Use counts (25-200)
@@ -67,6 +76,7 @@ if (score > 0) { // Only boost if there's already a match
   - Moderation status (approved/pending)
 
 ### Key Files
+
 - `list.integration.test.js` - Main test suite
 - `test-helpers/dynamodb-integration.js` - Test utilities
 - `setup-test-env.js` - Mock Lambda layer imports
@@ -78,7 +88,7 @@ if (score > 0) { // Only boost if there's already a match
 # Run all search integration tests
 npm run test:search
 
-# Run all integration tests  
+# Run all integration tests
 npm run test:integration
 
 # Run unit tests separately
@@ -88,6 +98,7 @@ npm run test:unit
 ## 📊 Test Results
 
 **18 of 19 tests passing** (94.7% pass rate)
+
 - Verifies the UI will see correct search results
 - Tests actual DynamoDB queries
 - Confirms pagination works
@@ -108,12 +119,14 @@ npm run test:unit
 1. **Fix the empty search bug** - Simple fix to only apply popularity boost when score > 0
 
 2. **Add more edge cases**:
+
    - Very long search queries
    - Special characters in search
    - Unicode/emoji handling
    - SQL injection attempts
 
 3. **Performance testing**:
+
    - Test with 1000+ templates
    - Measure search latency
    - Test pagination with large datasets

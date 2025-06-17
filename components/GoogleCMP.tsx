@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 declare global {
   interface Window {
@@ -22,47 +22,47 @@ export default function GoogleCMP() {
     // Initialize gtag if not already present
     if (!window.gtag) {
       window.gtag = Object.assign(
-        function(...args: unknown[]) {
+        function (...args: unknown[]) {
           window.gtag.q = window.gtag.q || [];
           window.gtag.q.push(args);
         },
-        { q: [] as unknown[] }
+        { q: [] as unknown[] },
       );
     }
 
     // Set default consent to denied
-    window.gtag('consent', 'default', {
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied'
+    window.gtag("consent", "default", {
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      analytics_storage: "denied",
     });
 
     // Check if user has already made a choice
-    const consent = localStorage.getItem('google-cmp-consent');
+    const consent = localStorage.getItem("google-cmp-consent");
     if (!consent) {
       setShowBanner(true);
     } else {
       // Update consent based on stored preference
       const consentSettings = JSON.parse(consent);
-      window.gtag('consent', 'update', consentSettings);
+      window.gtag("consent", "update", consentSettings);
     }
   }, []);
 
   const handleAcceptAll = () => {
     const consentSettings = {
-      'ad_storage': 'granted',
-      'ad_user_data': 'granted',
-      'ad_personalization': 'granted',
-      'analytics_storage': 'granted'
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+      analytics_storage: "granted",
     };
-    
-    window.gtag('consent', 'update', consentSettings);
-    localStorage.setItem('google-cmp-consent', JSON.stringify(consentSettings));
-    localStorage.setItem('cookie-consent', 'accepted');
+
+    window.gtag("consent", "update", consentSettings);
+    localStorage.setItem("google-cmp-consent", JSON.stringify(consentSettings));
+    localStorage.setItem("cookie-consent", "accepted");
     setShowBanner(false);
     setShowManageOptions(false);
-    
+
     // Reload to initialize ads with consent
     window.location.reload();
   };
@@ -72,13 +72,16 @@ export default function GoogleCMP() {
   };
 
   const handleSaveCustom = (settings: Record<string, string>) => {
-    window.gtag('consent', 'update', settings);
-    localStorage.setItem('google-cmp-consent', JSON.stringify(settings));
-    localStorage.setItem('cookie-consent', settings.ad_storage === 'granted' ? 'accepted' : 'declined');
+    window.gtag("consent", "update", settings);
+    localStorage.setItem("google-cmp-consent", JSON.stringify(settings));
+    localStorage.setItem(
+      "cookie-consent",
+      settings.ad_storage === "granted" ? "accepted" : "declined",
+    );
     setShowBanner(false);
     setShowManageOptions(false);
-    
-    if (settings.ad_storage === 'granted') {
+
+    if (settings.ad_storage === "granted") {
       window.location.reload();
     }
   };
@@ -87,7 +90,6 @@ export default function GoogleCMP() {
 
   return (
     <>
-
       {/* Consent Banner */}
       {showBanner && !showManageOptions && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
@@ -98,10 +100,16 @@ export default function GoogleCMP() {
                   We value your privacy
                 </h3>
                 <p className="text-sm text-gray-600">
-                  We and our partners store and/or access information on a device, such as cookies and process personal data, 
-                  such as unique identifiers and standard information sent by a device for personalised advertising and content, 
-                  advertising and content measurement, audience research and services development.{' '}
-                  <Link href="/privacy" className="underline hover:text-primary">
+                  We and our partners store and/or access information on a
+                  device, such as cookies and process personal data, such as
+                  unique identifiers and standard information sent by a device
+                  for personalised advertising and content, advertising and
+                  content measurement, audience research and services
+                  development.{" "}
+                  <Link
+                    href="/privacy"
+                    className="underline hover:text-primary"
+                  >
                     Privacy Policy
                   </Link>
                 </p>
@@ -116,9 +124,14 @@ export default function GoogleCMP() {
                 <button
                   onClick={handleAcceptAll}
                   className="px-4 py-2 text-sm text-white rounded transition-colors"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                  style={{ backgroundColor: "var(--primary)" }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.backgroundColor =
+                      "var(--primary-hover)")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.backgroundColor = "var(--primary)")
+                  }
                 >
                   Consent
                 </button>
@@ -130,23 +143,32 @@ export default function GoogleCMP() {
 
       {/* Manage Options Modal */}
       {showManageOptions && (
-        <ManageOptionsModal onSave={handleSaveCustom} onClose={() => setShowManageOptions(false)} />
+        <ManageOptionsModal
+          onSave={handleSaveCustom}
+          onClose={() => setShowManageOptions(false)}
+        />
       )}
     </>
   );
 }
 
-function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<string, string>) => void; onClose: () => void }) {
+function ManageOptionsModal({
+  onSave,
+  onClose,
+}: {
+  onSave: (settings: Record<string, string>) => void;
+  onClose: () => void;
+}) {
   const [adStorage, setAdStorage] = useState(false);
   const [adPersonalization, setAdPersonalization] = useState(false);
   const [analyticsStorage, setAnalyticsStorage] = useState(false);
 
   const handleSave = () => {
     const settings = {
-      'ad_storage': adStorage ? 'granted' : 'denied',
-      'ad_user_data': adStorage ? 'granted' : 'denied',
-      'ad_personalization': adPersonalization ? 'granted' : 'denied',
-      'analytics_storage': analyticsStorage ? 'granted' : 'denied'
+      ad_storage: adStorage ? "granted" : "denied",
+      ad_user_data: adStorage ? "granted" : "denied",
+      ad_personalization: adPersonalization ? "granted" : "denied",
+      analytics_storage: analyticsStorage ? "granted" : "denied",
     };
     onSave(settings);
   };
@@ -156,13 +178,25 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
       <div className="bg-white rounded-lg max-w-2xl w-full max-h-screen overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Privacy Preferences</h2>
+            <h2 className="text-2xl font-bold text-gray-900">
+              Privacy Preferences
+            </h2>
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -175,15 +209,18 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   checked={adStorage}
                   onChange={(e) => setAdStorage(e.target.checked)}
                   className="mt-1 rounded border-gray-300"
-                  style={{ 
-                    accentColor: 'var(--primary)',
-                    '--tw-ring-color': 'var(--primary)'
-                  } as React.CSSProperties & { '--tw-ring-color': string }}
+                  style={
+                    {
+                      accentColor: "var(--primary)",
+                      "--tw-ring-color": "var(--primary)",
+                    } as React.CSSProperties & { "--tw-ring-color": string }
+                  }
                 />
                 <div>
                   <div className="font-medium text-gray-900">Advertising</div>
                   <div className="text-sm text-gray-600">
-                    Allow personalized ads based on your interests and browsing behavior.
+                    Allow personalized ads based on your interests and browsing
+                    behavior.
                   </div>
                 </div>
               </label>
@@ -196,13 +233,17 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   checked={adPersonalization}
                   onChange={(e) => setAdPersonalization(e.target.checked)}
                   className="mt-1 rounded border-gray-300"
-                  style={{ 
-                    accentColor: 'var(--primary)',
-                    '--tw-ring-color': 'var(--primary)'
-                  } as React.CSSProperties & { '--tw-ring-color': string }}
+                  style={
+                    {
+                      accentColor: "var(--primary)",
+                      "--tw-ring-color": "var(--primary)",
+                    } as React.CSSProperties & { "--tw-ring-color": string }
+                  }
                 />
                 <div>
-                  <div className="font-medium text-gray-900">Ad Personalization</div>
+                  <div className="font-medium text-gray-900">
+                    Ad Personalization
+                  </div>
                   <div className="text-sm text-gray-600">
                     Customize ads based on your profile and preferences.
                   </div>
@@ -217,15 +258,18 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
                   checked={analyticsStorage}
                   onChange={(e) => setAnalyticsStorage(e.target.checked)}
                   className="mt-1 rounded border-gray-300"
-                  style={{ 
-                    accentColor: 'var(--primary)',
-                    '--tw-ring-color': 'var(--primary)'
-                  } as React.CSSProperties & { '--tw-ring-color': string }}
+                  style={
+                    {
+                      accentColor: "var(--primary)",
+                      "--tw-ring-color": "var(--primary)",
+                    } as React.CSSProperties & { "--tw-ring-color": string }
+                  }
                 />
                 <div>
                   <div className="font-medium text-gray-900">Analytics</div>
                   <div className="text-sm text-gray-600">
-                    Help us understand how you use our site to improve your experience.
+                    Help us understand how you use our site to improve your
+                    experience.
                   </div>
                 </div>
               </label>
@@ -234,12 +278,14 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
 
           <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
             <button
-              onClick={() => onSave({
-                'ad_storage': 'denied',
-                'ad_user_data': 'denied',
-                'ad_personalization': 'denied',
-                'analytics_storage': 'denied'
-              })}
+              onClick={() =>
+                onSave({
+                  ad_storage: "denied",
+                  ad_user_data: "denied",
+                  ad_personalization: "denied",
+                  analytics_storage: "denied",
+                })
+              }
               className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 underline transition-colors"
             >
               Reject All
@@ -254,9 +300,14 @@ function ManageOptionsModal({ onSave, onClose }: { onSave: (settings: Record<str
               <button
                 onClick={handleSave}
                 className="px-4 py-2 text-sm text-white rounded transition-colors"
-                style={{ backgroundColor: 'var(--primary)' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-hover)'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                style={{ backgroundColor: "var(--primary)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    "var(--primary-hover)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = "var(--primary)")
+                }
               >
                 Save Preferences
               </button>

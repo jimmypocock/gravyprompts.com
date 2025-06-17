@@ -9,6 +9,7 @@ This document outlines the critical security fixes implemented to prevent cost b
 **Issue**: Every anonymous view was creating a DynamoDB record, which could lead to a cost bomb.
 
 **Fix**: Modified to only track views for authenticated users:
+
 ```javascript
 // Track view only for authenticated users (prevent anonymous view bombing)
 if (!isOwner && userId) {
@@ -23,6 +24,7 @@ if (!isOwner && userId) {
 **Issue**: The `checkRateLimit` function was a stub that always returned `true`.
 
 **Fix**: Implemented actual rate limiting using DynamoDB:
+
 - Tracks requests per user/IP in time windows
 - Default limits:
   - List templates: 60 requests/minute
@@ -35,11 +37,13 @@ if (!isOwner && userId) {
 
 ## 3. Rate Limiting Added to Public Endpoints
 
-**Files**: 
+**Files**:
+
 - `/cdk/lambda/templates/list.js`
 - `/cdk/lambda/templates/get.js`
 
 **Implementation**:
+
 - Added rate limit checks at the beginning of each handler
 - Uses IP address for anonymous users
 - Returns 429 (Too Many Requests) when limit exceeded
@@ -50,6 +54,7 @@ if (!isOwner && userId) {
 **File**: `/cdk/lib/api-stack.js`
 
 **Added**:
+
 1. Request validator for body validation
 2. Request model with size constraints:
    - Title: max 200 characters
@@ -60,12 +65,15 @@ if (!isOwner && userId) {
 ## 5. Infrastructure Updates
 
 **Files**:
+
 - `/cdk/lib/api-stack.js` - Added rate limits table
 - `/cdk/lib/api-waf-stack.js` - New regional WAF for API Gateway
 - `/cdk/lib/app.js` - Integrated API WAF stack
 
 **New Infrastructure**:
+
 1. **Rate Limits Table**: DynamoDB table for tracking API requests
+
    - Partition key: `pk` (e.g., "RATE#userId#action")
    - Sort key: `sk` (e.g., "WINDOW#timestamp")
    - TTL enabled for automatic cleanup
@@ -81,6 +89,7 @@ if (!isOwner && userId) {
 **File**: `/cdk/lib/api-waf-stack.js`
 
 **Features**:
+
 - IP-based rate limiting at WAF level (defense in depth)
 - Request body size constraint (100KB max)
 - AWS Managed Rules with exclusions for legitimate API traffic
@@ -89,6 +98,7 @@ if (!isOwner && userId) {
 ## Deployment Steps
 
 1. Deploy the backend stacks:
+
    ```bash
    npm run deploy:backend
    ```
@@ -107,6 +117,7 @@ if (!isOwner && userId) {
 ## Cost Protection
 
 These fixes provide multiple layers of protection:
+
 1. No anonymous view tracking = No DynamoDB writes for anonymous users
 2. Rate limiting = Prevents abuse of authenticated endpoints
 3. WAF = Blocks malicious traffic before it reaches Lambda

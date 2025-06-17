@@ -1,12 +1,12 @@
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom'
-import { toHaveNoViolations } from 'jest-axe'
+import "@testing-library/jest-dom";
+import { toHaveNoViolations } from "jest-axe";
 
 // Add jest-axe matchers
-expect.extend(toHaveNoViolations)
+expect.extend(toHaveNoViolations);
 
 // Mock next/navigation
-jest.mock('next/navigation', () => ({
+jest.mock("next/navigation", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
@@ -18,13 +18,13 @@ jest.mock('next/navigation', () => ({
   useSearchParams: () => ({
     get: jest.fn(),
   }),
-  usePathname: () => '/test-path',
-}))
+  usePathname: () => "/test-path",
+}));
 
 // Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(window, "matchMedia", {
   writable: true,
-  value: jest.fn().mockImplementation(query => ({
+  value: jest.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -34,7 +34,7 @@ Object.defineProperty(window, 'matchMedia', {
     removeEventListener: jest.fn(),
     dispatchEvent: jest.fn(),
   })),
-})
+});
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
@@ -42,22 +42,22 @@ global.IntersectionObserver = class IntersectionObserver {
   disconnect() {}
   observe() {}
   unobserve() {}
-}
+};
 
 // Suppress console errors in tests (optional - remove if you want to see errors)
-const originalError = console.error
+const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
-      typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
+      typeof args[0] === "string" &&
+      args[0].includes("Warning: ReactDOM.render")
     ) {
-      return
+      return;
     }
-    originalError.call(console, ...args)
-  }
-})
+    originalError.call(console, ...args);
+  };
+});
 
 afterAll(() => {
-  console.error = originalError
-})
+  console.error = originalError;
+});

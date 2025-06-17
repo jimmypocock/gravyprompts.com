@@ -4,17 +4,18 @@
 
 /* CSS Variables */
 :root {
-  --font-ui: var(--font-noto-sans), "Segoe UI", "Arial Unicode MS", system-ui, sans-serif;
+  --font-ui:
+    var(--font-noto-sans), "Segoe UI", "Arial Unicode MS", system-ui, sans-serif;
   --font-mono: "Courier New", "DejaVu Sans Mono", monospace;
 
   /* Font sizes for better readability */
-  --text-xs: 0.75rem;  /* 12px */
+  --text-xs: 0.75rem; /* 12px */
   --text-sm: 0.875rem; /* 14px */
-  --text-base: 1rem;   /* 16px */
+  --text-base: 1rem; /* 16px */
   --text-lg: 1.125rem; /* 18px */
-  --text-xl: 1.25rem;  /* 20px */
-  --text-2xl: 1.5rem;  /* 24px */
-  --text-3xl: 2rem;    /* 32px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 2rem; /* 32px */
 }
 
 /* Light mode colors (default) */
@@ -26,7 +27,7 @@
   --text-secondary: #484848;
   --text-accent: #717171;
   --border-color: #dddddd;
-  --border-focus: #FF385C;
+  --border-focus: #ff385c;
 
   /*
    * BRAND COLOR PALETTE - Airbnb Inspired
@@ -39,11 +40,11 @@
    */
 
   /* Brand colors */
-  --primary: #FF385C;      /* Airbnb's signature red */
-  --primary-hover: #E31C5F;
-  --secondary: #00A699;    /* Teal accent */
-  --accent: #FC642D;       /* Orange accent */
-  --neutral: #767676;      /* Neutral gray */
+  --primary: #ff385c; /* Airbnb's signature red */
+  --primary-hover: #e31c5f;
+  --secondary: #00a699; /* Teal accent */
+  --accent: #fc642d; /* Orange accent */
+  --neutral: #767676; /* Neutral gray */
 
   /* Gradient backgrounds */
   --gradient-bg: linear-gradient(to bottom, #ffffff 0%, #f7f7f7 100%);
@@ -74,12 +75,14 @@ html {
   background-color: #ffffff;
 }
 
-
-
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: var(--text-base);
   line-height: 1.6;
   color: var(--text-primary);
@@ -119,7 +122,7 @@ div#__next > div {
 
 /* Gradient background layer */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -141,27 +144,31 @@ body::before {
   overflow: hidden;
 }
 
-
-
 .orb1 {
   width: 400px;
   height: 400px;
   top: -10%;
   right: -200px;
-  background: radial-gradient(circle at center, rgba(255, 56, 92, 0.3) 0%, rgba(255, 56, 92, 0.15) 50%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 56, 92, 0.3) 0%,
+    rgba(255, 56, 92, 0.15) 50%,
+    transparent 70%
+  );
 }
-
-
 
 .orb2 {
   width: 350px;
   height: 350px;
   bottom: -10%;
   left: -10%;
-  background: radial-gradient(circle at center, rgba(0, 166, 153, 0.3) 0%, rgba(0, 166, 153, 0.15) 50%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 166, 153, 0.3) 0%,
+    rgba(0, 166, 153, 0.15) 50%,
+    transparent 70%
+  );
 }
-
-
 
 .orb3 {
   width: 300px;
@@ -169,11 +176,14 @@ body::before {
   top: 40%;
   left: 60%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle at center, rgba(252, 100, 45, 0.3) 0%, rgba(252, 100, 45, 0.15) 50%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    rgba(252, 100, 45, 0.3) 0%,
+    rgba(252, 100, 45, 0.15) 50%,
+    transparent 70%
+  );
   animation-delay: -5s;
 }
-
-
 
 /* Additional orb for more effect */
 .gradient-orb.orb4 {
@@ -181,11 +191,14 @@ body::before {
   height: 250px;
   bottom: 20%;
   right: -50px;
-  background: radial-gradient(circle at center, rgba(255, 90, 95, 0.3) 0%, rgba(255, 90, 95, 0.15) 50%, transparent 70%);
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 90, 95, 0.3) 0%,
+    rgba(255, 90, 95, 0.15) 50%,
+    transparent 70%
+  );
   animation-delay: -15s;
 }
-
-
 
 /* Simple fade in animation for modal */
 @keyframes fadeIn {
@@ -198,9 +211,15 @@ body::before {
 }
 
 @keyframes gradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .animate-gradient {
@@ -243,10 +262,10 @@ textarea {
 @media (max-width: 640px) {
   :root {
     --text-base: 0.9375rem; /* 15px */
-    --text-lg: 1.0625rem;   /* 17px */
-    --text-xl: 1.1875rem;   /* 19px */
-    --text-2xl: 1.375rem;   /* 22px */
-    --text-3xl: 1.75rem;    /* 28px */
+    --text-lg: 1.0625rem; /* 17px */
+    --text-xl: 1.1875rem; /* 19px */
+    --text-2xl: 1.375rem; /* 22px */
+    --text-3xl: 1.75rem; /* 28px */
   }
 }
 
@@ -302,8 +321,6 @@ h3 {
   box-shadow: var(--shadow-card);
 }
 
-
-
 /* Input fields with gradient compatibility */
 .input-field {
   @apply backdrop-blur-sm;
@@ -311,16 +328,12 @@ h3 {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-
-
 /* Ad container styling */
 .ad-container {
   @apply rounded-xl overflow-hidden backdrop-blur-sm;
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
-
-
 
 /* Ensure text selection works everywhere */
 .select-text {
@@ -331,7 +344,8 @@ h3 {
 }
 
 /* Ensure textareas and inputs support standard selection */
-textarea, input {
+textarea,
+input {
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;
@@ -352,11 +366,11 @@ textarea, input {
 }
 
 .gravy-toolbar button.active {
-  @apply bg-blue-100 border-blue-300
+  @apply bg-blue-100 border-blue-300;
 }
 
 .gravy-content {
-  @apply p-4 min-h-[200px] focus:outline-none text-gray-900
+  @apply p-4 min-h-[200px] focus:outline-none text-gray-900;
 }
 
 .gravy-variable {
@@ -376,7 +390,7 @@ textarea, input {
 }
 
 .gravy-snippet-item.selected {
-  @apply bg-blue-100
+  @apply bg-blue-100;
 }
 
 /* Smooth transitions for split view */
@@ -412,8 +426,9 @@ textarea, input {
 }
 
 .search-bar-nav {
-  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search-bar-nav.hidden {
@@ -437,7 +452,7 @@ textarea, input {
     border-top: 1px solid rgba(var(--foreground-rgb), 0.1);
     border-right: none;
   }
-  
+
   .split-view-right {
     height: 50vh;
     padding-bottom: 50vh;

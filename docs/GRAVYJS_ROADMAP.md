@@ -5,12 +5,14 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Core Feature Enhancements
 
 ### 1. **Programmatic Variable Population**
+
 - Add `populateVariables(values)` method that accepts pre-filled values without prompting
 - Enable batch population for multiple templates
 - Support async data sources (API calls, database queries)
 - **Use Case**: AI apps that want to auto-fill variables from context
 
 ### 2. **Variable Types & Validation**
+
 - Support typed variables: `[[name:string]]`, `[[age:number]]`, `[[date:date]]`
 - Add validation rules: `[[email:email]]`, `[[phone:tel]]`
 - Custom validation functions
@@ -18,12 +20,14 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Form letters, contracts, structured documents
 
 ### 3. **Conditional Logic**
+
 - If/else blocks: `[[if premium]]Show premium content[[/if]]`
 - Loops: `[[foreach items]]<li>[[item]]</li>[[/foreach]]`
 - Comparison operators: `[[if age > 18]]`
 - **Use Case**: Dynamic AI prompts, personalized templates
 
 ### 4. **Template Composition**
+
 - Include other templates: `[[include:header]]`
 - Template inheritance/extends
 - Reusable component system
@@ -32,12 +36,14 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Developer Experience
 
 ### 5. **Multiple Variable Syntaxes**
+
 - Support different delimiters: `{{var}}`, `${var}`, `{var}`, `<var>`
 - Auto-detect syntax from content
 - Syntax conversion utilities
 - **Use Case**: Migrating from other template systems
 
 ### 6. **Import/Export Formats**
+
 - JSON schema for templates
 - Markdown support with frontmatter
 - YAML template definitions
@@ -45,6 +51,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Integration with existing systems
 
 ### 7. **Hooks & Events**
+
 - `onBeforePopulate`, `onAfterPopulate`
 - `onVariableChange`, `onVariableValidate`
 - Custom variable resolvers
@@ -52,6 +59,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Custom business logic, analytics
 
 ### 8. **AI-Specific Features**
+
 - Token counting for LLM limits
 - Prompt chaining support
 - Variable suggestions based on content
@@ -61,6 +69,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## UI/UX Enhancements
 
 ### 9. **Advanced Variable UI**
+
 - Custom input components per variable type
 - Multi-step variable collection wizard
 - Inline variable editing (click to edit in preview)
@@ -68,6 +77,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Better user experience
 
 ### 10. **Rich Variable Inputs**
+
 - File upload variables: `[[resume:file]]`
 - Image variables with preview
 - Rich text variables
@@ -75,6 +85,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Document generation, media templates
 
 ### 11. **Collaboration Features**
+
 - Real-time collaborative editing (CRDT-based)
 - Comments on variables
 - Version history with diff view
@@ -84,6 +95,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Technical Scaling
 
 ### 12. **Performance Optimizations**
+
 - Virtual scrolling for large templates
 - Lazy loading for template sections
 - WebWorker support for heavy processing
@@ -91,6 +103,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Large-scale applications
 
 ### 13. **Framework Adapters**
+
 - Vue.js wrapper component
 - Angular component
 - Svelte component
@@ -98,6 +111,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Broader adoption
 
 ### 14. **Plugin System**
+
 - Plugin API for custom functionality
 - Official plugin marketplace
 - Variable provider plugins (database, API, etc.)
@@ -107,6 +121,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Data & Analytics
 
 ### 15. **Usage Analytics**
+
 - Track which variables are most used
 - Variable completion rates
 - Error tracking for failed populations
@@ -114,6 +129,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Template optimization
 
 ### 16. **Smart Features**
+
 - ML-based variable name suggestions
 - Auto-complete for variable values based on history
 - Template recommendation engine
@@ -123,6 +139,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Integration Features
 
 ### 17. **API Client Libraries**
+
 - REST API for template operations
 - GraphQL schema
 - WebSocket support for real-time updates
@@ -130,6 +147,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: Backend integration
 
 ### 18. **Third-Party Integrations**
+
 - Zapier/Make.com actions
 - Google Docs add-on
 - Microsoft Word add-in
@@ -139,6 +157,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Monetization-Friendly Features
 
 ### 19. **Premium Features Flag**
+
 - Feature flags for paid tiers
 - Usage limits configuration
 - Watermark support for free tier
@@ -146,6 +165,7 @@ This document outlines potential enhancements for the GravyJS npm package that w
 - **Use Case**: SaaS applications
 
 ### 20. **Enterprise Features**
+
 - SSO integration support
 - Audit logging
 - Role-based permissions
@@ -155,24 +175,28 @@ This document outlines potential enhancements for the GravyJS npm package that w
 ## Implementation Priority
 
 ### Phase 1 (Essential for MVP)
+
 - Programmatic variable population (#1)
 - Variable types & validation (#2)
 - Import/Export formats (#6)
 - Hooks & Events (#7)
 
 ### Phase 2 (Growth Features)
+
 - Conditional logic (#3)
 - AI-specific features (#8)
 - Advanced variable UI (#9)
 - Multiple variable syntaxes (#5)
 
 ### Phase 3 (Scale & Enterprise)
+
 - Plugin system (#14)
 - Framework adapters (#13)
 - Enterprise features (#20)
 - Third-party integrations (#18)
 
 ### Phase 4 (Advanced)
+
 - Collaboration features (#11)
 - Smart features (#16)
 - Performance optimizations (#12)

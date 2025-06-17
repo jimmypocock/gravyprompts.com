@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/auth-context';
-import { useSearch } from '@/lib/search-context';
-import { usePathname, useRouter } from 'next/navigation';
-import { checkAdminAccess } from '@/lib/api/admin';
+import Link from "next/link";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useSearch } from "@/lib/search-context";
+import { usePathname, useRouter } from "next/navigation";
+import { checkAdminAccess } from "@/lib/api/admin";
 
 export default function Navigation() {
   const { user, loading } = useAuth();
@@ -15,7 +15,7 @@ export default function Navigation() {
   const [isAdmin, setIsAdmin] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const isHomePage = pathname === '/';
+  const isHomePage = pathname === "/";
 
   // Show search in nav on all pages except home (unless scrolled on home)
   const showSearch = !isHomePage || isNavSearchVisible;
@@ -31,7 +31,7 @@ export default function Navigation() {
           setIsAdmin(hasAccess);
         } catch (error) {
           // Silently fail admin check - user just won't see admin features
-          console.log('Admin check failed:', error);
+          console.log("Admin check failed:", error);
           setIsAdmin(false);
         }
       } else {
@@ -45,7 +45,7 @@ export default function Navigation() {
     setSearchQuery(value);
     // If not on home page and user starts searching, redirect to home
     if (!isHomePage && value.trim()) {
-      router.push('/');
+      router.push("/");
     }
   };
 
@@ -63,14 +63,18 @@ export default function Navigation() {
                 height={32}
                 className="h-8 w-8"
               />
-              <span className="text-xl font-bold text-primary mb-2">gravy prompts</span>
+              <span className="text-xl font-bold text-primary mb-2">
+                gravy prompts
+              </span>
             </Link>
           </div>
 
           {/* Search Bar - Centered */}
-          <div className={`flex-1 max-w-2xl mx-8 transition-all duration-300 ${
-            showSearch ? 'opacity-100 visible' : 'opacity-0 invisible'
-          }`}>
+          <div
+            className={`flex-1 max-w-2xl mx-8 transition-all duration-300 ${
+              showSearch ? "opacity-100 visible" : "opacity-0 invisible"
+            }`}
+          >
             <div className="relative">
               <input
                 type="text"
@@ -85,7 +89,12 @@ export default function Navigation() {
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
             </div>
           </div>
@@ -123,7 +132,7 @@ export default function Navigation() {
                       className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors"
                     >
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">
-                        {user.email?.[0]?.toUpperCase() || 'U'}
+                        {user.email?.[0]?.toUpperCase() || "U"}
                       </div>
                     </Link>
                   ) : (
@@ -149,11 +158,26 @@ export default function Navigation() {
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     {isMobileMenuOpen ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
                     ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
                     )}
                   </svg>
                 </button>

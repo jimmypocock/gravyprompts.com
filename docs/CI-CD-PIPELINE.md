@@ -17,6 +17,7 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ## 📊 Pipeline Stages
 
 ### 1. **Pull Request Checks** (`pr-checks.yml`)
+
 - **Runs on:** Every PR
 - **Duration:** ~3-5 minutes
 - **Features:**
@@ -29,14 +30,16 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ### 2. **Main CI/CD Pipeline** (`ci-cd-pipeline.yml`)
 
 #### Stage 1: Code Quality (2 min)
+
 ```yaml
 - ESLint checking
-- TypeScript validation  
+- TypeScript validation
 - Prettier formatting
 - Runs in parallel with other checks
 ```
 
 #### Stage 2: Unit Tests (5 min - parallelized)
+
 ```yaml
 - Lambda tests
 - Component tests
@@ -46,6 +49,7 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ```
 
 #### Stage 3: Integration Tests (5 min)
+
 ```yaml
 - Local DynamoDB setup
 - API integration tests
@@ -54,6 +58,7 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ```
 
 #### Stage 4: Security Scanning (3 min)
+
 ```yaml
 - npm audit
 - Snyk vulnerability scan
@@ -62,6 +67,7 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ```
 
 #### Stage 5: Build & Deploy (10 min)
+
 ```yaml
 - Build Next.js app
 - Build CDK infrastructure
@@ -70,6 +76,7 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ```
 
 ### 3. **Scheduled Tasks** (`scheduled-tasks.yml`)
+
 - **Runs:** Weekly (Sundays 2 AM UTC)
 - **Features:**
   - Security audits
@@ -81,13 +88,15 @@ GravyPrompts uses a **cost-effective CI/CD pipeline** built with GitHub Actions 
 ## 💰 Cost Breakdown
 
 ### GitHub Actions Usage (Monthly)
+
 - **PR Checks:** ~200 runs × 5 min = 1000 minutes
-- **Main Pipeline:** ~50 runs × 20 min = 1000 minutes  
+- **Main Pipeline:** ~50 runs × 20 min = 1000 minutes
 - **Scheduled Tasks:** 4 runs × 15 min = 60 minutes
 - **Total:** ~2060 minutes (just over free tier)
 - **Cost:** ~$0.40/month for overage
 
 ### AWS Costs
+
 - **Amplify Hosting:** $0.01/GB served + $0.15/GB stored
 - **API Gateway:** $3.50/million requests
 - **Lambda:** Free tier covers most usage
@@ -123,6 +132,7 @@ SLACK_WEBHOOK
 ### 2. Branch Protection Rules
 
 Configure for `main` branch:
+
 - ✅ Require PR reviews
 - ✅ Require status checks to pass
 - ✅ Require branches to be up to date
@@ -138,6 +148,7 @@ Configure for `main` branch:
 
 1. Connect GitHub repo to Amplify
 2. Configure auto-build settings:
+
 ```yaml
 version: 1
 frontend:
@@ -151,7 +162,7 @@ frontend:
   artifacts:
     baseDirectory: .next
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*
@@ -160,18 +171,21 @@ frontend:
 ## 📈 Pipeline Optimization Tips
 
 ### 1. **Reduce Build Times**
+
 - Use `npm ci` instead of `npm install`
 - Cache node_modules between runs
 - Parallelize test suites
 - Use shallow clones for faster checkout
 
 ### 2. **Save GitHub Actions Minutes**
+
 - Skip CI for documentation changes
 - Use path filters to run only relevant tests
 - Combine related jobs when possible
 - Use self-hosted runners for heavy workloads
 
 ### 3. **Cost Monitoring**
+
 ```bash
 # Add to package.json
 "scripts": {
@@ -183,6 +197,7 @@ frontend:
 ## 🔧 Deployment Strategies
 
 ### Development Workflow
+
 1. Create feature branch
 2. Make changes
 3. PR triggers checks
@@ -190,6 +205,7 @@ frontend:
 5. Merge to main → production deploy
 
 ### Hotfix Process
+
 ```bash
 # Create hotfix from main
 git checkout -b hotfix/critical-fix main
@@ -201,8 +217,9 @@ git push origin hotfix/critical-fix
 ```
 
 ### Rollback Process
+
 1. **Amplify:** Use console to redeploy previous build
-2. **Lambda/CDK:** 
+2. **Lambda/CDK:**
    ```bash
    git revert <commit>
    git push origin main
@@ -211,28 +228,32 @@ git push origin hotfix/critical-fix
 ## 📊 Monitoring & Alerts
 
 ### Pipeline Health
+
 - GitHub Actions dashboard
 - Slack notifications on failure
 - Weekly summary reports
 
 ### Deployment Tracking
+
 ```javascript
 // Add to deployment scripts
 const deployment = {
   version: process.env.GITHUB_SHA,
   timestamp: new Date().toISOString(),
   environment: process.env.ENVIRONMENT,
-  triggeredBy: process.env.GITHUB_ACTOR
+  triggeredBy: process.env.GITHUB_ACTOR,
 };
 ```
 
 ## 🛡️ Security Best Practices
 
 1. **Least Privilege IAM**
+
    - Separate deploy user with minimal permissions
    - Rotate credentials quarterly
 
 2. **Secret Management**
+
    - Use GitHub encrypted secrets
    - Never commit sensitive data
    - Audit secret usage
@@ -245,6 +266,7 @@ const deployment = {
 ## 📈 Performance Metrics
 
 Track these KPIs:
+
 - **Pipeline Duration:** Target < 15 minutes
 - **Success Rate:** Target > 95%
 - **Cost per Deployment:** Target < $0.10
@@ -255,6 +277,7 @@ Track these KPIs:
 ### Common Issues
 
 1. **Cache Problems**
+
    ```yaml
    - name: Clear cache
      run: |
@@ -263,6 +286,7 @@ Track these KPIs:
    ```
 
 2. **Amplify Sync Issues**
+
    ```bash
    aws amplify stop-job --app-id $APP_ID --job-id $JOB_ID
    aws amplify start-job --app-id $APP_ID --branch-name main --job-type RELEASE

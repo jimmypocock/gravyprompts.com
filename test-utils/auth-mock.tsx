@@ -1,5 +1,5 @@
-import React from 'react';
-import { AuthContext } from '@/lib/auth-context';
+import React from "react";
+import { AuthContext } from "@/lib/auth-context";
 
 export interface MockAuthContextValue {
   user: any;
@@ -9,7 +9,9 @@ export interface MockAuthContextValue {
   refreshToken?: jest.Mock;
 }
 
-export const createMockAuthContext = (value: Partial<MockAuthContextValue> = {}) => {
+export const createMockAuthContext = (
+  value: Partial<MockAuthContextValue> = {},
+) => {
   const defaultValue: MockAuthContextValue = {
     user: null,
     loading: false,
@@ -27,7 +29,7 @@ export const MockAuthProvider: React.FC<{
   value?: Partial<MockAuthContextValue>;
 }> = ({ children, value = {} }) => {
   const contextValue = createMockAuthContext(value);
-  
+
   return (
     <AuthContext.Provider value={contextValue as any}>
       {children}

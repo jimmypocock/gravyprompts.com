@@ -1,4 +1,7 @@
-const { CognitoIdentityProviderClient, GetUserCommand } = require('@aws-sdk/client-cognito-identity-provider');
+const {
+  CognitoIdentityProviderClient,
+  GetUserCommand,
+} = require("@aws-sdk/client-cognito-identity-provider");
 
 const cognitoClient = new CognitoIdentityProviderClient({});
 
@@ -12,12 +15,12 @@ function getClaimsFromAuthorizer(event) {
   if (event.requestContext?.authorizer?.claims) {
     return event.requestContext.authorizer.claims;
   }
-  
+
   // API Gateway v2 format
   if (event.requestContext?.authorizer?.jwt?.claims) {
     return event.requestContext.authorizer.jwt.claims;
   }
-  
+
   return null;
 }
 
@@ -28,7 +31,7 @@ function getClaimsFromAuthorizer(event) {
  */
 function extractBearerToken(headers) {
   const authHeader = headers?.Authorization || headers?.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
+  if (authHeader && authHeader.startsWith("Bearer ")) {
     return authHeader.substring(7);
   }
   return null;
@@ -44,21 +47,23 @@ function decodeJwtPayload(token) {
   // SECURITY: Only allow JWT decoding in local development
   // This prevents any possibility of bypassing authentication in production
   if (!process.env.AWS_SAM_LOCAL) {
-    console.error('SECURITY: Attempted to decode JWT outside of SAM Local environment');
+    console.error(
+      "SECURITY: Attempted to decode JWT outside of SAM Local environment",
+    );
     return null;
   }
-  
+
   try {
-    const parts = token.split('.');
+    const parts = token.split(".");
     if (parts.length !== 3) {
-      console.error('Invalid JWT format');
+      console.error("Invalid JWT format");
       return null;
     }
-    
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+
+    const payload = JSON.parse(Buffer.from(parts[1], "base64").toString());
     return payload;
   } catch (error) {
-    console.error('Error decoding JWT:', error);
+    console.error("Error decoding JWT:", error);
     return null;
   }
 }
@@ -74,7 +79,7 @@ function extractUserClaims(payload) {
     email: payload.email,
     name: payload.name,
     email_verified: payload.email_verified,
-    username: payload['cognito:username']
+    username: payload["cognito:username"],
   };
 }
 
@@ -84,51 +89,53 @@ function extractUserClaims(payload) {
  * @returns {Object|null} User information
  */
 async function getUserFromEvent(event) {
-  console.log('Getting user from event');
-  
+  console.log("Getting user from event");
+
   // First, check if claims are already available from authorizer
   const authorizerClaims = getClaimsFromAuthorizer(event);
   if (authorizerClaims) {
-    console.log('Found user in authorizer context');
+    console.log("Found user in authorizer context");
     return authorizerClaims;
   }
-  
+
   // If not, try to extract from bearer token (needed for SAM Local)
   // SECURITY: This path should ONLY be accessible in local development
   if (!process.env.AWS_SAM_LOCAL) {
-    console.error('SECURITY: No authorizer claims found in production environment');
+    console.error(
+      "SECURITY: No authorizer claims found in production environment",
+    );
     return null;
   }
-  
+
   const token = extractBearerToken(event.headers);
   if (!token) {
-    console.log('No bearer token found');
+    console.log("No bearer token found");
     return null;
   }
-  
-  console.log('Found bearer token in SAM Local, attempting to decode...');
-  
+
+  console.log("Found bearer token in SAM Local, attempting to decode...");
+
   // Decode the JWT payload
   // Note: In production, API Gateway handles validation
   // This is primarily for local development with SAM Local
   const payload = decodeJwtPayload(token);
   if (!payload) {
-    console.log('Failed to decode token');
+    console.log("Failed to decode token");
     return null;
   }
-  
+
   const userClaims = extractUserClaims(payload);
-  console.log('Decoded user claims:', {
+  console.log("Decoded user claims:", {
     sub: userClaims.sub,
     email: userClaims.email,
-    name: userClaims.name
+    name: userClaims.name,
   });
-  
+
   return userClaims;
 }
 
 module.exports = {
   getUserFromEvent,
   extractBearerToken,
-  decodeJwtPayload
+  decodeJwtPayload,
 };

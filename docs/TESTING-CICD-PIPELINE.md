@@ -25,6 +25,7 @@ git push origin test/cicd-pipeline
 ### 3. Monitor the Pipeline
 
 #### In the PR:
+
 - Click **"Details"** next to each check to see logs
 - Look for:
   - ✅ Code quality checks
@@ -34,6 +35,7 @@ git push origin test/cicd-pipeline
   - ✅ Build
 
 #### In Actions Tab:
+
 1. Go to your repo → **Actions** tab
 2. Click on your workflow run
 3. Click on any job to see detailed logs
@@ -56,6 +58,7 @@ workflow_dispatch:
 Since you're using OIDC (not IAM users yet), the deployment steps will fail. That's OK! You can:
 
 ### Option A: Comment Out Deploy Steps
+
 ```yaml
 # Temporarily disable deployment
 # deploy-staging:
@@ -64,17 +67,19 @@ Since you're using OIDC (not IAM users yet), the deployment steps will fail. Tha
 ```
 
 ### Option B: Add Test Mode
+
 ```yaml
 - name: Deploy backend (CDK)
-  if: github.event_name != 'pull_request'  # Skip on PRs
+  if: github.event_name != 'pull_request' # Skip on PRs
   run: |
     echo "Would deploy to AWS here"
     # npm run deploy:backend
 ```
 
 ### Option C: Use GitHub Environments
+
 ```yaml
-environment: 
+environment:
   name: staging
   url: https://staging.gravyprompts.com
 ```
@@ -86,12 +91,14 @@ Then require manual approval in Settings → Environments.
 ### 1. GitHub UI
 
 **Pull Request View**:
+
 - Checks appear at bottom of PR
 - Green checkmark = passed
 - Red X = failed
 - Yellow circle = running
 
 **Actions Tab View**:
+
 - Full workflow visualization
 - Detailed logs for each step
 - Artifacts (test reports, coverage)
@@ -100,10 +107,12 @@ Then require manual approval in Settings → Environments.
 ### 2. Notifications
 
 **Email**: GitHub sends emails for:
+
 - Failed workflows
 - Successful deployments (if subscribed)
 
 **Slack** (if configured):
+
 ```yaml
 - name: Notify deployment success
   uses: 8398a7/action-slack@v3
@@ -115,6 +124,7 @@ Then require manual approval in Settings → Environments.
 ### 3. Status Badges
 
 Add to your README:
+
 ```markdown
 ![CI/CD](https://github.com/yourusername/gravyprompts/actions/workflows/ci-cd-pipeline.yml/badge.svg)
 ![Coverage](https://img.shields.io/codecov/c/github/yourusername/gravyprompts)
@@ -123,21 +133,25 @@ Add to your README:
 ## Best Practices for Testing
 
 ### 1. Start Small
+
 - Test with simple changes first
 - Verify each job works independently
 - Gradually enable more features
 
 ### 2. Use Draft PRs
+
 - Create draft PRs for testing
 - Convert to ready when tests pass
 - Delete test branches after
 
 ### 3. Check Logs Carefully
+
 - Look for warnings, not just errors
 - Check execution time
 - Verify cache is working
 
 ### 4. Test Different Scenarios
+
 ```bash
 # Test PR flow
 git checkout -b feature/test-pr
@@ -157,39 +171,47 @@ git push origin develop
 ## Common Issues & Solutions
 
 ### "Could not assume role"
+
 - OIDC not set up yet
 - Solution: Set up OIDC first or comment out deploy steps
 
-### "npm audit found vulnerabilities"  
+### "npm audit found vulnerabilities"
+
 - Security check failed
 - Solution: Run `npm audit fix` locally first
 
 ### "Resource not accessible by integration"
+
 - Permissions issue
 - Solution: Check workflow permissions in Settings → Actions
 
 ### Tests timing out
+
 - Tests taking too long
 - Solution: Increase timeout or optimize tests
 
 ## Gradual Rollout Strategy
 
 ### Phase 1: Test Core Features
+
 1. Enable only linting and tests
 2. Verify they pass consistently
 3. Check execution time
 
 ### Phase 2: Add Security Scans
+
 1. Enable security scanning
 2. Fix any vulnerabilities
 3. Set appropriate thresholds
 
 ### Phase 3: Enable Deployments
+
 1. Set up OIDC
 2. Test staging deployment
 3. Test production deployment
 
 ### Phase 4: Add Advanced Features
+
 1. Enable performance tests
 2. Add coverage reporting
 3. Set up monitoring
@@ -197,13 +219,16 @@ git push origin develop
 ## Debugging Workflow Runs
 
 ### Enable Debug Logging
+
 Add these secrets to your repo:
+
 ```
 ACTIONS_RUNNER_DEBUG: true
 ACTIONS_STEP_DEBUG: true
 ```
 
 ### Download Artifacts
+
 ```yaml
 - uses: actions/upload-artifact@v4
   with:
@@ -214,6 +239,7 @@ ACTIONS_STEP_DEBUG: true
 Then download from Actions → Workflow run → Artifacts.
 
 ### Re-run Failed Jobs
+
 1. Go to failed workflow
 2. Click "Re-run failed jobs"
 3. Only failed jobs will run again

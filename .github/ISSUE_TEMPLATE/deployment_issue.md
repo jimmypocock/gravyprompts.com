@@ -1,10 +1,9 @@
 ---
 name: Deployment Issue
 about: Report issues with AWS deployment or CDK stacks
-title: '[DEPLOYMENT] '
-labels: ['deployment', 'aws']
-assignees: ''
-
+title: "[DEPLOYMENT] "
+labels: ["deployment", "aws"]
+assignees: ""
 ---
 
 **Which deployment step is failing?**
@@ -30,6 +29,7 @@ Paste error message here
 **Deployment command used**
 
 What command did you run when the error occurred?
+
 ```bash
 # Example: npm run deploy:foundation
 ```
@@ -46,6 +46,7 @@ What command did you run when the error occurred?
 Please share your configuration (remove sensitive values):
 
 **Environment variables (.env):**
+
 ```bash
 APP_NAME=your-app-name
 DOMAIN_NAME=your-domain.com
@@ -54,6 +55,7 @@ STACK_PREFIX=YOURAPP
 ```
 
 **CDK Context (if any):**
+
 ```json
 {
   "certificateArn": "arn:aws:acm:...",
@@ -64,6 +66,7 @@ STACK_PREFIX=YOURAPP
 **Stack Status**
 
 If you can access AWS CloudFormation console, please share the status of your stacks:
+
 - Foundation Stack: [e.g. CREATE_COMPLETE, CREATE_FAILED]
 - Certificate Stack: [e.g. CREATE_IN_PROGRESS]
 - etc.

@@ -1,1 +1,4 @@
-{"httpMethod":"GET","queryStringParameters":{"filter":"popular","limit":"1"}}
+{
+  "httpMethod": "GET",
+  "queryStringParameters": { "filter": "popular", "limit": "1" }
+}

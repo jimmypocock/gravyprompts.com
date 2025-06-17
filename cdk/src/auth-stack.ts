@@ -1,13 +1,19 @@
-import { Stack, StackProps, CfnOutput, RemovalPolicy, Duration } from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as iam from 'aws-cdk-lib/aws-iam';
+import {
+  Stack,
+  StackProps,
+  CfnOutput,
+  RemovalPolicy,
+  Duration,
+} from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as cognito from "aws-cdk-lib/aws-cognito";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as iam from "aws-cdk-lib/aws-iam";
 
 export interface AuthStackProps extends StackProps {
   appName: string;
   domainName: string;
-  environment: 'development' | 'production';
+  environment: "development" | "production";
 }
 
 export class AuthStack extends Stack {
@@ -17,11 +23,11 @@ export class AuthStack extends Stack {
   constructor(scope: Construct, id: string, props: AuthStackProps) {
     super(scope, id, props);
 
-    const isProd = props.environment === 'production';
+    const isProd = props.environment === "production";
     const poolName = `${props.appName}-users`;
 
     // Create User Pool
-    this.userPool = new cognito.UserPool(this, 'UserPool', {
+    this.userPool = new cognito.UserPool(this, "UserPool", {
       userPoolName: poolName,
       selfSignUpEnabled: true,
       userVerification: {
@@ -91,7 +97,7 @@ export class AuthStack extends Stack {
     });
 
     // Create App Client
-    this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
+    this.userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
       userPool: this.userPool,
       userPoolClientName: `${props.appName}-client`,
       authFlows: {
@@ -111,34 +117,33 @@ export class AuthStack extends Stack {
           emailVerified: true,
           fullname: true,
         })
-        .withCustomAttributes('bio', 'github', 'twitter', 'linkedin'),
+        .withCustomAttributes("bio", "github", "twitter", "linkedin"),
       writeAttributes: new cognito.ClientAttributes()
         .withStandardAttributes({
           email: true,
           fullname: true,
         })
-        .withCustomAttributes('bio', 'github', 'twitter', 'linkedin'),
+        .withCustomAttributes("bio", "github", "twitter", "linkedin"),
     });
 
     // User Pool Domain removed - not needed for API-only authentication
 
     // Outputs
-    new CfnOutput(this, 'UserPoolId', {
+    new CfnOutput(this, "UserPoolId", {
       value: this.userPool.userPoolId,
-      description: 'Cognito User Pool ID',
+      description: "Cognito User Pool ID",
       exportName: `${this.stackName}-UserPoolId`,
     });
 
-    new CfnOutput(this, 'UserPoolClientId', {
+    new CfnOutput(this, "UserPoolClientId", {
       value: this.userPoolClient.userPoolClientId,
-      description: 'Cognito User Pool Client ID',
+      description: "Cognito User Pool Client ID",
       exportName: `${this.stackName}-UserPoolClientId`,
     });
 
-
-    new CfnOutput(this, 'CognitoRegion', {
+    new CfnOutput(this, "CognitoRegion", {
       value: this.region,
-      description: 'AWS Region for Cognito',
+      description: "AWS Region for Cognito",
       exportName: `${this.stackName}-CognitoRegion`,
     });
   }

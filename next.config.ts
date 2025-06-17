@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone', // Required for AWS Amplify
+  output: "standalone", // Required for AWS Amplify
   images: {
     unoptimized: true,
   },
@@ -9,12 +9,13 @@ const nextConfig: NextConfig = {
   experimental: {
     // Ensure server components work properly
     serverActions: {
-      bodySizeLimit: '2mb',
+      bodySizeLimit: "2mb",
     },
   },
   // Environment variables that should be available at build time
   env: {
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://gravyprompts.com',
+    NEXT_PUBLIC_APP_URL:
+      process.env.NEXT_PUBLIC_APP_URL || "https://gravyprompts.com",
   },
 };
 

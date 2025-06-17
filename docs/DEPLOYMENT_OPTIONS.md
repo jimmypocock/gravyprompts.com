@@ -5,6 +5,7 @@ Since GravyPrompts uses dynamic routes and server-side features, it requires a d
 ## Current Infrastructure Issue
 
 The current setup uses S3 + CloudFront, which only supports static files. However, GravyPrompts needs:
+
 - Dynamic routes (`/templates/[id]`)
 - Server-side API calls
 - User authentication
@@ -13,7 +14,9 @@ The current setup uses S3 + CloudFront, which only supports static files. Howeve
 ## Recommended Deployment Options
 
 ### Option 1: AWS Amplify Hosting (Recommended for AWS users)
+
 **Pros:**
+
 - Native Next.js SSR support
 - Automatic CI/CD from Git
 - Uses existing AWS account
@@ -21,6 +24,7 @@ The current setup uses S3 + CloudFront, which only supports static files. Howeve
 - Custom domains with SSL
 
 **Setup:**
+
 ```bash
 npm install -g @aws-amplify/cli
 amplify init
@@ -29,7 +33,9 @@ amplify publish
 ```
 
 ### Option 2: Vercel (Recommended for simplicity)
+
 **Pros:**
+
 - Created by Next.js team
 - Zero configuration
 - Excellent performance
@@ -37,36 +43,44 @@ amplify publish
 - Automatic deployments from Git
 
 **Setup:**
+
 ```bash
 npm i -g vercel
 vercel
 ```
 
 ### Option 3: AWS App Runner
+
 **Pros:**
+
 - Fully managed containers
 - Auto-scaling
 - Pay per use
 - Integrates with existing AWS services
 
 **Setup requires:**
+
 1. Dockerfile for Next.js
 2. App Runner service in CDK
 3. Environment variable configuration
 
 ### Option 4: Self-hosted on EC2/ECS
+
 **Pros:**
+
 - Full control
 - Can use existing infrastructure
 - Cost-effective at scale
 
 **Cons:**
+
 - More complex setup
 - Requires maintenance
 
 ## Migration Path
 
 1. **Keep existing infrastructure** for:
+
    - API Gateway + Lambda (template API)
    - DynamoDB (data storage)
    - Cognito (authentication)
@@ -84,11 +98,13 @@ vercel
 ## Quick Start with Vercel
 
 1. Install Vercel CLI:
+
    ```bash
    npm i -g vercel
    ```
 
 2. Deploy:
+
    ```bash
    vercel
    ```
@@ -116,7 +132,7 @@ vercel
      artifacts:
        baseDirectory: .next
        files:
-         - '**/*'
+         - "**/*"
      cache:
        paths:
          - node_modules/**/*
@@ -127,6 +143,7 @@ vercel
 ## Keeping CloudFront for API
 
 Your existing CloudFront can still be used for:
+
 - Caching API responses
 - Serving static assets
 - Geographic distribution

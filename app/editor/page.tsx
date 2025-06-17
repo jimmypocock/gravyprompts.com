@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { AuthGuard } from '@/components/AuthGuard';
-import EditorContent from './EditorContent';
+import { AuthGuard } from "@/components/AuthGuard";
+import EditorContent from "./EditorContent";
 
 export default function EditorPage() {
   return (

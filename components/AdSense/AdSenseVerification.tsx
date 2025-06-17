@@ -12,7 +12,7 @@ export default function AdSenseVerification() {
       async
       src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`}
       crossOrigin="anonymous"
-      dangerouslySetInnerHTML={{ __html: '' }}
+      dangerouslySetInnerHTML={{ __html: "" }}
     />
   );
 }

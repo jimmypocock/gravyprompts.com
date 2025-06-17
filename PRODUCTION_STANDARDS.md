@@ -5,30 +5,35 @@ This document defines the production-ready standards that must be followed for a
 ## Core Principles
 
 ### 1. Security First
+
 - **NEVER** put secrets, API keys, or sensitive data in client-side code
 - **NEVER** implement authentication/authorization logic on the client
 - **ALWAYS** validate permissions server-side
 - **ALWAYS** use environment variables for configuration, never hardcode
 
 ### 2. No Development Shortcuts in Production Code
+
 - **NEVER** use hardcoded IDs, emails, or user data in components
 - **NEVER** bypass security checks based on hostname or environment
 - **ALWAYS** use feature flags or environment variables for dev-only features
 - **ALWAYS** ensure dev conveniences are server-side only
 
 ### 3. Error Handling & Resilience
+
 - **ALWAYS** handle API failures gracefully
 - **ALWAYS** provide fallback behavior for network issues
 - **NEVER** expose internal error details to users
 - **ALWAYS** log errors appropriately for debugging
 
 ### 4. Performance & Scalability
+
 - **AVOID** unnecessary API calls
 - **IMPLEMENT** proper caching strategies
 - **USE** pagination for large data sets
 - **OPTIMIZE** bundle sizes and lazy load when appropriate
 
 ### 5. Testing Requirements
+
 - **ALWAYS** write tests for new features
 - **ALWAYS** update tests when changing functionality
 - **ENSURE** tests reflect production behavior, not dev shortcuts
@@ -50,14 +55,16 @@ Before implementing any solution, verify:
 ## Common Anti-Patterns to Avoid
 
 ### ❌ BAD: Client-side permission check
+
 ```typescript
 // NEVER DO THIS
-if (user.userId === 'admin-123' || user.role === 'admin') {
+if (user.userId === "admin-123" || user.role === "admin") {
   showAdminFeatures();
 }
 ```
 
 ### ✅ GOOD: Server-side permission check
+
 ```typescript
 // Always verify through API
 const isAdmin = await checkAdminAccess(); // Server validates
@@ -67,13 +74,15 @@ if (isAdmin) {
 ```
 
 ### ❌ BAD: Hardcoded configuration
+
 ```typescript
 // NEVER DO THIS
-const API_URL = 'https://api.gravyprompts.com';
-const ADMIN_EMAIL = 'admin@gravyprompts.com';
+const API_URL = "https://api.gravyprompts.com";
+const ADMIN_EMAIL = "admin@gravyprompts.com";
 ```
 
 ### ✅ GOOD: Environment-based configuration
+
 ```typescript
 // Use environment variables
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -81,6 +90,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 ```
 
 ### ❌ BAD: Dev shortcuts in components
+
 ```typescript
 // NEVER DO THIS
 if (window.location.hostname === 'localhost') {
@@ -89,6 +99,7 @@ if (window.location.hostname === 'localhost') {
 ```
 
 ### ✅ GOOD: Consistent behavior across environments
+
 ```typescript
 // Same flow for all environments
 const hasAccess = await checkPermissions();
@@ -127,6 +138,7 @@ When providing code solutions:
 5. **DEFAULT** to secure, scalable solutions even if they're more complex
 
 If a quick solution is needed for development:
+
 - Clearly mark it as "DEVELOPMENT ONLY"
 - Provide the production-ready alternative
 - Add TODO comments for required changes

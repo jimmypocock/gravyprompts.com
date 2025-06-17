@@ -16,8 +16,9 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
   maxDelay: 10000, // 10 seconds max between retries
   shouldRetry: (error) => {
     // Only retry on network errors or 5xx server errors
-    if (error instanceof Error && error.message === 'Failed to fetch') return true;
-    if (error && typeof error === 'object' && 'status' in error) {
+    if (error instanceof Error && error.message === "Failed to fetch")
+      return true;
+    if (error && typeof error === "object" && "status" in error) {
       const status = (error as { status: number }).status;
       return status === 0 || (status >= 500 && status < 600);
     }
@@ -30,7 +31,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
 
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const startTime = Date.now();
@@ -50,16 +51,19 @@ export async function withRetry<T>(
       }
 
       // Check if we should retry
-      if (attempt === opts.maxRetries || !opts.shouldRetry(error, attempt + 1)) {
+      if (
+        attempt === opts.maxRetries ||
+        !opts.shouldRetry(error, attempt + 1)
+      ) {
         throw error;
       }
 
       // Calculate delay with exponential backoff
       const exponentialDelay = Math.min(
         opts.baseDelay * Math.pow(2, attempt),
-        opts.maxDelay
+        opts.maxDelay,
       );
-      
+
       // Add jitter to prevent thundering herd
       const jitter = Math.random() * 0.3 * exponentialDelay;
       const delay = Math.round(exponentialDelay + jitter);
@@ -74,7 +78,7 @@ export async function withRetry<T>(
       opts.onRetry(error, attempt + 1, delay);
 
       // Wait before retrying
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
@@ -85,37 +89,37 @@ export async function withRetry<T>(
 export class CircuitBreaker {
   private failures = 0;
   private lastFailureTime = 0;
-  private state: 'closed' | 'open' | 'half-open' = 'closed';
+  private state: "closed" | "open" | "half-open" = "closed";
 
   constructor(
     private readonly threshold = 5,
-    private readonly resetTimeout = 60000 // 1 minute
+    private readonly resetTimeout = 60000, // 1 minute
   ) {}
 
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     // Check if circuit should be reset
     if (
-      this.state === 'open' &&
+      this.state === "open" &&
       Date.now() - this.lastFailureTime > this.resetTimeout
     ) {
-      this.state = 'half-open';
+      this.state = "half-open";
       this.failures = 0;
     }
 
     // If circuit is open, fail fast
-    if (this.state === 'open') {
-      throw new Error('Circuit breaker is open - service unavailable');
+    if (this.state === "open") {
+      throw new Error("Circuit breaker is open - service unavailable");
     }
 
     try {
       const result = await fn();
-      
+
       // Success - reset failures if in half-open state
-      if (this.state === 'half-open') {
-        this.state = 'closed';
+      if (this.state === "half-open") {
+        this.state = "closed";
         this.failures = 0;
       }
-      
+
       return result;
     } catch (error) {
       this.failures++;
@@ -123,7 +127,7 @@ export class CircuitBreaker {
 
       // Open circuit if threshold exceeded
       if (this.failures >= this.threshold) {
-        this.state = 'open';
+        this.state = "open";
         console.error(`Circuit breaker opened after ${this.failures} failures`);
       }
 

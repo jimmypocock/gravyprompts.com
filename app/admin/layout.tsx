@@ -1,8 +1,8 @@
-import { Metadata } from 'next';
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard - GravyPrompts',
-  description: 'Manage templates and permissions',
+  title: "Admin Dashboard - GravyPrompts",
+  description: "Manage templates and permissions",
 };
 
 export default function AdminLayout({
@@ -15,7 +15,9 @@ export default function AdminLayout({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="mt-2 text-gray-600">Manage templates and user permissions</p>
+          <p className="mt-2 text-gray-600">
+            Manage templates and user permissions
+          </p>
         </div>
         {children}
       </div>

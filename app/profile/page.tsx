@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useAuth } from '@/lib/auth-context';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useRouter } from 'next/navigation';
+import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   return (
@@ -18,29 +18,29 @@ function ProfileContent() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   // Form states
-  const [fullname, setFullname] = useState(user?.fullname || '');
-  const [bio, setBio] = useState(user?.bio || '');
-  const [github, setGithub] = useState(user?.github || '');
-  const [twitter, setTwitter] = useState(user?.twitter || '');
-  const [linkedin, setLinkedin] = useState(user?.linkedin || '');
+  const [fullname, setFullname] = useState(user?.fullname || "");
+  const [bio, setBio] = useState(user?.bio || "");
+  const [github, setGithub] = useState(user?.github || "");
+  const [twitter, setTwitter] = useState(user?.twitter || "");
+  const [linkedin, setLinkedin] = useState(user?.linkedin || "");
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      router.push('/');
+      router.push("/");
     } catch (err) {
-      console.error('Failed to sign out:', err);
+      console.error("Failed to sign out:", err);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -51,10 +51,10 @@ function ProfileContent() {
         twitter,
         linkedin,
       });
-      setSuccess('Profile updated successfully!');
+      setSuccess("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
-      setError((err as Error).message || 'Failed to update profile');
+      setError((err as Error).message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -62,14 +62,14 @@ function ProfileContent() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     // Reset form to current values
-    setFullname(user?.fullname || '');
-    setBio(user?.bio || '');
-    setGithub(user?.github || '');
-    setTwitter(user?.twitter || '');
-    setLinkedin(user?.linkedin || '');
+    setFullname(user?.fullname || "");
+    setBio(user?.bio || "");
+    setGithub(user?.github || "");
+    setTwitter(user?.twitter || "");
+    setLinkedin(user?.linkedin || "");
   };
 
   return (
@@ -81,9 +81,7 @@ function ProfileContent() {
               <h3 className="text-lg leading-6 font-medium text-gray-900">
                 Profile Information
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {user?.email}
-              </p>
+              <p className="mt-1 text-sm text-gray-500">{user?.email}</p>
             </div>
             <button
               onClick={handleSignOut}
@@ -108,7 +106,10 @@ function ProfileContent() {
             <form onSubmit={handleSubmit} className="px-4 py-5 sm:p-6">
               <div className="grid grid-cols-1 gap-6">
                 <div>
-                  <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="fullname"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Full Name
                   </label>
                   <input
@@ -122,7 +123,10 @@ function ProfileContent() {
                 </div>
 
                 <div>
-                  <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="bio"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Bio
                   </label>
                   <textarea
@@ -141,10 +145,15 @@ function ProfileContent() {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-sm font-medium text-gray-700">Social Links</h4>
-                  
+                  <h4 className="text-sm font-medium text-gray-700">
+                    Social Links
+                  </h4>
+
                   <div>
-                    <label htmlFor="github" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="github"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       GitHub Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
@@ -163,7 +172,10 @@ function ProfileContent() {
                   </div>
 
                   <div>
-                    <label htmlFor="twitter" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="twitter"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       Twitter Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
@@ -182,7 +194,10 @@ function ProfileContent() {
                   </div>
 
                   <div>
-                    <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700">
+                    <label
+                      htmlFor="linkedin"
+                      className="block text-sm font-medium text-gray-700"
+                    >
                       LinkedIn Username
                     </label>
                     <div className="mt-1 flex rounded-md shadow-sm">
@@ -225,7 +240,7 @@ function ProfileContent() {
                       disabled={loading}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading ? 'Saving...' : 'Save Changes'}
+                      {loading ? "Saving..." : "Save Changes"}
                     </button>
                   </>
                 )}

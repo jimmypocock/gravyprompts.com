@@ -9,18 +9,22 @@ All scripts have corresponding npm commands for easy discovery and execution. Ru
 ### Categories:
 
 1. **Development Scripts** (`dev-*.sh`, `local-*.sh`)
+
    - Local environment setup and management
    - Testing and debugging tools
 
 2. **Deployment Scripts** (`deploy-*.sh`)
+
    - AWS CDK stack deployments
    - Amplify configuration
 
 3. **Check Scripts** (`check-*.sh`)
+
    - Infrastructure status checks
    - Certificate and DNS validation
 
 4. **Template Scripts** (`*-templates.*`)
+
    - Bulk loading and management
    - Template analysis and conversion
 
@@ -51,6 +55,7 @@ When adding a new script:
 5. Include a header comment explaining its purpose
 
 Example script header:
+
 ```bash
 #\!/bin/bash
 # Script: deploy-api.sh
@@ -62,6 +67,7 @@ Example script header:
 ## Environment Variables
 
 Most scripts source `config.sh` for common variables:
+
 - `APP_NAME` - Application name for resource naming
 - `AWS_REGION` - AWS region for deployment
 - `DOMAIN_NAME` - Domain for the application
@@ -70,6 +76,7 @@ Most scripts source `config.sh` for common variables:
 ## Error Handling
 
 Scripts should:
+
 - Exit with non-zero status on failure
 - Provide clear error messages
 - Clean up resources on failure when possible

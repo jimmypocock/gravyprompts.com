@@ -1,35 +1,35 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { signIn, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Redirect to profile if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.push('/profile');
+      router.push("/profile");
     }
   }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await signIn(email, password);
-      router.push('/profile');
+      router.push("/profile");
     } catch (err) {
-      setError((err as Error).message || 'Failed to sign in');
+      setError((err as Error).message || "Failed to sign in");
     } finally {
       setLoading(false);
     }
@@ -60,8 +60,11 @@ export default function LoginPage() {
             Sign in to your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/signup" className="font-medium text-primary hover:text-primary/80">
+            Or{" "}
+            <Link
+              href="/signup"
+              className="font-medium text-primary hover:text-primary/80"
+            >
               create a new account
             </Link>
           </p>
@@ -70,16 +73,17 @@ export default function LoginPage() {
           {error && (
             <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded">
               <div>{error}</div>
-              {error.toLowerCase().includes('already') && error.toLowerCase().includes('signed in') && (
-                <div className="mt-2">
-                  <Link 
-                    href="/auth/force-logout" 
-                    className="text-sm underline hover:no-underline"
-                  >
-                    Click here to clear your session and try again
-                  </Link>
-                </div>
-              )}
+              {error.toLowerCase().includes("already") &&
+                error.toLowerCase().includes("signed in") && (
+                  <div className="mt-2">
+                    <Link
+                      href="/auth/force-logout"
+                      className="text-sm underline hover:no-underline"
+                    >
+                      Click here to clear your session and try again
+                    </Link>
+                  </div>
+                )}
             </div>
           )}
           <div className="rounded-md shadow-sm -space-y-px">
@@ -125,13 +129,19 @@ export default function LoginPage() {
                 type="checkbox"
                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
                 Remember me
               </label>
             </div>
 
             <div className="text-sm">
-              <Link href="/forgot-password" className="font-medium text-primary hover:text-primary/80">
+              <Link
+                href="/forgot-password"
+                className="font-medium text-primary hover:text-primary/80"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -143,7 +153,7 @@ export default function LoginPage() {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </div>
         </form>

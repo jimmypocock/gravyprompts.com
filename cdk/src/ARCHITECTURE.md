@@ -64,6 +64,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
 ## Stack Details
 
 ### 1. **Auth Stack** (`auth-stack.ts`)
+
 - **Purpose**: User authentication and authorization
 - **Resources**:
   - AWS Cognito User Pool
@@ -73,6 +74,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
 - **Environment-aware**: Separate pools for dev/prod
 
 ### 2. **API Stack** (`api-stack.ts`)
+
 - **Purpose**: Backend API and data storage
 - **Resources**:
   - API Gateway REST API
@@ -85,6 +87,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
   - Request/response validation
 
 ### 3. **Certificate Stack** (`certificate-stack.ts`) - Optional
+
 - **Purpose**: SSL/TLS certificate management
 - **Resources**:
   - ACM Certificate
@@ -92,6 +95,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
 - **Note**: Can be reused by Amplify or created separately
 
 ### 4. **WAF Stack** (`waf-stack.ts`) - Optional
+
 - **Purpose**: Web Application Firewall
 - **Resources**:
   - WAF rules
@@ -100,6 +104,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
 - **Note**: Can be attached to Amplify distribution
 
 ### 5. **Monitoring Stack** (`monitoring-stack-amplify.ts`)
+
 - **Purpose**: Application monitoring and alerting
 - **Resources**:
   - CloudWatch dashboards
@@ -118,6 +123,7 @@ The application uses AWS Amplify for frontend hosting and CI/CD, with CDK-manage
 ## Environment Variables
 
 Frontend (Amplify) requires:
+
 ```bash
 NEXT_PUBLIC_API_URL               # API Gateway URL
 NEXT_PUBLIC_COGNITO_USER_POOL_ID  # Cognito User Pool ID
@@ -137,6 +143,7 @@ NEXT_PUBLIC_APP_URL               # Application URL
 ## Local Development
 
 The backend can be run locally using:
+
 - LocalStack for DynamoDB
 - SAM CLI for API Gateway/Lambda
 - Docker for containerization

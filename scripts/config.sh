@@ -7,11 +7,15 @@
 # Get the directory of this script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Load environment variables from .env file if it exists
+# Load environment variables from .env file if it exists (secure method)
 if [ -f "$SCRIPT_DIR/../.env" ]; then
-    export $(cat "$SCRIPT_DIR/../.env" | grep -v '^#' | xargs)
+    set -a
+    source "$SCRIPT_DIR/../.env"
+    set +a
 elif [ -f .env ]; then
-    export $(cat .env | grep -v '^#' | xargs)
+    set -a
+    source .env
+    set +a
 fi
 
 # Set default values if environment variables are not set

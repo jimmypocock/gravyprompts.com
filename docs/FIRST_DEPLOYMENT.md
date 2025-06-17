@@ -33,6 +33,7 @@ npm run deploy:cert
 After deployment, you'll see DNS validation records. Add these CNAME records to your DNS provider immediately.
 
 Example output:
+
 ```
 ┌─────────────────┬─────────────────────────────────┬─────────────────────────────────┐
 │ Domain          │ CNAME Name                      │ CNAME Value                     │
@@ -62,6 +63,7 @@ npm run deploy:all
 ```
 
 This will deploy:
+
 - Foundation (S3 buckets)
 - Edge Functions
 - WAF
@@ -72,6 +74,7 @@ This will deploy:
 - Monitoring
 
 **Important**: When the Auth and API stacks complete, save the outputs:
+
 - Cognito User Pool ID and Client ID
 - API Gateway URL
 
@@ -89,17 +92,21 @@ npm run deploy:all
 ## Troubleshooting
 
 ### Certificate Stuck in PENDING_VALIDATION
+
 - Double-check CNAME records are added correctly
 - Wait up to 72 hours for validation
 - Check DNS propagation with: `dig _abc123.gravyprompts.com CNAME`
 
 ### Certificate Gets Deleted
+
 - The certificate is now independent of other stacks
 - Other stacks won't delete it
 - Save the certificate ARN after creation to reuse it
 
 ### Reusing an Existing Certificate
+
 After certificate is validated, save the ARN:
+
 ```bash
 # The ARN will be shown in the output
 # Add it to cdk/cdk.json:
@@ -113,8 +120,10 @@ After certificate is validated, save the ARN:
 ## Success!
 
 Once deployed, your site will be available at:
+
 - https://gravyprompts.com
 - https://www.gravyprompts.com
 
 CloudFront URL (always available):
+
 - https://dxxxxx.cloudfront.net

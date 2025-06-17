@@ -5,6 +5,7 @@ Store, share, populate, and rate your AI prompt templates. The ultimate prompt m
 ## 🎯 Core Features
 
 ### Template Management
+
 - **Create & Edit** - Build reusable templates with [[variables]]
 - **Share** - Generate secure share links for your templates
 - **Populate** - Fill in variables dynamically with GravyJS editor
@@ -54,11 +55,13 @@ Store, share, populate, and rate your AI prompt templates. The ultimate prompt m
 ### Local Development (Recommended)
 
 Run everything with one command:
+
 ```bash
 npm run dev:all
 ```
 
 This starts:
+
 - Local DynamoDB database
 - API Gateway on http://localhost:7429
 - Next.js frontend on http://localhost:6827
@@ -69,6 +72,7 @@ See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed instructio
 ### Production Deployment
 
 Deploy to AWS:
+
 ```bash
 npm run deploy:all
 ```
@@ -95,8 +99,9 @@ See [Deployment Guide](docs/DEPLOYMENT.md) for full instructions.
 </div>
 
 > **💡 Making this a GitHub Template Repository**
-> 
+>
 > If you're the repository owner and want to make this a template for others to use:
+>
 > 1. Go to your repository **Settings**
 > 2. Scroll down to the **"Template repository"** section
 > 3. Check the box **"Template repository"**
@@ -187,7 +192,7 @@ DOMAIN_NAME=myapp.com               # Your domain (without www)
 STACK_PREFIX=MYAPP                  # AWS stack prefix (optional, defaults to uppercase APP_NAME)
 
 # AWS Stack Names Generated:
-# MYAPP-Foundation, MYAPP-Certificate, MYAPP-EdgeFunctions, 
+# MYAPP-Foundation, MYAPP-Certificate, MYAPP-EdgeFunctions,
 # MYAPP-WAF, MYAPP-CDN, MYAPP-App, MYAPP-Monitoring
 ```
 
@@ -207,7 +212,8 @@ STACK_PREFIX=MYAPP                  # AWS stack prefix (optional, defaults to up
 ```typescript
 export const metadata: Metadata = {
   title: "My Awesome App | Professional Description",
-  description: "Description of my awesome application and what it does for users.",
+  description:
+    "Description of my awesome application and what it does for users.",
   // ... update all metadata fields
 };
 ```
@@ -216,7 +222,7 @@ export const metadata: Metadata = {
 
 ```json
 {
-  "@type": "WebApplication", 
+  "@type": "WebApplication",
   "name": "My Awesome App",
   "description": "Description of my application and its purpose.",
   "url": "https://myapp.com"
@@ -245,10 +251,10 @@ Update your brand colors in `app/globals.css`:
 
 ```css
 :root {
-  --primary: #9436eb;      /* Your primary brand color */
-  --secondary: #2196f3;    /* Your secondary brand color */
-  --accent: #ec4899;       /* Your accent brand color */
-  --neutral: #9ca3af;      /* Your neutral brand color */
+  --primary: #9436eb; /* Your primary brand color */
+  --secondary: #2196f3; /* Your secondary brand color */
+  --accent: #ec4899; /* Your accent brand color */
+  --neutral: #9ca3af; /* Your neutral brand color */
 }
 ```
 
@@ -259,7 +265,7 @@ theme: {
   extend: {
     colors: {
       primary: "#9436eb",
-      secondary: "#2196f3", 
+      secondary: "#2196f3",
       accent: "#ec4899",
       neutral: "#9ca3af",
     },
@@ -272,6 +278,7 @@ theme: {
 #### App Metadata
 
 Update `app/layout.tsx`:
+
 - Title and description
 - Open Graph metadata
 - Schema markup
@@ -288,6 +295,7 @@ Update `app/layout.tsx`:
 #### Package Information
 
 Update `package.json`:
+
 ```json
 {
   "name": "your-app-name",
@@ -318,20 +326,23 @@ Deploy your Next.js application to AWS with enterprise-grade infrastructure incl
 
 1. **AWS Account** with appropriate permissions
 2. **AWS CLI** configured:
+
    ```bash
    # For standard credentials
    aws configure
-   
+
    # For AWS SSO (recommended)
    aws sso login --profile your-profile-name
    # Then add to .env: AWS_PROFILE=your-profile-name
    ```
+
 3. **Node.js** 18.x or later
 4. **Domain** registered (for production deployment)
 
 ### 🚀 Quick Deployment (3 Steps)
 
 #### Step 1: Configure Environment
+
 ```bash
 # Copy and configure environment
 cp .env.example .env
@@ -347,6 +358,7 @@ npm run cdk:install
 ```
 
 #### Step 2: Deploy Certificate First (if using custom domain)
+
 ```bash
 # Deploy certificate and save ARN to .env
 npm run deploy:cert:first
@@ -364,6 +376,7 @@ npm run check:cert
 ```
 
 **Certificate Validation Steps:**
+
 1. Copy the CNAME records shown after deployment
 2. Add them to your DNS provider (both www and non-www)
 3. Wait 5-30 minutes for DNS propagation
@@ -373,12 +386,14 @@ npm run check:cert
 **Important:** The certificate ARN is automatically saved to your `.env` file. This prevents accidental deletion during future deployments.
 
 #### Step 3: Deploy Everything Else
+
 ```bash
 # Once certificate is validated (or if skipping custom domain)
 npm run deploy:all -- -c notificationEmail=your-email@example.com
 ```
 
 **Note:** The deployment will:
+
 - Ask if you want to use custom domain or CloudFront URL only
 - Check certificate validation status automatically
 - Output your CloudFront distribution URL for DNS setup
@@ -392,22 +407,24 @@ After deployment completes successfully:
 2. **Configure your DNS records:**
 
    **Option A - Using Route 53:**
+
    ```
    Type: A Record (ALIAS)
    Name: yourdomain.com
    Value: d1234abcd.cloudfront.net (your CloudFront distribution)
-   
-   Type: A Record (ALIAS) 
+
+   Type: A Record (ALIAS)
    Name: www.yourdomain.com
    Value: d1234abcd.cloudfront.net (your CloudFront distribution)
    ```
 
    **Option B - Other DNS Providers:**
+
    ```
    Type: CNAME
    Name: www
    Value: d1234abcd.cloudfront.net
-   
+
    Type: CNAME or ALIAS (if supported)
    Name: @ (or blank)
    Value: d1234abcd.cloudfront.net
@@ -429,18 +446,19 @@ After deployment completes successfully:
 
 Your deployment creates these AWS resources:
 
-| Stack | Purpose | Resources |
-|-------|---------|-----------|
-| **Foundation** | Core infrastructure | S3 buckets for content and logs |
-| **Certificate** | SSL/TLS | ACM certificate (create once, never delete) |
-| **Edge Functions** | URL handling | CloudFront functions for redirects |
-| **WAF** | Security | Rate limiting, geo-blocking |
-| **CDN** | Content delivery | CloudFront distribution |
-| **App** | Website content | Static files deployment |
-| **Monitoring** | Observability | CloudWatch dashboards, billing alerts |
-| **Auth** | Authentication | Cognito user pools (dev & prod separate) |
+| Stack              | Purpose             | Resources                                   |
+| ------------------ | ------------------- | ------------------------------------------- |
+| **Foundation**     | Core infrastructure | S3 buckets for content and logs             |
+| **Certificate**    | SSL/TLS             | ACM certificate (create once, never delete) |
+| **Edge Functions** | URL handling        | CloudFront functions for redirects          |
+| **WAF**            | Security            | Rate limiting, geo-blocking                 |
+| **CDN**            | Content delivery    | CloudFront distribution                     |
+| **App**            | Website content     | Static files deployment                     |
+| **Monitoring**     | Observability       | CloudWatch dashboards, billing alerts       |
+| **Auth**           | Authentication      | Cognito user pools (dev & prod separate)    |
 
 **Key Features:**
+
 - Automatic S3 bucket policy configuration (no manual fixes needed!)
 - All traffic redirects to `https://www.yourdomain.com`
 - Enterprise security headers and WAF protection
@@ -461,17 +479,19 @@ ENVIRONMENT=production npm run deploy:auth
 #### Configure Authentication
 
 1. **After deployment**, update `.env.local` with the Cognito IDs from the output:
+
    ```bash
    # Development User Pool
    NEXT_PUBLIC_COGNITO_USER_POOL_ID_DEV=us-east-1_XXXXXXXXX
    NEXT_PUBLIC_COGNITO_CLIENT_ID_DEV=XXXXXXXXXXXXXXXXXXXXXXXXX
-   
-   # Production User Pool  
+
+   # Production User Pool
    NEXT_PUBLIC_COGNITO_USER_POOL_ID_PROD=us-east-1_XXXXXXXXX
    NEXT_PUBLIC_COGNITO_CLIENT_ID_PROD=XXXXXXXXXXXXXXXXXXXXXXXXX
    ```
 
 2. **Environment Detection**:
+
    - Local development (`npm run dev`): Uses DEV user pool
    - Production build: Uses PROD user pool
    - User pools are completely separate - no data mixing
@@ -507,33 +527,39 @@ npm run maintenance:off
 ### 💰 Cost Estimates
 
 For a low-traffic site, expect ~$6-10/month:
+
 - **S3**: ~$0.023/GB/month
-- **CloudFront**: ~$0.085/GB data transfer  
+- **CloudFront**: ~$0.085/GB data transfer
 - **WAF**: ~$5/month + $0.60/million requests
 - **Route 53**: ~$0.50/month (if used)
 
 ### 🚨 Troubleshooting
 
 #### "403 Forbidden" Error
-**This is NORMAL!** CloudFront takes 15-20 minutes to propagate globally. 
+
+**This is NORMAL!** CloudFront takes 15-20 minutes to propagate globally.
+
 - Wait 15-20 minutes after deployment completes
 - Verify DNS points to CloudFront (NOT to S3 directly)
 - Clear browser cache and try again
 - Check S3 has content: `aws s3 ls s3://yourdomain.com-app/`
 
 #### Certificate Not Validating
+
 - Ensure you added BOTH CNAME records (www and non-www)
 - Records must be added exactly as shown in ACM
 - Check with: `dig _abc123.yourdomain.com CNAME`
 - Both domains must show "Issued" status
 
 #### DNS Not Working
+
 - Verify CloudFront distribution is "Deployed" status
 - DNS propagation can take up to 2 hours
 - Test CloudFront directly: `https://d1234abcd.cloudfront.net`
 - Some DNS providers don't support ALIAS for root domain - use www subdomain
 
 #### Build Errors
+
 ```bash
 # Clear caches and rebuild
 rm -rf .next out node_modules
@@ -553,6 +579,7 @@ npm run destroy:all
 ```
 
 This will:
+
 - Delete all 7 CloudFormation stacks in the correct order
 - Empty and delete S3 buckets (website and logs)
 - Remove CloudFront distribution (takes 15-20 minutes)
@@ -564,6 +591,7 @@ This will:
 ### 📚 Complete Deployment Guide
 
 For advanced topics including:
+
 - Individual stack deployment
 - Using existing certificates
 - Complete redeployment procedures
@@ -576,12 +604,14 @@ For advanced topics including:
 ### 🔐 Certificate Management Best Practices
 
 **First-Time Deployment:**
+
 1. Always deploy certificate separately first: `npm run deploy:cert`
 2. Complete DNS validation before deploying other stacks
 3. Save the certificate ARN after validation for future use
 
 **Reusing Certificates:**
 After certificate is validated, save the ARN to `cdk/cdk.json`:
+
 ```json
 {
   "context": {
@@ -596,15 +626,15 @@ This prevents recreating certificates and avoids validation delays.
 
 ## Development Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with Turbopack |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
+| Command             | Description                                             |
+| ------------------- | ------------------------------------------------------- |
+| `npm run dev`       | Start development server with Turbopack                 |
+| `npm run build`     | Build for production                                    |
+| `npm run start`     | Start production server                                 |
+| `npm run lint`      | Run ESLint                                              |
 | `npm run build:cdk` | Build CDK TypeScript (done automatically during deploy) |
-| `npm run cdk:synth` | Synthesize CDK templates |
-| `npm run status` | Check stack status |
+| `npm run cdk:synth` | Synthesize CDK templates                                |
+| `npm run status`    | Check stack status                                      |
 
 ## File Structure
 
@@ -633,24 +663,28 @@ This prevents recreating certificates and avoids validation delays.
 ## Best Practices
 
 ### 🔒 Security
+
 - All secrets in environment variables
 - WAF protection enabled
 - HTTPS enforced
 - Content Security Policy headers
 
 ### 📊 Performance
+
 - Next.js optimizations enabled
 - CDN caching configured
 - Image optimization
 - Bundle analysis available
 
 ### ♿ Accessibility
+
 - Semantic HTML structure
 - ARIA labels where needed
 - Keyboard navigation support
 - Color contrast compliance
 
 ### 🔍 SEO
+
 - Meta tags optimized
 - Structured data markup
 - Sitemap included
@@ -661,6 +695,7 @@ This prevents recreating certificates and avoids validation delays.
 ### CloudWatch Dashboards
 
 Access monitoring dashboards in AWS Console:
+
 - Application performance metrics
 - Error tracking and alerts
 - Infrastructure health monitoring
@@ -676,6 +711,7 @@ npm run maintenance:off
 ```
 
 ### Log Monitoring
+
 - CloudFront access logs
 - Lambda@Edge function logs
 - Application error tracking
@@ -685,6 +721,7 @@ npm run maintenance:off
 ### Common Deployment Issues
 
 **403 Forbidden After Deployment**
+
 - This is normal! CloudFront takes 15-20 minutes to propagate globally
 - The S3 bucket policy is automatically configured during CDN deployment
 - Verify DNS records point to CloudFront distribution (not S3 directly)
@@ -692,12 +729,14 @@ npm run maintenance:off
 - Clear browser cache or test in incognito mode
 
 **Certificate Validation Issues**
+
 - Ensure certificate is in us-east-1 region
 - Verify BOTH www and non-www validation records are added
 - Check validation: `dig _prefix.yourdomain.com CNAME +short`
 - Both domains must show "Issued" status in ACM
 
 **Stack Stuck in UPDATE_IN_PROGRESS**
+
 - Run `npm run status:all` to check status
 - Wait for completion (can take 30+ minutes for some stacks)
 - If truly stuck, check CloudFormation console for rollback

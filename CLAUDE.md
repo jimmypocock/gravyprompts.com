@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 GravyPrompts is a production-ready AI prompt template marketplace built with Next.js 15 and deployed on AWS Amplify. It features instant search, template management, and a sleek user interface inspired by modern web applications.
 
 ### Key Features
+
 - **Instant Template Search** - Advanced search with relevance scoring, fuzzy matching, and content search
 - **Template Quickview** - Slide-out panel for quick template preview and variable population
 - **Local Development** - Full local stack with DynamoDB, API Gateway, and authentication mocking
@@ -17,6 +18,7 @@ GravyPrompts is a production-ready AI prompt template marketplace built with Nex
 ## Stack Architecture
 
 The project uses clean, simple stack names without environment suffixes:
+
 - `GRAVYPROMPTS-Auth` - Shared Cognito User Pool for all environments
 - `GRAVYPROMPTS-API` - API Gateway + Lambda functions (production only)
 - `GRAVYPROMPTS-WAF` - Web Application Firewall (optional)
@@ -25,6 +27,7 @@ The project uses clean, simple stack names without environment suffixes:
 ## Recent Updates
 
 ### UI/UX Improvements
+
 - **Airbnb-style Search** - Hero search bar that transitions to navbar on scroll
 - **Full-width Grid Layout** - Replaced split view with responsive template grid
 - **Quickview Panel** - Slide-out panel (80% width on desktop) with inline variable inputs
@@ -33,6 +36,7 @@ The project uses clean, simple stack names without environment suffixes:
 - **Fixed Navigation** - Persistent top nav with integrated search
 
 ### Search Enhancements
+
 - **Relevance Scoring** - Templates ranked by title, tag, and content matches
 - **Fuzzy Matching** - Handles typos and partial matches
 - **Multi-term Search** - Each word searched independently
@@ -40,6 +44,7 @@ The project uses clean, simple stack names without environment suffixes:
 - **Popularity Weighting** - Popular templates get slight ranking boost
 
 ### Backend Updates
+
 - **User Prompts Table** - DynamoDB table for saving user's populated templates
 - **Prompt API Endpoints** - Save, list, and delete user prompts
 - **Enhanced Search Lambda** - Improved search algorithm with scoring
@@ -48,10 +53,13 @@ The project uses clean, simple stack names without environment suffixes:
 ## Development Commands
 
 ### 🚀 Quick Start for Local Development
+
 ```bash
 npm run dev:all
 ```
+
 This single command:
+
 - Starts Docker containers (DynamoDB, LocalStack)
 - Creates database tables
 - Starts SAM Local API (port 7429)
@@ -59,6 +67,7 @@ This single command:
 - Opens DynamoDB Admin UI (port 8001)
 
 ### Core Development
+
 - `npm run dev` - DEPRECATED - Use `npm run dev:all` instead
 - `npm run build` - Build for production
 - `npm run build:all` - Build both app and gravyjs package
@@ -66,6 +75,7 @@ This single command:
 - `npm run lint` - Run ESLint (always check after code changes)
 
 ### Template Management
+
 - `npm run templates:load -- --file ./data/templates.csv` - Load to production
 - `npm run templates:load:local -- --file ./data/consolidated-templates.json` - Load to local
 - `npm run templates:delete` - Delete templates in bulk
@@ -74,6 +84,7 @@ This single command:
 - `npm run check:templates` - Check template status
 
 ### Local Development & Testing
+
 - `npm run local:setup` - Setup local DynamoDB with persistent storage
 - `npm run local:start` - Start local API Gateway
 - `npm run local:stop` - Stop local services
@@ -84,6 +95,7 @@ This single command:
 ### AWS Deployment
 
 #### Backend (CDK)
+
 ```bash
 npm run deploy:backend     # Deploy all backend stacks
 npm run deploy:auth        # Deploy Cognito only
@@ -92,14 +104,15 @@ npm run deploy:waf         # Deploy WAF
 npm run deploy:cert:first  # Initial certificate deployment
 ```
 
-
 #### Frontend (Amplify)
+
 - Push to GitHub - Amplify auto-deploys
 - Check status: `npm run check:amplify:app`
 - Check DNS: `npm run check:amplify:dns`
 - Check domain: `npm run check:amplify:domain`
 
 ### Infrastructure Management
+
 - `npm run status:all` - Check all stack statuses
 - `npm run diagnose:stack` - Diagnose stack issues
 - `npm run protect:cert` - Protect certificate from deletion
@@ -108,6 +121,7 @@ npm run deploy:cert:first  # Initial certificate deployment
 ## Architecture
 
 ### Frontend Stack
+
 - **Next.js 15** with App Router and Turbopack
 - **TypeScript** for type safety
 - **Tailwind CSS** with custom Airbnb-inspired design
@@ -116,12 +130,15 @@ npm run deploy:cert:first  # Initial certificate deployment
 - **API Proxy** - `/api/proxy` routes for CORS handling in development
 
 ### Backend Services (AWS CDK)
+
 1. **DynamoDB Tables**
+
    - `templates` - Template storage with GSIs for queries
    - `template-views` - View tracking
    - `user-prompts` - Saved user prompts with userId GSI
 
 2. **Lambda Functions**
+
    - Enhanced search with relevance scoring
    - Template CRUD operations
    - User prompt management
@@ -133,6 +150,7 @@ npm run deploy:cert:first  # Initial certificate deployment
    - Local development via SAM
 
 ### Local Development Stack
+
 - **Docker Compose** - Orchestrates local services
 - **DynamoDB Local** - Persistent data storage
 - **LocalStack** - AWS service mocking
@@ -144,7 +162,7 @@ npm run deploy:cert:first  # Initial certificate deployment
 - `app/` - Next.js App Router pages
   - `api/proxy/` - CORS proxy for local development
   - `page.tsx` - Home page with search and grid layout
-- `components/` 
+- `components/`
   - `TemplateQuickview.tsx` - Slide-out panel component
   - `Navigation.tsx` - Fixed nav with search integration
 - `lib/`
@@ -159,6 +177,7 @@ npm run deploy:cert:first  # Initial certificate deployment
 ## Local Development Tips
 
 ### First Time Setup
+
 ```bash
 npm install
 npm run local:setup
@@ -176,6 +195,7 @@ npm run dev:all
 ### Environment Variables
 
 Create `.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:7429
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -185,11 +205,13 @@ NEXT_PUBLIC_ADSENSE_CLIENT_ID=ca-pub-XXXXXXXXXXXXXXXX
 ## Recent Script Organization
 
 All scripts now have npm commands. See:
+
 - `SCRIPTS.md` - Complete command reference
 - `scripts/README.md` - Script organization guide
 - `scripts/SCRIPT_REGISTRY.md` - Full script mapping
 
 ### Script Naming Convention
+
 - `deploy:*` - Deployment scripts
 - `check:*` - Status checks
 - `templates:*` - Template operations
@@ -199,6 +221,7 @@ All scripts now have npm commands. See:
 ## UI/UX Guidelines
 
 ### Design System
+
 - **Primary Color**: #FF385C (Airbnb red)
 - **Font**: Inter (clean, modern)
 - **Animations**: 500ms ease-in-out transitions
@@ -206,6 +229,7 @@ All scripts now have npm commands. See:
 - **Shadows**: Subtle elevation with hover states
 
 ### Component Patterns
+
 - **Search Bar**: Transitions from hero to nav on scroll
 - **Template Cards**: Hover effects with primary color
 - **Quickview Panel**: 80% width on desktop, full on mobile
@@ -226,6 +250,7 @@ All scripts now have npm commands. See:
 After a $100+ infinite loop incident with AWS Comprehend, the moderation system has been replaced with a simple, cost-free alternative that performs basic content checks without any external API calls.
 
 See `/docs/CONTENT_MODERATION.md` for details. Current implementation:
+
 - Basic word filtering (customizable blocked words list)
 - Spam detection (excessive caps, repetitive content)
 - No external API calls = No surprise charges
@@ -236,14 +261,17 @@ The new system is safe to deploy and won't incur any API costs.
 ## Authentication & Session Management
 
 ### Handling "Already Signed In" Errors
+
 The app now automatically handles authentication conflicts:
 
 1. **Automatic Recovery**: When users encounter "already signed in" errors, the auth context will:
+
    - Automatically sign out the existing session
    - Clear cached auth data
    - Retry the sign-in operation
 
 2. **Force Logout Page**: Users can visit `/auth/force-logout` to:
+
    - Clear all authentication data
    - Reset their session completely
    - Automatically redirect to login
@@ -253,6 +281,7 @@ The app now automatically handles authentication conflicts:
 4. **Global Error Handler**: The app-wide error page detects auth issues and provides recovery options
 
 ### Debug Commands
+
 - `npm run debug:auth` - Shows auth configuration and troubleshooting tips
 - Browser console: `await window.getAuthDebugInfo()` - Shows current auth state (dev only)
 
@@ -270,14 +299,16 @@ The app now automatically handles authentication conflicts:
 **ALWAYS follow the standards in PRODUCTION_STANDARDS.md for ALL code changes.**
 
 Key requirements:
+
 - NEVER put secrets or hardcoded IDs in client-side code
-- NEVER implement auth logic client-side  
+- NEVER implement auth logic client-side
 - ALWAYS handle errors gracefully
 - ALWAYS write tests for new features
 - ALWAYS consider security implications
 - DEFAULT to production-ready solutions even if more complex
 
 If suggesting a development-only shortcut:
+
 1. Clearly mark as "DEVELOPMENT ONLY"
 2. Explain the security risks
 3. Provide the production-ready alternative
@@ -292,12 +323,14 @@ See PRODUCTION_STANDARDS.md for complete guidelines.
 ### When Writing or Modifying Code:
 
 1. **New Features** - Write comprehensive tests BEFORE marking the feature complete:
+
    - Unit tests for individual functions/components
    - Integration tests for feature workflows
    - Edge case handling tests
    - Error scenario tests
 
 2. **Bug Fixes** - Add tests that:
+
    - Reproduce the bug (fails before fix)
    - Verify the fix (passes after fix)
    - Prevent regression
@@ -328,12 +361,12 @@ See PRODUCTION_STANDARDS.md for complete guidelines.
 ### Example Test Structure:
 
 ```javascript
-describe('FeatureName', () => {
-  describe('methodName', () => {
-    it('should handle successful case', () => {});
-    it('should handle error case', () => {});
-    it('should validate input', () => {});
-    it('should check authorization', () => {});
+describe("FeatureName", () => {
+  describe("methodName", () => {
+    it("should handle successful case", () => {});
+    it("should handle error case", () => {});
+    it("should validate input", () => {});
+    it("should check authorization", () => {});
   });
 });
 ```

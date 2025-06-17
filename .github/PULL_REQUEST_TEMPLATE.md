@@ -16,9 +16,9 @@ Brief description of what this PR does.
 
 ## What changed?
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Areas affected
 

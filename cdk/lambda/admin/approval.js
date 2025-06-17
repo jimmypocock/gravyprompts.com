@@ -1,7 +1,13 @@
-const { getUserFromEvent } = require('/opt/nodejs/auth');
-const { DynamoDBClient } = require('@aws-sdk/client-dynamodb');
-const { DynamoDBDocumentClient, UpdateCommand, QueryCommand, PutCommand, ScanCommand } = require('@aws-sdk/lib-dynamodb');
-const { v4: uuidv4 } = require('uuid');
+const { getUserFromEvent } = require("/opt/nodejs/auth");
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {
+  DynamoDBDocumentClient,
+  UpdateCommand,
+  QueryCommand,
+  PutCommand,
+  ScanCommand,
+} = require("@aws-sdk/lib-dynamodb");
+const { v4: uuidv4 } = require("uuid");
 
 // Initialize DynamoDB client
 const ddbClient = new DynamoDBClient({});
@@ -12,58 +18,72 @@ const USER_PERMISSIONS_TABLE = process.env.USER_PERMISSIONS_TABLE;
 const APPROVAL_HISTORY_TABLE = process.env.APPROVAL_HISTORY_TABLE;
 
 exports.handler = async (event) => {
-  console.log('Event:', JSON.stringify(event, null, 2));
+  console.log("Event:", JSON.stringify(event, null, 2));
 
   try {
     const httpMethod = event.httpMethod;
     const path = event.path;
-    
+
     // Get the current user
     const currentUser = await getUserFromEvent(event);
     if (!currentUser) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Unauthorized' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Unauthorized" }),
       };
     }
 
     // Check if current user has approval permissions
-    const hasApprovalPermission = await checkUserPermission(currentUser.sub, 'approval');
-    const hasAdminPermission = await checkUserPermission(currentUser.sub, 'admin');
-    
+    const hasApprovalPermission = await checkUserPermission(
+      currentUser.sub,
+      "approval",
+    );
+    const hasAdminPermission = await checkUserPermission(
+      currentUser.sub,
+      "admin",
+    );
+
     if (!hasApprovalPermission && !hasAdminPermission) {
       return {
         statusCode: 403,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Forbidden: Approval permission required' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: "Forbidden: Approval permission required",
+        }),
       };
     }
 
     // Route based on method and path
-    if (httpMethod === 'GET' && path === '/admin/approval/queue') {
+    if (httpMethod === "GET" && path === "/admin/approval/queue") {
       // Get templates pending approval
       return await getApprovalQueue(event);
-    } else if (httpMethod === 'GET' && path === '/admin/approval/history') {
+    } else if (httpMethod === "GET" && path === "/admin/approval/history") {
       // Get approval history
       return await getApprovalHistory(event);
-    } else if (httpMethod === 'POST' && path.startsWith('/admin/approval/template/')) {
+    } else if (
+      httpMethod === "POST" &&
+      path.startsWith("/admin/approval/template/")
+    ) {
       // Approve or reject a template
-      const templateId = path.split('/')[4];
+      const templateId = path.split("/")[4];
       return await processApproval(templateId, event, currentUser);
     } else {
       return {
         statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Not found' })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Not found" }),
       };
     }
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Internal server error', details: error.message })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Internal server error",
+        details: error.message,
+      }),
     };
   }
 };
@@ -72,40 +92,44 @@ async function checkUserPermission(userId, permission) {
   try {
     const params = {
       TableName: USER_PERMISSIONS_TABLE,
-      KeyConditionExpression: 'userId = :userId AND #permission = :permission',
+      KeyConditionExpression: "userId = :userId AND #permission = :permission",
       ExpressionAttributeNames: {
-        '#permission': 'permission'
+        "#permission": "permission",
       },
       ExpressionAttributeValues: {
-        ':userId': userId,
-        ':permission': permission
-      }
+        ":userId": userId,
+        ":permission": permission,
+      },
     };
-    
+
     const response = await docClient.send(new QueryCommand(params));
     return response.Items && response.Items.length > 0;
   } catch (error) {
-    console.error('Error checking permission:', error);
+    console.error("Error checking permission:", error);
     return false;
   }
 }
 
 async function getApprovalQueue(event) {
-  const status = event.queryStringParameters?.status || 'pending';
+  const status = event.queryStringParameters?.status || "pending";
   const limit = parseInt(event.queryStringParameters?.limit) || 20;
-  const lastEvaluatedKey = event.queryStringParameters?.lastKey ? 
-    JSON.parse(Buffer.from(event.queryStringParameters.lastKey, 'base64').toString()) : undefined;
+  const lastEvaluatedKey = event.queryStringParameters?.lastKey
+    ? JSON.parse(
+        Buffer.from(event.queryStringParameters.lastKey, "base64").toString(),
+      )
+    : undefined;
 
   try {
     const params = {
       TableName: TEMPLATES_TABLE,
-      IndexName: 'visibility-moderationStatus-index',
-      KeyConditionExpression: 'visibility = :visibility AND moderationStatus = :status',
+      IndexName: "visibility-moderationStatus-index",
+      KeyConditionExpression:
+        "visibility = :visibility AND moderationStatus = :status",
       ExpressionAttributeValues: {
-        ':visibility': 'public',
-        ':status': status
+        ":visibility": "public",
+        ":status": status,
       },
-      Limit: limit
+      Limit: limit,
     };
 
     if (lastEvaluatedKey) {
@@ -113,23 +137,25 @@ async function getApprovalQueue(event) {
     }
 
     const response = await docClient.send(new QueryCommand(params));
-    
+
     const result = {
       templates: response.Items || [],
-      count: response.Count || 0
+      count: response.Count || 0,
     };
 
     if (response.LastEvaluatedKey) {
-      result.lastKey = Buffer.from(JSON.stringify(response.LastEvaluatedKey)).toString('base64');
+      result.lastKey = Buffer.from(
+        JSON.stringify(response.LastEvaluatedKey),
+      ).toString("base64");
     }
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(result)
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result),
     };
   } catch (error) {
-    console.error('Error getting approval queue:', error);
+    console.error("Error getting approval queue:", error);
     throw error;
   }
 }
@@ -141,55 +167,55 @@ async function getApprovalHistory(event) {
 
   try {
     let params;
-    
+
     if (templateId) {
       // Query by template ID
       params = {
         TableName: APPROVAL_HISTORY_TABLE,
-        IndexName: 'templateId-timestamp-index',
-        KeyConditionExpression: 'templateId = :templateId',
+        IndexName: "templateId-timestamp-index",
+        KeyConditionExpression: "templateId = :templateId",
         ExpressionAttributeValues: {
-          ':templateId': templateId
+          ":templateId": templateId,
         },
         ScanIndexForward: false, // Most recent first
-        Limit: limit
+        Limit: limit,
       };
     } else if (reviewerId) {
       // Query by reviewer ID
       params = {
         TableName: APPROVAL_HISTORY_TABLE,
-        IndexName: 'reviewerId-timestamp-index',
-        KeyConditionExpression: 'reviewerId = :reviewerId',
+        IndexName: "reviewerId-timestamp-index",
+        KeyConditionExpression: "reviewerId = :reviewerId",
         ExpressionAttributeValues: {
-          ':reviewerId': reviewerId
+          ":reviewerId": reviewerId,
         },
         ScanIndexForward: false, // Most recent first
-        Limit: limit
+        Limit: limit,
       };
     } else {
       // Scan all (not recommended for production)
       params = {
         TableName: APPROVAL_HISTORY_TABLE,
-        Limit: limit
+        Limit: limit,
       };
     }
 
     const response = await docClient.send(
-      templateId || reviewerId 
+      templateId || reviewerId
         ? new QueryCommand(params)
-        : new ScanCommand(params)
+        : new ScanCommand(params),
     );
-    
+
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         history: response.Items || [],
-        count: response.Count || 0
-      })
+        count: response.Count || 0,
+      }),
     };
   } catch (error) {
-    console.error('Error getting approval history:', error);
+    console.error("Error getting approval history:", error);
     throw error;
   }
 }
@@ -198,46 +224,51 @@ async function processApproval(templateId, event, currentUser) {
   const body = JSON.parse(event.body);
   const { action, reason, notes } = body;
 
-  if (!action || !['approve', 'reject'].includes(action)) {
+  if (!action || !["approve", "reject"].includes(action)) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Invalid action. Must be "approve" or "reject"' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: 'Invalid action. Must be "approve" or "reject"',
+      }),
     };
   }
 
-  if (action === 'reject' && !reason) {
+  if (action === "reject" && !reason) {
     return {
       statusCode: 400,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Reason is required for rejection' })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Reason is required for rejection" }),
     };
   }
 
   try {
     // Update template moderation status
-    const newStatus = action === 'approve' ? 'approved' : 'rejected';
+    const newStatus = action === "approve" ? "approved" : "rejected";
     const timestamp = new Date().toISOString();
 
     const updateParams = {
       TableName: TEMPLATES_TABLE,
       Key: { templateId },
-      UpdateExpression: 'SET moderationStatus = :status, moderationDetails = :details, updatedAt = :updatedAt',
+      UpdateExpression:
+        "SET moderationStatus = :status, moderationDetails = :details, updatedAt = :updatedAt",
       ExpressionAttributeValues: {
-        ':status': newStatus,
-        ':details': {
+        ":status": newStatus,
+        ":details": {
           reviewedBy: currentUser.sub,
           reviewedAt: timestamp,
           action,
           reason: reason || null,
-          notes: notes || null
+          notes: notes || null,
         },
-        ':updatedAt': timestamp
+        ":updatedAt": timestamp,
       },
-      ReturnValues: 'ALL_NEW'
+      ReturnValues: "ALL_NEW",
     };
 
-    const updateResponse = await docClient.send(new UpdateCommand(updateParams));
+    const updateResponse = await docClient.send(
+      new UpdateCommand(updateParams),
+    );
 
     // Record in approval history
     const historyParams = {
@@ -248,30 +279,30 @@ async function processApproval(templateId, event, currentUser) {
         templateTitle: updateResponse.Attributes.title,
         templateAuthor: updateResponse.Attributes.userId,
         reviewerId: currentUser.sub,
-        reviewerEmail: currentUser.email || 'unknown',
+        reviewerEmail: currentUser.email || "unknown",
         action,
-        previousStatus: updateResponse.Attributes.moderationStatus || 'pending',
+        previousStatus: updateResponse.Attributes.moderationStatus || "pending",
         newStatus,
         reason: reason || null,
         notes: notes || null,
-        timestamp
-      }
+        timestamp,
+      },
     };
 
     await docClient.send(new PutCommand(historyParams));
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        message: `Template ${action}${action === 'approve' ? 'd' : 'ed'} successfully`,
+        message: `Template ${action}${action === "approve" ? "d" : "ed"} successfully`,
         templateId,
         moderationStatus: newStatus,
-        template: updateResponse.Attributes
-      })
+        template: updateResponse.Attributes,
+      }),
     };
   } catch (error) {
-    console.error('Error processing approval:', error);
+    console.error("Error processing approval:", error);
     throw error;
   }
 }

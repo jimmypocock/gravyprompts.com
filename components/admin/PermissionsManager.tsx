@@ -1,20 +1,33 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { getUsersWithPermissions, grantPermission, revokePermission, UserPermission } from '@/lib/api/admin';
-import { Plus, Trash2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  getUsersWithPermissions,
+  grantPermission,
+  revokePermission,
+  UserPermission,
+} from "@/lib/api/admin";
+import { Plus, Trash2 } from "lucide-react";
 
 const AVAILABLE_PERMISSIONS = [
-  { value: 'admin', label: 'Admin', description: 'Full administrative access, can manage permissions' },
-  { value: 'approval', label: 'Approval Process', description: 'Can approve/reject templates' },
+  {
+    value: "admin",
+    label: "Admin",
+    description: "Full administrative access, can manage permissions",
+  },
+  {
+    value: "approval",
+    label: "Approval Process",
+    description: "Can approve/reject templates",
+  },
 ];
 
 export default function PermissionsManager() {
   const [users, setUsers] = useState<UserPermission[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newUserId, setNewUserId] = useState('');
-  const [newPermission, setNewPermission] = useState('approval');
+  const [newUserId, setNewUserId] = useState("");
+  const [newPermission, setNewPermission] = useState("approval");
   const [processing, setProcessing] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,7 +40,7 @@ export default function PermissionsManager() {
       const data = await getUsersWithPermissions();
       setUsers(data);
     } catch (error) {
-      console.error('Error loading users:', error);
+      console.error("Error loading users:", error);
     } finally {
       setLoading(false);
     }
@@ -35,26 +48,30 @@ export default function PermissionsManager() {
 
   async function handleGrantPermission() {
     if (!newUserId.trim()) {
-      alert('Please enter a user ID');
+      alert("Please enter a user ID");
       return;
     }
 
     try {
-      setProcessing('grant');
+      setProcessing("grant");
       await grantPermission(newUserId, newPermission);
       await loadUsers();
-      setNewUserId('');
+      setNewUserId("");
       setShowAddForm(false);
     } catch (error) {
-      console.error('Error granting permission:', error);
-      alert('Failed to grant permission');
+      console.error("Error granting permission:", error);
+      alert("Failed to grant permission");
     } finally {
       setProcessing(null);
     }
   }
 
   async function handleRevokePermission(userId: string, permission: string) {
-    if (!confirm(`Are you sure you want to revoke ${permission} permission from this user?`)) {
+    if (
+      !confirm(
+        `Are you sure you want to revoke ${permission} permission from this user?`,
+      )
+    ) {
       return;
     }
 
@@ -63,8 +80,8 @@ export default function PermissionsManager() {
       await revokePermission(userId, permission);
       await loadUsers();
     } catch (error) {
-      console.error('Error revoking permission:', error);
-      alert('Failed to revoke permission');
+      console.error("Error revoking permission:", error);
+      alert("Failed to revoke permission");
     } finally {
       setProcessing(null);
     }
@@ -73,7 +90,10 @@ export default function PermissionsManager() {
   if (loading) {
     return (
       <div className="flex justify-center py-8">
-        <div role="status" className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div
+          role="status"
+          className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"
+        ></div>
       </div>
     );
   }
@@ -108,7 +128,7 @@ export default function PermissionsManager() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Permission
@@ -125,20 +145,21 @@ export default function PermissionsManager() {
                   ))}
                 </select>
               </div>
-              
+
               <div className="flex items-end">
                 <button
                   onClick={handleGrantPermission}
-                  disabled={processing === 'grant'}
+                  disabled={processing === "grant"}
                   className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50"
                 >
                   Grant Permission
                 </button>
               </div>
             </div>
-            
+
             <p className="mt-2 text-sm text-gray-600">
-              To find a user&apos;s ID, they can check their profile or you can look it up in AWS Cognito console.
+              To find a user&apos;s ID, they can check their profile or you can
+              look it up in AWS Cognito console.
             </p>
           </div>
         )}
@@ -181,19 +202,25 @@ export default function PermissionsManager() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {AVAILABLE_PERMISSIONS.find(p => p.value === user.permission)?.label || user.permission}
+                      {AVAILABLE_PERMISSIONS.find(
+                        (p) => p.value === user.permission,
+                      )?.label || user.permission}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(user.grantedAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.grantedBy || 'System'}
+                    {user.grantedBy || "System"}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
-                      onClick={() => handleRevokePermission(user.userId, user.permission)}
-                      disabled={processing === `${user.userId}-${user.permission}`}
+                      onClick={() =>
+                        handleRevokePermission(user.userId, user.permission)
+                      }
+                      disabled={
+                        processing === `${user.userId}-${user.permission}`
+                      }
                       className="text-red-600 hover:text-red-900 disabled:opacity-50"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -208,7 +235,9 @@ export default function PermissionsManager() {
 
       {/* Permission Descriptions */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="font-semibold text-blue-900 mb-2">Available Permissions:</h4>
+        <h4 className="font-semibold text-blue-900 mb-2">
+          Available Permissions:
+        </h4>
         <ul className="space-y-2 text-sm text-blue-800">
           {AVAILABLE_PERMISSIONS.map((perm) => (
             <li key={perm.value}>

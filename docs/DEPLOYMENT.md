@@ -3,6 +3,7 @@
 This comprehensive guide covers all aspects of deploying your Next.js application to AWS using CDK.
 
 ## Table of Contents
+
 - [Quick Start](#quick-start)
 - [Prerequisites](#prerequisites)
 - [Architecture Overview](#architecture-overview)
@@ -19,6 +20,7 @@ This comprehensive guide covers all aspects of deploying your Next.js applicatio
 ### 🚀 Deploy Your Site in 3 Steps
 
 #### Step 1: Environment Setup
+
 ```bash
 # Copy and configure environment
 cp .env.example .env
@@ -33,6 +35,7 @@ npm run cdk:install
 ```
 
 #### Step 2: First Time Deployment
+
 ```bash
 # Deploy everything including new certificate
 npm run deploy:all -- -c createCertificate=true -c notificationEmail=your-email@example.com
@@ -45,6 +48,7 @@ npm run deploy:all -- -c createCertificate=true -c notificationEmail=your-email@
 ```
 
 #### Step 3: Regular Updates
+
 ```bash
 # Just deploy app changes
 npm run build && npm run deploy:app
@@ -57,6 +61,7 @@ npm run deploy:all
 
 1. **AWS Account** with appropriate permissions
 2. **AWS CLI** configured:
+
    ```bash
    # For standard credentials
    aws configure
@@ -65,6 +70,7 @@ npm run deploy:all
    aws sso login --profile your-profile-name
    # Add to .env: AWS_PROFILE=your-profile-name
    ```
+
 3. **Node.js** 18.x or later
 4. **Domain** registered (for production)
 
@@ -72,19 +78,20 @@ npm run deploy:all
 
 This application uses a decoupled AWS architecture with these stacks:
 
-| Stack | Purpose | Resources | Deploy Order |
-|-------|---------|-----------|--------------|
-| **Foundation** | Core infrastructure | S3 buckets for content and logs | 1st |
-| **Certificate** | SSL/TLS | ACM certificate (create once, never delete) | 2nd |
-| **Edge Functions** | URL handling | CloudFront functions for redirects | 3rd |
-| **WAF** | Security | Rate limiting, geo-blocking | 4th |
-| **CDN** | Content delivery | CloudFront distribution | 5th |
-| **Auth** | Authentication | Cognito user pools (dev/prod) | 6th |
-| **API** | Template management | API Gateway, Lambda, DynamoDB | 7th |
-| **App** | Website content | Static files deployment | 8th |
-| **Monitoring** | Observability | CloudWatch dashboards, billing alerts | 9th |
+| Stack              | Purpose             | Resources                                   | Deploy Order |
+| ------------------ | ------------------- | ------------------------------------------- | ------------ |
+| **Foundation**     | Core infrastructure | S3 buckets for content and logs             | 1st          |
+| **Certificate**    | SSL/TLS             | ACM certificate (create once, never delete) | 2nd          |
+| **Edge Functions** | URL handling        | CloudFront functions for redirects          | 3rd          |
+| **WAF**            | Security            | Rate limiting, geo-blocking                 | 4th          |
+| **CDN**            | Content delivery    | CloudFront distribution                     | 5th          |
+| **Auth**           | Authentication      | Cognito user pools (dev/prod)               | 6th          |
+| **API**            | Template management | API Gateway, Lambda, DynamoDB               | 7th          |
+| **App**            | Website content     | Static files deployment                     | 8th          |
+| **Monitoring**     | Observability       | CloudWatch dashboards, billing alerts       | 9th          |
 
 ### Key Features
+
 - **Automatic S3 bucket policy configuration** - No manual fixes needed
 - **CloudFront Origin Access Control (OAC)** for secure S3 access
 - **Smart redirect handling** - All traffic goes to `https://www.yourdomain.com`
@@ -94,6 +101,7 @@ This application uses a decoupled AWS architecture with these stacks:
 ## Initial Setup
 
 ### 1. Install Dependencies
+
 ```bash
 # Install Next.js dependencies
 npm install
@@ -106,7 +114,9 @@ cp .env.example .env
 ```
 
 ### 2. Configure Environment Variables
+
 Edit `.env` with your values:
+
 ```bash
 # Google Analytics (optional)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -123,6 +133,7 @@ APP_NAME=your-app-name
 ```
 
 ### 3. Set up Google Services (Optional)
+
 - **Google Analytics**: Create GA4 property at [analytics.google.com](https://analytics.google.com)
 - **Google AdSense**: Apply at [adsense.google.com](https://adsense.google.com)
 
@@ -131,11 +142,13 @@ APP_NAME=your-app-name
 ### First-Time Deployment
 
 Deploy all stacks with a new certificate:
+
 ```bash
 npm run deploy:all -- -c createCertificate=true -c notificationEmail=your-email@example.com
 ```
 
 This command will:
+
 1. Check AWS credentials
 2. Build the CDK TypeScript code
 3. Deploy all stacks in the correct order
@@ -143,6 +156,7 @@ This command will:
 5. Set up monitoring with email alerts
 
 **Certificate Validation Steps:**
+
 1. Go to AWS Certificate Manager in the AWS Console
 2. Find your certificate and click on it
 3. Copy the CNAME validation records
@@ -154,6 +168,7 @@ This command will:
 ### Individual Stack Deployment
 
 You can also deploy stacks individually:
+
 ```bash
 # 1. Foundation (S3 buckets)
 npm run deploy:foundation
@@ -188,16 +203,19 @@ npm run deploy:monitoring -- -c notificationEmail=your-email@example.com
 ### Updating Your Site
 
 **Important**: Before building for production, ensure:
+
 1. `.env.local` has production API URL and Cognito IDs
 2. `next.config.ts` has `output: 'export'` uncommented
 
 For content updates only:
+
 ```bash
 # Uncomment output: 'export' in next.config.ts first!
 npm run build && npm run deploy:app
 ```
 
 For infrastructure updates:
+
 ```bash
 npm run deploy:all
 ```
@@ -230,10 +248,12 @@ After deployment completes, configure your DNS:
 2. **Configure DNS Records:**
 
    **Option A - Route 53 (Recommended):**
+
    - Create ALIAS record: `yourdomain.com` → CloudFront distribution
    - Create ALIAS record: `www.yourdomain.com` → CloudFront distribution
 
    **Option B - Other DNS Providers:**
+
    - Create CNAME: `www` → `d1234abcd.cloudfront.net`
    - Create CNAME/ALIAS: `@` → `d1234abcd.cloudfront.net`
 
@@ -242,6 +262,7 @@ After deployment completes, configure your DNS:
 ### URL Redirect Behavior
 
 All traffic is automatically redirected to `https://www.yourdomain.com`:
+
 - `http://yourdomain.com` → `https://www.yourdomain.com`
 - `https://yourdomain.com` → `https://www.yourdomain.com`
 - `http://www.yourdomain.com` → `https://www.yourdomain.com`
@@ -250,6 +271,7 @@ All traffic is automatically redirected to `https://www.yourdomain.com`:
 ## Common Operations
 
 ### Maintenance Mode
+
 ```bash
 # Enable maintenance page
 npm run maintenance:on
@@ -259,16 +281,19 @@ npm run maintenance:off
 ```
 
 ### Update Security Rules
+
 ```bash
 npm run deploy:waf
 ```
 
 ### Change Monitoring Alerts
+
 ```bash
 npm run deploy:monitoring -- -c notificationEmail=new-email@example.com
 ```
 
 ### Check Stack Status
+
 ```bash
 # All stacks
 npm run status:all
@@ -278,6 +303,7 @@ npm run status
 ```
 
 ### Validate Configuration
+
 ```bash
 npm run validate
 ```
@@ -287,6 +313,7 @@ npm run validate
 ### Common Issues and Solutions
 
 #### 403 Forbidden After Deployment
+
 - **Normal!** CloudFront takes 15-20 minutes to propagate globally
 - S3 bucket policy is automatically configured - no manual fix needed
 - Verify DNS records point to CloudFront (not S3)
@@ -294,17 +321,20 @@ npm run validate
 - Clear browser cache or test in incognito mode
 
 #### Certificate Validation Issues
+
 - Ensure certificate is in `us-east-1` region
 - Verify BOTH www and non-www validation records are added
 - Check validation: `dig _abc123.yourdomain.com CNAME +short`
 - Both domains must show "Issued" status in ACM
 
 #### Stack Stuck in UPDATE_IN_PROGRESS
+
 - Run `npm run status:all` to check current state
 - Wait for completion (can take 30+ minutes for some stacks)
 - If truly stuck, check CloudFormation console for rollback
 
 #### Build and Development Errors
+
 ```bash
 # Clear Next.js cache
 rm -rf .next out
@@ -318,6 +348,7 @@ cd cdk && rm -rf lib/*.js lib/*.d.ts && npm run build
 ```
 
 #### AWS Credential Issues
+
 ```bash
 # Verify credentials
 aws sts get-caller-identity
@@ -341,6 +372,7 @@ cd cdk && npx cdk bootstrap
 ### Estimated Monthly Costs
 
 For a low-traffic site, expect ~$6-10/month:
+
 - **S3**: ~$0.023/GB for storage
 - **CloudFront**: ~$0.085/GB data transfer
 - **WAF**: ~$5/month + $0.60/million requests
@@ -348,6 +380,7 @@ For a low-traffic site, expect ~$6-10/month:
 - **CloudWatch**: ~$0.30/GB for logs
 
 ### Cost Optimization
+
 - WAF is the largest fixed cost - disable if not needed
 - CloudFront costs scale with traffic
 - S3 costs are minimal for static sites
@@ -356,6 +389,7 @@ For a low-traffic site, expect ~$6-10/month:
 ## Security Features
 
 ### Automatic Security Headers
+
 - **Strict-Transport-Security**: Forces HTTPS for 2 years
 - **X-Content-Type-Options**: Prevents MIME sniffing
 - **X-Frame-Options**: Prevents clickjacking
@@ -364,12 +398,14 @@ For a low-traffic site, expect ~$6-10/month:
 - **Permissions-Policy**: Restricts browser features
 
 ### WAF Protection
+
 - Rate limiting (2000 requests per 5 minutes per IP)
 - Geographic restrictions (configurable)
 - IP reputation lists
 - Bot protection
 
 ### Infrastructure Security
+
 - S3 buckets are private (no public access)
 - CloudFront Origin Access Control for S3
 - All traffic forced to HTTPS
@@ -378,7 +414,9 @@ For a low-traffic site, expect ~$6-10/month:
 ## Advanced Operations
 
 ### Complete Redeployment
+
 If you need to start fresh while keeping your certificate:
+
 ```bash
 # 1. Delete stacks in reverse order (keep certificate!)
 npm run destroy:monitoring
@@ -394,6 +432,7 @@ npm run deploy:all
 ```
 
 ### Using Existing Certificate
+
 ```bash
 # Add to .env
 CERTIFICATE_ARN=arn:aws:acm:us-east-1:123456789012:certificate/abc-def-ghi
@@ -403,6 +442,7 @@ npm run deploy:all
 ```
 
 ### Custom Domain Configuration
+
 ```bash
 # Deploy with custom parameters
 npm run deploy:cdn -- -c domainName=custom.example.com
@@ -419,6 +459,7 @@ npm run deploy:cdn -- -c domainName=custom.example.com
 ## Next Steps
 
 After successful deployment:
+
 1. Verify site loads at `https://www.yourdomain.com`
 2. Test redirect behavior from non-www domain
 3. Check security headers in browser dev tools
@@ -426,6 +467,7 @@ After successful deployment:
 5. Set up Google Analytics events (if using)
 
 For additional help, check:
+
 - AWS CloudFormation console for stack details
 - CloudWatch logs for errors
 - [GitHub Issues](https://github.com/your-repo/issues) for known problems

@@ -1,11 +1,14 @@
-import { fetchWithAuth } from './auth';
+import { fetchWithAuth } from "./auth";
 
 // Use proxy for local development to avoid CORS issues
 const getApiBaseUrl = () => {
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return '/api/proxy';
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost"
+  ) {
+    return "/api/proxy";
   }
-  return process.env.NEXT_PUBLIC_API_URL || 'https://api.gravyprompts.com';
+  return process.env.NEXT_PUBLIC_API_URL || "https://api.gravyprompts.com";
 };
 
 export interface UserPrompt {
@@ -29,15 +32,15 @@ export interface SavePromptRequest {
 // Save a user prompt
 export async function savePrompt(data: SavePromptRequest): Promise<UserPrompt> {
   const response = await fetchWithAuth(`${getApiBaseUrl()}/prompts`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error('Failed to save prompt');
+    throw new Error("Failed to save prompt");
   }
 
   const result = await response.json();
@@ -45,20 +48,23 @@ export async function savePrompt(data: SavePromptRequest): Promise<UserPrompt> {
 }
 
 // List user prompts
-export async function listPrompts(limit = 20, lastKey?: string): Promise<{
+export async function listPrompts(
+  limit = 20,
+  lastKey?: string,
+): Promise<{
   prompts: UserPrompt[];
   lastKey?: string;
 }> {
   const params = new URLSearchParams();
-  params.append('limit', limit.toString());
+  params.append("limit", limit.toString());
   if (lastKey) {
-    params.append('lastKey', lastKey);
+    params.append("lastKey", lastKey);
   }
 
   const response = await fetchWithAuth(`${getApiBaseUrl()}/prompts?${params}`);
 
   if (!response.ok) {
-    throw new Error('Failed to fetch prompts');
+    throw new Error("Failed to fetch prompts");
   }
 
   return response.json();
@@ -66,21 +72,26 @@ export async function listPrompts(limit = 20, lastKey?: string): Promise<{
 
 // Delete a user prompt
 export async function deletePrompt(promptId: string): Promise<void> {
-  const response = await fetchWithAuth(`${getApiBaseUrl()}/prompts/${promptId}`, {
-    method: 'DELETE',
-  });
+  const response = await fetchWithAuth(
+    `${getApiBaseUrl()}/prompts/${promptId}`,
+    {
+      method: "DELETE",
+    },
+  );
 
   if (!response.ok) {
-    throw new Error('Failed to delete prompt');
+    throw new Error("Failed to delete prompt");
   }
 }
 
 // Get a specific prompt
 export async function getPrompt(promptId: string): Promise<UserPrompt> {
-  const response = await fetchWithAuth(`${getApiBaseUrl()}/prompts/${promptId}`);
+  const response = await fetchWithAuth(
+    `${getApiBaseUrl()}/prompts/${promptId}`,
+  );
 
   if (!response.ok) {
-    throw new Error('Failed to fetch prompt');
+    throw new Error("Failed to fetch prompt");
   }
 
   const result = await response.json();

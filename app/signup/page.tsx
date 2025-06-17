@@ -1,35 +1,35 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useAuth } from '@/lib/auth-context';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useAuth } from "@/lib/auth-context";
 
 export default function SignUpPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullname, setFullname] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirmationCode, setConfirmationCode] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullname, setFullname] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmationCode, setConfirmationCode] = useState("");
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const { signUp, confirmSignUp, user, loading: authLoading } = useAuth();
   const router = useRouter();
 
   // Redirect to profile if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.push('/profile');
+      router.push("/profile");
     }
   }, [user, authLoading, router]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
@@ -37,13 +37,13 @@ export default function SignUpPage() {
 
     try {
       const result = await signUp(email, password, fullname);
-      if (result.nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
+      if (result.nextStep.signUpStep === "CONFIRM_SIGN_UP") {
         setNeedsConfirmation(true);
       } else if (result.isSignUpComplete) {
-        router.push('/login');
+        router.push("/login");
       }
     } catch (err) {
-      setError((err as Error).message || 'Failed to sign up');
+      setError((err as Error).message || "Failed to sign up");
     } finally {
       setLoading(false);
     }
@@ -51,14 +51,14 @@ export default function SignUpPage() {
 
   const handleConfirmation = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
       await confirmSignUp(email, confirmationCode);
-      router.push('/login');
+      router.push("/login");
     } catch (err) {
-      setError((err as Error).message || 'Failed to confirm sign up');
+      setError((err as Error).message || "Failed to confirm sign up");
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,10 @@ export default function SignUpPage() {
               </div>
             )}
             <div>
-              <label htmlFor="code" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="code"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Verification Code
               </label>
               <input
@@ -120,7 +123,7 @@ export default function SignUpPage() {
                 disabled={loading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Confirming...' : 'Confirm Email'}
+                {loading ? "Confirming..." : "Confirm Email"}
               </button>
             </div>
           </form>
@@ -137,8 +140,11 @@ export default function SignUpPage() {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link href="/login" className="font-medium text-primary hover:text-primary/80">
+            Or{" "}
+            <Link
+              href="/login"
+              className="font-medium text-primary hover:text-primary/80"
+            >
               sign in to existing account
             </Link>
           </p>
@@ -151,7 +157,10 @@ export default function SignUpPage() {
           )}
           <div className="space-y-4">
             <div>
-              <label htmlFor="fullname" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="fullname"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Full Name (optional)
               </label>
               <input
@@ -166,7 +175,10 @@ export default function SignUpPage() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email Address
               </label>
               <input
@@ -182,7 +194,10 @@ export default function SignUpPage() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -197,11 +212,15 @@ export default function SignUpPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
               <p className="mt-1 text-xs text-gray-500">
-                Must be at least 8 characters with uppercase, lowercase, numbers, and symbols
+                Must be at least 8 characters with uppercase, lowercase,
+                numbers, and symbols
               </p>
             </div>
             <div>
-              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm Password
               </label>
               <input
@@ -224,17 +243,20 @@ export default function SignUpPage() {
               disabled={loading}
               className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? "Creating account..." : "Create account"}
             </button>
           </div>
 
           <p className="text-xs text-center text-gray-500">
-            By creating an account, you agree to our{' '}
+            By creating an account, you agree to our{" "}
             <Link href="/terms" className="text-primary hover:text-primary/80">
               Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link href="/privacy" className="text-primary hover:text-primary/80">
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="text-primary hover:text-primary/80"
+            >
               Privacy Policy
             </Link>
           </p>

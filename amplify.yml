@@ -11,6 +11,9 @@ frontend:
     baseDirectory: .next
     files:
       - '**/*'
+    # Keep build artifacts for only 7 days to reduce storage costs
+    retention:
+      duration: 7d
   cache:
     paths:
       - node_modules/**/*

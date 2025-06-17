@@ -22,6 +22,7 @@ npm run dev:all
 ```
 
 This single command will:
+
 - Clean up any existing containers
 - Start DynamoDB and LocalStack
 - Install dependencies automatically
@@ -46,22 +47,23 @@ npm run dev            # Start Next.js only
 ### Configure Frontend
 
 Make sure your `.env.local` includes:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:7429
 ```
 
 ## Available Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev:all` | Start everything (recommended) |
-| `npm run local:install` | Install local test dependencies |
-| `npm run local:setup` | Start DynamoDB and create tables |
-| `npm run local:tables` | Create/recreate tables only |
-| `npm run local:api` | Start API Gateway only |
-| `npm run local:stop` | Stop all Docker containers |
+| Command                 | Description                             |
+| ----------------------- | --------------------------------------- |
+| `npm run dev:all`       | Start everything (recommended)          |
+| `npm run local:install` | Install local test dependencies         |
+| `npm run local:setup`   | Start DynamoDB and create tables        |
+| `npm run local:tables`  | Create/recreate tables only             |
+| `npm run local:api`     | Start API Gateway only                  |
+| `npm run local:stop`    | Stop all Docker containers              |
 | `npm run local:cleanup` | Clean up everything (containers, ports) |
-| `npm run local:test` | Run Lambda function tests |
+| `npm run local:test`    | Run Lambda function tests               |
 
 ## Testing Lambda Functions
 
@@ -128,6 +130,7 @@ node local-test.js
 ### DynamoDB Admin UI
 
 View and manage your local DynamoDB tables:
+
 - URL: http://localhost:8001
 - See all tables, items, and indexes
 - Run queries and scans
@@ -136,6 +139,7 @@ View and manage your local DynamoDB tables:
 ### Mock Services
 
 The local environment mocks these AWS services:
+
 - **Cognito**: Returns mock user IDs for any email
 - **Comprehend**: Always returns safe content (no moderation blocks)
 - **Rate Limiting**: Disabled for easier testing
@@ -149,6 +153,7 @@ The local environment mocks these AWS services:
 ## Common Issues
 
 ### Port Already in Use
+
 ```bash
 # Kill existing processes
 lsof -ti:7429 | xargs kill -9  # API port
@@ -156,6 +161,7 @@ lsof -ti:8000 | xargs kill -9  # DynamoDB port
 ```
 
 ### Docker Issues
+
 ```bash
 # Reset Docker containers
 docker-compose down
@@ -163,6 +169,7 @@ docker-compose up -d --force-recreate
 ```
 
 ### Lambda Layer Not Found
+
 ```bash
 # Rebuild the layer
 cd cdk/lambda-layers/shared/nodejs
@@ -179,16 +186,19 @@ npm install
 ## Switching Between Local and AWS
 
 ### Local Development
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:7429
 ```
 
 ### AWS Development
+
 ```env
 NEXT_PUBLIC_API_URL=https://your-api-id.execute-api.us-east-1.amazonaws.com/development
 ```
 
 Get your AWS API URL by running:
+
 ```bash
 npm run deploy:api
 ```
@@ -203,6 +213,7 @@ npm run deploy:api
 ## Next Steps
 
 Once your local testing is complete:
+
 1. Deploy to AWS: `npm run deploy:api`
 2. Update `.env.local` with the AWS API URL
 3. Test with real AWS services

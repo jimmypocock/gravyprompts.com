@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAuth } from '@/lib/auth-context';
-import { useSearch } from '@/lib/search-context';
-import { useTemplateApi, type Template } from '@/lib/api/templates';
-import TemplateQuickview from '@/components/TemplateQuickview';
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useSearch } from "@/lib/search-context";
+import { useTemplateApi, type Template } from "@/lib/api/templates";
+import TemplateQuickview from "@/components/TemplateQuickview";
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -18,30 +18,44 @@ export default function HomePage() {
   const [popularTemplates, setPopularTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null,
+  );
   const [isQuickviewOpen, setIsQuickviewOpen] = useState(false);
-  const [recentPrompts, setRecentPrompts] = useState<Array<{
-    id: string;
-    templateTitle: string;
-    content: string;
-    variables: Record<string, string>;
-    createdAt: string;
-  }>>([]);
+  const [recentPrompts, setRecentPrompts] = useState<
+    Array<{
+      id: string;
+      templateTitle: string;
+      content: string;
+      variables: Record<string, string>;
+      createdAt: string;
+    }>
+  >([]);
 
   const popularTags = [
-    'ai', 'react', 'marketing', 'sql', 'data-analysis', 'linkedin',
-    'project-management', 'ux', 'hr', 'git', 'agile', 'frontend'
+    "ai",
+    "react",
+    "marketing",
+    "sql",
+    "data-analysis",
+    "linkedin",
+    "project-management",
+    "ux",
+    "hr",
+    "git",
+    "agile",
+    "frontend",
   ];
 
   // Load popular templates and recent prompts on mount
   useEffect(() => {
     // Load recent prompts from localStorage
-    const stored = localStorage.getItem('recentPrompts');
+    const stored = localStorage.getItem("recentPrompts");
     if (stored) {
       try {
         setRecentPrompts(JSON.parse(stored));
       } catch (e) {
-        console.error('Failed to load recent prompts:', e);
+        console.error("Failed to load recent prompts:", e);
       }
     }
 
@@ -51,7 +65,7 @@ export default function HomePage() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Handle scroll detection for search bar transition
@@ -65,11 +79,11 @@ export default function HomePage() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     handleScroll(); // Check initial position
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
       setNavSearchVisible(false); // Reset when leaving home page
     };
   }, [setNavSearchVisible]);
@@ -80,7 +94,7 @@ export default function HomePage() {
       setPopularTemplates(response.items);
       setInitialLoading(false);
     } catch (error) {
-      console.error('Failed to load popular templates:', error);
+      console.error("Failed to load popular templates:", error);
       setInitialLoading(false);
       // Don't retry automatically - let the user refresh if needed
       // This prevents infinite retry loops
@@ -88,43 +102,49 @@ export default function HomePage() {
   };
 
   // Debounced search function
-  const searchTemplates = useCallback(async (query: string, tags: string[]) => {
-    if (!query && tags.length === 0) {
-      setTemplates([]);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      // When only tags are selected, we need to get more templates to filter
-      const limit = tags.length > 0 && !query ? 50 : 20;
-
-      const response = await api.listTemplates({
-        search: query || undefined,
-        filter: 'public',
-        sortBy: 'useCount',
-        sortOrder: 'desc',
-        limit: limit,
-      });
-
-      // Filter by selected tags locally
-      let results = response.items;
-      if (tags.length > 0) {
-        results = results.filter(template => {
-          const templateTags = Array.isArray(template.tags) ? template.tags : 
-                              (template.tags ? [template.tags] : []);
-          return tags.some(tag => templateTags.includes(tag));
-        });
+  const searchTemplates = useCallback(
+    async (query: string, tags: string[]) => {
+      if (!query && tags.length === 0) {
+        setTemplates([]);
+        return;
       }
 
-      setTemplates(results);
-    } catch (error) {
-      console.error('Search failed:', error);
-      setTemplates([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [api]);
+      setLoading(true);
+      try {
+        // When only tags are selected, we need to get more templates to filter
+        const limit = tags.length > 0 && !query ? 50 : 20;
+
+        const response = await api.listTemplates({
+          search: query || undefined,
+          filter: "public",
+          sortBy: "useCount",
+          sortOrder: "desc",
+          limit: limit,
+        });
+
+        // Filter by selected tags locally
+        let results = response.items;
+        if (tags.length > 0) {
+          results = results.filter((template) => {
+            const templateTags = Array.isArray(template.tags)
+              ? template.tags
+              : template.tags
+                ? [template.tags]
+                : [];
+            return tags.some((tag) => templateTags.includes(tag));
+          });
+        }
+
+        setTemplates(results);
+      } catch (error) {
+        console.error("Search failed:", error);
+        setTemplates([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [api],
+  );
 
   // Handle search input change with debouncing
   const handleSearchChange = (value: string) => {
@@ -144,7 +164,7 @@ export default function HomePage() {
   // Handle tag selection
   const toggleTag = (tag: string) => {
     const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
+      ? selectedTags.filter((t) => t !== tag)
       : [...selectedTags, tag];
 
     setSelectedTags(newTags);
@@ -159,8 +179,8 @@ export default function HomePage() {
         const fullTemplate = await api.getTemplate(template.templateId);
         setSelectedTemplate(fullTemplate);
       } catch (error) {
-        console.error('Failed to load template details:', error);
-        alert('Failed to load template details');
+        console.error("Failed to load template details:", error);
+        alert("Failed to load template details");
         return;
       }
     } else {
@@ -170,7 +190,10 @@ export default function HomePage() {
   };
 
   // Handle save prompt
-  const handleSavePrompt = async (content: string, variables: Record<string, string>) => {
+  const handleSavePrompt = async (
+    content: string,
+    variables: Record<string, string>,
+  ) => {
     if (!selectedTemplate) return;
 
     // Save to recent prompts
@@ -179,12 +202,12 @@ export default function HomePage() {
       templateTitle: selectedTemplate.title,
       content: content,
       variables: variables,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
 
     const updatedPrompts = [newPrompt, ...recentPrompts].slice(0, 10);
     setRecentPrompts(updatedPrompts);
-    localStorage.setItem('recentPrompts', JSON.stringify(updatedPrompts));
+    localStorage.setItem("recentPrompts", JSON.stringify(updatedPrompts));
 
     // Save to user account if logged in
     if (user) {
@@ -193,49 +216,52 @@ export default function HomePage() {
           templateId: selectedTemplate.templateId,
           templateTitle: selectedTemplate.title,
           content: content,
-          variables: variables
+          variables: variables,
         });
-        alert('Prompt saved to your account!');
+        alert("Prompt saved to your account!");
       } catch (error) {
-        console.error('Failed to save prompt:', error);
+        console.error("Failed to save prompt:", error);
       }
     }
 
     // Track usage
     try {
-      await api.populateTemplate(
-        selectedTemplate.templateId,
-        { variables: variables }
-      );
+      await api.populateTemplate(selectedTemplate.templateId, {
+        variables: variables,
+      });
     } catch {
-      console.error('Failed to track usage');
+      console.error("Failed to track usage");
     }
   };
 
   const getCategoryIcon = (template: Template) => {
-    const content = (template.content || '').toLowerCase();
-    const title = (template.title || '').toLowerCase();
+    const content = (template.content || "").toLowerCase();
+    const title = (template.title || "").toLowerCase();
 
-    if (content.includes('email') || title.includes('email')) return '✉️';
-    if (content.includes('code') || title.includes('code')) return '💻';
-    if (content.includes('blog') || title.includes('article')) return '✍️';
-    if (content.includes('sales') || title.includes('marketing')) return '📢';
-    if (content.includes('support') || title.includes('customer')) return '💬';
-    if (content.includes('data') || title.includes('analysis')) return '📊';
-    if (content.includes('game') || title.includes('game')) return '🎮';
-    if (content.includes('design') || title.includes('design')) return '🎨';
-    if (content.includes('research') || title.includes('research')) return '🔬';
-    return '📝';
+    if (content.includes("email") || title.includes("email")) return "✉️";
+    if (content.includes("code") || title.includes("code")) return "💻";
+    if (content.includes("blog") || title.includes("article")) return "✍️";
+    if (content.includes("sales") || title.includes("marketing")) return "📢";
+    if (content.includes("support") || title.includes("customer")) return "💬";
+    if (content.includes("data") || title.includes("analysis")) return "📊";
+    if (content.includes("game") || title.includes("game")) return "🎮";
+    if (content.includes("design") || title.includes("design")) return "🎨";
+    if (content.includes("research") || title.includes("research")) return "🔬";
+    return "📝";
   };
 
   // Display templates - either search results or popular templates
-  const displayTemplates = searchQuery || selectedTags.length > 0 ? templates : popularTemplates;
+  const displayTemplates =
+    searchQuery || selectedTags.length > 0 ? templates : popularTemplates;
   const showingResults = searchQuery || selectedTags.length > 0;
 
   return (
     <div className="flex flex-col flex-1">
       {/* Hero Search Section */}
-      <div ref={heroSearchRef} className="bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+      <div
+        ref={heroSearchRef}
+        className="bg-gradient-to-b from-gray-50 to-white py-12 px-4"
+      >
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             Find the perfect <span className="text-primary">prompt</span>
@@ -254,14 +280,40 @@ export default function HomePage() {
               className="w-full px-6 py-4 pl-14 text-lg border-2 border-gray-300 rounded-full focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-lg hover:shadow-xl hover:border-gray-400"
               autoFocus
             />
-            <svg className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            <svg
+              className="absolute left-5 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             {(loading || initialLoading) && (
               <div className="absolute right-5 top-1/2 transform -translate-y-1/2">
-                <svg className="animate-spin h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin h-6 w-6 text-primary"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
               </div>
             )}
@@ -269,14 +321,14 @@ export default function HomePage() {
 
           {/* Tag Pills */}
           <div className="flex gap-2 flex-wrap justify-center">
-            {popularTags.map(tag => (
+            {popularTags.map((tag) => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                   selectedTags.includes(tag)
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white hover:bg-gray-50 border border-gray-300'
+                    ? "bg-primary text-white shadow-md"
+                    : "bg-white hover:bg-gray-50 border border-gray-300"
                 }`}
               >
                 {tag}
@@ -292,7 +344,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold mb-6 text-gray-900">
             {showingResults
               ? `${displayTemplates.length} Results`
-              : '🔥 Popular Templates'}
+              : "🔥 Popular Templates"}
           </h2>
 
           {initialLoading || (loading && displayTemplates.length === 0) ? (
@@ -319,50 +371,62 @@ export default function HomePage() {
                   </div>
                 </div>
               ))}
-                <div className="text-center pt-4">
-                  <p className="text-sm text-gray-500">
-                    Loading templates... If this takes too long, the API might still be starting up.
-                  </p>
-                </div>
+              <div className="text-center pt-4">
+                <p className="text-sm text-gray-500">
+                  Loading templates... If this takes too long, the API might
+                  still be starting up.
+                </p>
+              </div>
             </div>
           ) : displayTemplates.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
                 {showingResults
-                  ? 'No templates found. Try different keywords or tags.'
-                  : 'No templates available.'}
+                  ? "No templates found. Try different keywords or tags."
+                  : "No templates available."}
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayTemplates.map(template => (
+              {displayTemplates.map((template) => (
                 <button
                   key={template.templateId}
                   onClick={() => selectTemplate(template)}
                   className="bg-white rounded-lg shadow-md border border-gray-200 p-6 text-left transition-all hover:shadow-xl hover:border-primary hover:transform hover:-translate-y-1 group"
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <span className="text-3xl">{getCategoryIcon(template)}</span>
+                    <span className="text-3xl">
+                      {getCategoryIcon(template)}
+                    </span>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
                         {template.title}
                       </h3>
                       <p className="text-sm text-gray-600 mt-1">
-                        {template.useCount || 0} uses • {template.variableCount || 0} variables
+                        {template.useCount || 0} uses •{" "}
+                        {template.variableCount || 0} variables
                       </p>
                     </div>
                   </div>
 
                   {/* Preview text */}
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {template.preview || (template.content ? template.content.replace(/<[^>]*>/g, '').substring(0, 100) + '...' : '')}
+                    {template.preview ||
+                      (template.content
+                        ? template.content
+                            .replace(/<[^>]*>/g, "")
+                            .substring(0, 100) + "..."
+                        : "")}
                   </p>
 
                   {template.tags && template.tags.length > 0 && (
                     <div className="flex gap-1 flex-wrap">
-                      {(Array.isArray(template.tags) ? template.tags : [template.tags])
+                      {(Array.isArray(template.tags)
+                        ? template.tags
+                        : [template.tags]
+                      )
                         .slice(0, 3)
-                        .map(tag => (
+                        .map((tag) => (
                           <span
                             key={tag}
                             className="px-2 py-1 text-xs bg-gray-100 group-hover:bg-primary/10 rounded-full transition-colors"

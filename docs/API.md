@@ -24,6 +24,7 @@ For local development, use: `Authorization: Bearer local-dev-token`
 Create a new template.
 
 **Request Body:**
+
 ```json
 {
   "title": "Template Title",
@@ -35,6 +36,7 @@ Create a new template.
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Template created successfully",
@@ -57,9 +59,11 @@ Create a new template.
 Retrieve a specific template.
 
 **Query Parameters:**
+
 - `token` (optional) - Share token for accessing private templates
 
 **Response:**
+
 ```json
 {
   "templateId": "uuid",
@@ -84,6 +88,7 @@ Retrieve a specific template.
 List templates based on filters.
 
 **Query Parameters:**
+
 - `filter` - "public" | "mine" | "all" (default: "public")
 - `tag` - Filter by tag
 - `search` - Search in title and tags
@@ -93,6 +98,7 @@ List templates based on filters.
 - `sortOrder` - "asc" | "desc" (default: "desc")
 
 **Response:**
+
 ```json
 {
   "items": [
@@ -121,6 +127,7 @@ List templates based on filters.
 Update an existing template (owner only).
 
 **Request Body:**
+
 ```json
 {
   "title": "Updated Title",
@@ -131,10 +138,13 @@ Update an existing template (owner only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Template updated successfully",
-  "template": { /* updated template object */ }
+  "template": {
+    /* updated template object */
+  }
 }
 ```
 
@@ -145,6 +155,7 @@ Update an existing template (owner only).
 Delete a template (owner only).
 
 **Response:**
+
 ```json
 {
   "message": "Template deleted successfully"
@@ -158,6 +169,7 @@ Delete a template (owner only).
 Manage template sharing (owner only).
 
 **Request Body:**
+
 ```json
 {
   "action": "add" | "remove" | "generate_link",
@@ -167,6 +179,7 @@ Manage template sharing (owner only).
 ```
 
 **Response:**
+
 ```json
 {
   "message": "Share link generated",
@@ -183,9 +196,11 @@ Manage template sharing (owner only).
 Populate template variables and track usage.
 
 **Query Parameters:**
+
 - `token` (optional) - Share token for accessing private templates
 
 **Request Body:**
+
 ```json
 {
   "variables": {
@@ -197,6 +212,7 @@ Populate template variables and track usage.
 ```
 
 **Response:**
+
 ```json
 {
   "templateId": "uuid",
@@ -240,6 +256,7 @@ All errors follow this format:
 ## Content Moderation
 
 Public templates are automatically moderated using AWS Comprehend:
+
 - Toxicity detection
 - PII (Personally Identifiable Information) detection
 - Sentiment analysis
@@ -249,6 +266,7 @@ Templates with inappropriate content will have `moderationStatus: "rejected"`.
 ## Local Development
 
 For local development:
+
 1. Use `http://localhost:7429` as the base URL
 2. Use `Authorization: Bearer local-dev-token`
 3. Content moderation is mocked (always passes)
