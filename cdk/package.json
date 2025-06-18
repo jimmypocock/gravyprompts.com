@@ -21,7 +21,7 @@
     "test:search": "jest --config=jest.config.integration.js lambda/templates/__tests__/list.integration.test.js --runInBand"
   },
   "devDependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.828.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.830.0",
     "@aws-sdk/client-dynamodb": "^3.828.0",
     "@aws-sdk/lib-dynamodb": "^3.828.0",
     "@types/jest": "^29.5.11",
