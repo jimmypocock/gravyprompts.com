@@ -7,12 +7,12 @@ This directory contains the CI/CD workflows for the GravyPrompts project.
 ### 1. `ci.yml` - Continuous Integration
 - **Triggers**: Push to main, Pull requests to main
 - **Purpose**: Run tests, linting, security scans, and builds
-- **Timeout**: 45 minutes max
+- **Timeout**: Job-level timeouts (10-15 minutes per job)
 - **Jobs**: Code quality, parallel tests, integration tests, security scan, build
 
 ### 2. `scheduled-tasks.yml` - Weekly Maintenance
 - **Triggers**: Every Sunday at 2 AM UTC, Manual dispatch
-- **Timeout**: 120 minutes max
+- **Timeout**: Job-level timeouts (10 minutes per job)
 - **Jobs**:
   - ✅ Security Audit - npm audit & dependency checks, creates GitHub issues
   - ✅ Performance Check - Runs performance test suite

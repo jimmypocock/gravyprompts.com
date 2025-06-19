@@ -9,9 +9,6 @@ on:
       - main
     types: [opened, synchronize, reopened]
 
-# Workflow-level timeout (45 minutes max for entire workflow)
-timeout-minutes: 45
-
 # Cancel in-progress runs when new commits are pushed
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -167,7 +164,7 @@ jobs:
         run: npm audit --audit-level=high || true
       
       - name: Check for known vulnerabilities
-        uses: snyk/actions/node@master
+        uses: snyk/actions/node@v0
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
