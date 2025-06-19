@@ -197,6 +197,15 @@ export async function checkAdminAccess(): Promise<boolean> {
     // Log the actual error for debugging
     if (error instanceof Error) {
       console.log("Admin access check failed:", error.message);
+      // If it's an API error, log additional details
+      if ('status' in error) {
+        console.log("API Error details:", {
+          status: (error as any).status,
+          statusText: (error as any).statusText,
+          url: (error as any).url,
+          body: (error as any).body,
+        });
+      }
     } else {
       console.log("Admin access check failed:", error);
     }

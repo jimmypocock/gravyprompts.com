@@ -200,6 +200,12 @@ Resources:
             RestApiId: !Ref TemplatesApi
             Path: /admin/permissions/user/{userId}
             Method: GET
+        GetMyPermissionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/me
+            Method: GET
         GrantPermissionEvent:
           Type: Api
           Properties:
@@ -255,4 +261,10 @@ Resources:
           Properties:
             RestApiId: !Ref TemplatesApi
             Path: /admin/permissions/users
+            Method: OPTIONS
+        PermissionsMeOptionsEvent:
+          Type: Api
+          Properties:
+            RestApiId: !Ref TemplatesApi
+            Path: /admin/permissions/me
             Method: OPTIONS

@@ -29,8 +29,8 @@ export async function GET(
     });
 
     // Handle non-JSON responses
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
+    const getContentType = response.headers.get("content-type");
+    if (!getContentType || !getContentType.includes("application/json")) {
       const text = await response.text();
       return NextResponse.json(
         { error: text || "Non-JSON response from API" },
@@ -45,7 +45,22 @@ export async function GET(
       );
     }
 
-    const data = await response.json();
+    // Check if response has JSON content
+    const responseContentType = response.headers.get("content-type");
+    let data;
+    
+    if (responseContentType && responseContentType.includes("application/json")) {
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        data = { error: "Invalid JSON response from API" };
+      }
+    } else {
+      // If not JSON, return as error
+      const text = await response.text();
+      data = { error: text || `Non-JSON response with status ${response.status}` };
+    }
 
     return NextResponse.json(data, {
       status: response.status,
@@ -65,7 +80,7 @@ export async function GET(
       );
     }
     return NextResponse.json(
-      { error: "Proxy request failed" },
+      { error: error instanceof Error ? error.message : "Proxy request failed" },
       { status: 500 },
     );
   }
@@ -98,7 +113,22 @@ export async function POST(
       body: body,
     });
 
-    const data = await response.json();
+    // Check if response has JSON content
+    const postContentType = response.headers.get("content-type");
+    let data;
+    
+    if (postContentType && postContentType.includes("application/json")) {
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        data = { error: "Invalid JSON response from API" };
+      }
+    } else {
+      // If not JSON, return as error
+      const text = await response.text();
+      data = { error: text || `Non-JSON response with status ${response.status}` };
+    }
 
     return NextResponse.json(data, {
       status: response.status,
@@ -111,7 +141,7 @@ export async function POST(
   } catch (error) {
     console.error("Proxy error:", error);
     return NextResponse.json(
-      { error: "Proxy request failed" },
+      { error: error instanceof Error ? error.message : "Proxy request failed" },
       { status: 500 },
     );
   }
@@ -144,7 +174,22 @@ export async function PUT(
       body: body,
     });
 
-    const data = await response.json();
+    // Check if response has JSON content
+    const putContentType = response.headers.get("content-type");
+    let data;
+    
+    if (putContentType && putContentType.includes("application/json")) {
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        data = { error: "Invalid JSON response from API" };
+      }
+    } else {
+      // If not JSON, return as error
+      const text = await response.text();
+      data = { error: text || `Non-JSON response with status ${response.status}` };
+    }
 
     return NextResponse.json(data, {
       status: response.status,
@@ -157,7 +202,7 @@ export async function PUT(
   } catch (error) {
     console.error("Proxy error:", error);
     return NextResponse.json(
-      { error: "Proxy request failed" },
+      { error: error instanceof Error ? error.message : "Proxy request failed" },
       { status: 500 },
     );
   }
@@ -188,7 +233,22 @@ export async function DELETE(
       },
     });
 
-    const data = await response.json();
+    // Check if response has JSON content
+    const deleteContentType = response.headers.get("content-type");
+    let data;
+    
+    if (deleteContentType && deleteContentType.includes("application/json")) {
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        data = { error: "Invalid JSON response from API" };
+      }
+    } else {
+      // If not JSON, return as error
+      const text = await response.text();
+      data = { error: text || `Non-JSON response with status ${response.status}` };
+    }
 
     return NextResponse.json(data, {
       status: response.status,
@@ -201,7 +261,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Proxy error:", error);
     return NextResponse.json(
-      { error: "Proxy request failed" },
+      { error: error instanceof Error ? error.message : "Proxy request failed" },
       { status: 500 },
     );
   }

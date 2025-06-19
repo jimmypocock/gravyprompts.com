@@ -30,8 +30,20 @@ export default function Navigation() {
           const hasAccess = await checkAdminAccess();
           setIsAdmin(hasAccess);
         } catch (error) {
-          // Silently fail admin check - user just won't see admin features
-          console.log("Admin check failed:", error);
+          // Log error details for debugging
+          if (error instanceof Error) {
+            console.log("Admin check failed:", error.message);
+            if ('status' in error) {
+              console.log("Error details:", {
+                status: (error as any).status,
+                statusText: (error as any).statusText,
+                url: (error as any).url,
+                body: (error as any).body
+              });
+            }
+          } else {
+            console.log("Admin check failed:", error);
+          }
           setIsAdmin(false);
         }
       } else {

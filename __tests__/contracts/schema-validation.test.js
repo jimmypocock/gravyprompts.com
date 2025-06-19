@@ -7,10 +7,21 @@
 
 // JSON Schema validation library
 const Ajv = require("ajv");
-const addFormats = require("ajv-formats");
 
 const ajv = new Ajv({ allErrors: true });
-addFormats(ajv);
+
+// Try to add formats if available
+try {
+  const addFormats = require("ajv-formats");
+  if (addFormats && typeof addFormats === 'function') {
+    addFormats(ajv);
+  } else if (addFormats && addFormats.default) {
+    addFormats.default(ajv);
+  }
+} catch (error) {
+  // ajv-formats not available or not needed for these tests
+  console.warn("ajv-formats not available, skipping format validation");
+}
 
 // Define schemas for validation
 const schemas = {

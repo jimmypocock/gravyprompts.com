@@ -97,12 +97,38 @@ export async function fetchWithAuth(
       body: responseBody,
     };
 
-    console.error("API Error:", errorDetails);
+    console.error("API Error:", JSON.stringify(errorDetails, null, 2));
 
-    // Create an error with all the details
-    const error = new Error(errorMessage);
-    Object.assign(error, errorDetails);
-    throw error;
+    // Create a custom error class that properly exposes all properties
+    class APIError extends Error {
+      status: number;
+      statusText: string;
+      url: string;
+      body: unknown;
+
+      constructor(
+        message: string,
+        status: number,
+        statusText: string,
+        url: string,
+        body: unknown,
+      ) {
+        super(message);
+        this.name = "APIError";
+        this.status = status;
+        this.statusText = statusText;
+        this.url = url;
+        this.body = body;
+      }
+    }
+
+    throw new APIError(
+      errorMessage,
+      response.status,
+      response.statusText,
+      url,
+      responseBody,
+    );
   }
 
   return response;

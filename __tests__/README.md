@@ -22,14 +22,19 @@ These tests require local setup and should NOT run in CI:
 - **Integration Tests** (`__tests__/integration/`) - Test API integrations
 - **Lambda Tests** (`cdk/lambda/__tests__/`) - Require DynamoDB and AWS services
 
-Run with: `npm run test:local`
+Run with: 
+```bash
+npm run test:local      # All local tests
+npm run test:e2e        # E2E tests only
+```
 
 ## Why This Split?
 
 1. **CI Speed**: Only run fast, reliable tests in CI
 2. **Dependencies**: Local tests need DynamoDB, AWS SDK, etc.
-3. **Reliability**: Many security/E2E tests are aspirational and would fail CI
+3. **Reliability**: E2E tests can be flaky in CI environments due to timing issues and mock limitations
 4. **Cost**: Running full integration tests in CI could incur AWS costs
+5. **Environment**: E2E tests work best with a fully running local development environment
 
 ## Commands
 
