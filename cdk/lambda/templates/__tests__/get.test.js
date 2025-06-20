@@ -15,7 +15,7 @@ jest.mock("uuid", () => ({
 // Mock the auth module
 jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
-}));
+}), { virtual: true });
 
 // Mock the utils module
 const mockUtils = {
@@ -28,7 +28,7 @@ const mockUtils = {
   checkRateLimit: jest.fn(() => true),
 };
 
-jest.mock("/opt/nodejs/utils", () => mockUtils);
+jest.mock("/opt/nodejs/utils", () => mockUtils, { virtual: true });
 
 // Mock DynamoDB
 jest.mock("@aws-sdk/lib-dynamodb", () => ({

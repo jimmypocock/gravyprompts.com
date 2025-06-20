@@ -24,7 +24,7 @@ const mockUtils = {
   sanitizeHtml: jest.fn((html) => html),
 };
 
-jest.mock("/opt/nodejs/utils", () => mockUtils);
+jest.mock("/opt/nodejs/utils", () => mockUtils, { virtual: true });
 
 // Mock DynamoDB
 jest.mock("@aws-sdk/lib-dynamodb", () => ({

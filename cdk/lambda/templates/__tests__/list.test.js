@@ -10,7 +10,7 @@ const mockDocClient = createMockDocClient();
 // Mock the auth module
 jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
-}));
+}), { virtual: true });
 
 // Mock the utils module
 jest.mock("/opt/nodejs/utils", () => ({
@@ -24,7 +24,7 @@ jest.mock("/opt/nodejs/utils", () => ({
     body: JSON.stringify(body),
   })),
   checkRateLimit: jest.fn(() => true),
-}));
+}), { virtual: true });
 
 // Mock DynamoDB
 jest.mock("@aws-sdk/lib-dynamodb", () => ({

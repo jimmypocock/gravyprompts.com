@@ -48,7 +48,7 @@ jest.mock("/opt/nodejs/utils", () => {
     },
     checkRateLimit: async () => true,
   };
-});
+}, { virtual: true });
 
 jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: (event) => {
@@ -82,7 +82,7 @@ jest.mock("/opt/nodejs/auth", () => ({
     }
     return null;
   },
-}));
+}), { virtual: true });
 
 // Import handlers
 const permissionsHandler = require("../permissions").handler;

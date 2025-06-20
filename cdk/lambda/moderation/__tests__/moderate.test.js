@@ -7,7 +7,7 @@ const mockDocClient = createMockDocClient();
 jest.mock("/opt/nodejs/utils", () => ({
   docClient: mockDocClient,
   stripHtml: jest.fn((html) => html.replace(/<[^>]*>/g, "")),
-}));
+}), { virtual: true });
 
 // Mock DynamoDB
 jest.mock("@aws-sdk/lib-dynamodb", () => ({

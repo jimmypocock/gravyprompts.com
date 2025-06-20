@@ -40,7 +40,7 @@ jest.mock("/opt/nodejs/utils", () => {
     },
     checkRateLimit: async () => true, // Always allow in tests
   };
-});
+}, { virtual: true });
 
 // Now require the handler and test helpers
 const { handler } = require("../list");

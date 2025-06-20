@@ -1,7 +1,7 @@
 // Mock the auth module first
 jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
-}));
+}), { virtual: true });
 
 // Mock the DynamoDB Document Client
 const mockSend = jest.fn();
