@@ -31,6 +31,7 @@ if (process.env.JEST_CONFIG_TYPE === 'unit') {
     setupFiles: ["<rootDir>/test-setup.js"],
     setupFilesAfterEnv: ["<rootDir>/jest.setup.unit.js"],
     moduleNameMapper,
+    silent: true, // Suppress console output during tests
   };
 } else {
   // Default configuration
@@ -58,5 +59,6 @@ if (process.env.JEST_CONFIG_TYPE === 'unit') {
     },
     moduleNameMapper,
     setupFiles: ["<rootDir>/test-setup.js"],
+    silent: true, // Suppress console output during tests
   };
 }

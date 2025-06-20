@@ -168,6 +168,7 @@ jobs:
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
           CI: true
+          AWS_SAM_LOCAL: true
           TEMPLATES_TABLE: local-templates
           TEMPLATE_VIEWS_TABLE: local-template-views
           USER_PROMPTS_TABLE: local-user-prompts

@@ -15,4 +15,5 @@ module.exports = {
   moduleNameMapper: {
     "^/opt/nodejs/(.*)$": "<rootDir>/lambda-layers/shared/nodejs/$1",
   },
+  silent: true, // Suppress console output during tests
 };
