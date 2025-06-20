@@ -89,7 +89,7 @@ jobs:
       - name: Run ${{ matrix.test-suite }} tests
         run: |
           if [ "${{ matrix.test-suite }}" = "lambda" ]; then
-            cd cdk && npm install && npm run test:unit
+            cd cdk && npm ci && npm run test:unit
           else
             npm run test:ci -- __tests__/${{ matrix.test-suite }} --coverage
           fi
