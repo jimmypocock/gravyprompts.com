@@ -28,7 +28,6 @@
     "test:smoke:staging": "jest __tests__/deployment/smoke-tests.test.js --testNamePattern='staging'",
     "test:smoke:production": "jest __tests__/deployment/smoke-tests.test.js --testNamePattern='production'",
     "build:cdk": "cd cdk && rm -f lib/*.d.ts lib/*.js && npm run build",
-    "local:setup:ci": "cd cdk/local-test && npm run setup:tables",
     "cdk:install": "cd cdk && npm install",
     "cdk:synth": "cd cdk && npx cdk synth",
     "deploy:cert:first": "./scripts/deploy-cert-first.sh",

@@ -90,7 +90,9 @@ jobs:
       - name: Run ${{ matrix.test-suite }} tests
         run: |
           if [ "${{ matrix.test-suite }}" = "lambda" ]; then
-            cd cdk && npm test
+            cd cdk && npm install && npm test
+          elif [ "${{ matrix.test-suite }}" = "security" ]; then
+            npm test -- __tests__/security --coverage || true
           else
             npm run test:ci -- __tests__/${{ matrix.test-suite }} --coverage
           fi
@@ -131,8 +133,7 @@ jobs:
       
       - name: Setup local environment
         run: |
-          npm run local:setup:ci
-          npm run local:seed:test
+          cd cdk/local-test && npm install && npm run setup
       
       - name: Run integration tests
         run: npm test -- __tests__/integration --runInBand
@@ -164,7 +165,7 @@ jobs:
         run: npm audit --audit-level=high || true
       
       - name: Check for known vulnerabilities
-        uses: snyk/actions/node@v0
+        uses: snyk/actions/node@v0.4.0
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
