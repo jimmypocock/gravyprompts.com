@@ -107,6 +107,26 @@
 - E2E Tests: 3 test suites
 - **Total: 301+ tests** 🎉
 
+#### CI/CD Test Fixes Required
+
+- [ ] **Fix Integration Tests** - Add proper AWS SDK mocks for CI environment
+  - [ ] Create `aws-sdk-mock-setup.js` for integration tests
+  - [ ] Use test containers for DynamoDB
+  - [ ] Mock Cognito responses properly
+  - [ ] Update test expectations to match mock data
+- [ ] **Fix Security Tests** - Implement actual security checks or remove suite
+  - [ ] Add static security analysis
+  - [ ] Create CI-friendly security tests
+  - [ ] Remove placeholder assertions
+- [ ] **Fix Lambda Test Configuration** - Resolve Jest config path issues
+  - [ ] Add proper AWS mocks
+  - [ ] Fix config file path issues
+  - [ ] Add environment isolation
+- [ ] **Add Test Coverage Thresholds** - Enforce minimum coverage
+- [ ] **Document Test Strategy** - Clear docs on which tests run where (CI vs local)
+- [ ] **Add Pre-commit Hooks** - Run linting before commits
+- [ ] **Add Retry Logic** - Handle flaky tests gracefully
+
 ### DevOps & Infrastructure
 
 - [ ] CI/CD Pipeline - GitHub Actions for automated testing and deployment
