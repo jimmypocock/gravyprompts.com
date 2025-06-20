@@ -14,8 +14,8 @@
     "validate": "npm run build && npx ts-node --prefer-ts-exts src/validate-stacks.ts",
     "predeploy": "npm run validate",
     "test": "npm run test:unit && npm run test:integration",
-    "test:unit": "jest --config=jest.config.unit.js",
-    "test:integration": "jest --config=jest.config.integration.js --runInBand",
+    "test:unit": "jest --config=./jest.config.unit.js",
+    "test:integration": "jest --config=./jest.config.integration.js --runInBand",
     "test:watch": "jest --config=jest.config.unit.js --watch",
     "test:coverage": "jest --config=jest.config.unit.js --coverage",
     "test:search": "jest --config=jest.config.integration.js lambda/templates/__tests__/list.integration.test.js --runInBand"
