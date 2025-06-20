@@ -134,10 +134,11 @@ jobs:
 
       - name: Run integration tests
         run: |
-          echo "Integration tests require proper mocking - skipping for now"
-          echo "TODO: Add proper AWS SDK mocks for CI environment"
+          cd cdk && npm run test:integration
         env:
           DYNAMODB_ENDPOINT: http://localhost:8000
+          AWS_REGION: us-east-1
+          CI: true
 
   # Job 4: Security Scan
   security:

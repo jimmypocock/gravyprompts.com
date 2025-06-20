@@ -11,9 +11,7 @@ const { v4: uuidv4 } = require("uuid");
 // Create a real DynamoDB client pointing to local instance
 const createTestClient = () => {
   const client = new DynamoDBClient({
-    endpoint: process.env.AWS_SAM_LOCAL
-      ? "http://host.docker.internal:8000"
-      : "http://localhost:8000",
+    endpoint: process.env.DYNAMODB_ENDPOINT || "http://localhost:8000",
     region: "us-east-1",
     credentials: {
       accessKeyId: "test",

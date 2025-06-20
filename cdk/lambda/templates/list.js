@@ -247,7 +247,7 @@ exports.handler = async (event) => {
               // Fuzzy match for typos in title words
               const titleWords = item.title.toLowerCase().split(/\s+/);
               for (const word of titleWords) {
-                if (term.length > 3 && isFuzzyMatch(word, term, 1)) {
+                if (term.length > 3 && isFuzzyMatch(word, term, 2)) {
                   score += 30; // Fuzzy match in title
                   hasMatch = true;
                   break;
