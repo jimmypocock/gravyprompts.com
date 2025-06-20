@@ -140,13 +140,24 @@ jobs:
             sleep 1
           done
 
+      - name: Install CDK dependencies
+        run: |
+          cd cdk && npm ci
+          
+      - name: Install Lambda layer dependencies
+        run: |
+          cd cdk/lambda-layers/shared/nodejs && npm install
+
       - name: Create DynamoDB tables
         run: |
           cd cdk/local-test
           npm install
-          DYNAMODB_ENDPOINT=http://localhost:8000 node setup-local-db.js
+          node setup-local-db.js
         env:
           AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
+          DYNAMODB_ENDPOINT: http://localhost:8000
 
       - name: Run integration tests
         run: |
