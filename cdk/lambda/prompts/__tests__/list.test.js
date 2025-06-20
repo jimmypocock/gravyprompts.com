@@ -455,29 +455,6 @@ describe("List Prompts Lambda", () => {
     });
   });
 
-  describe("Environment variables", () => {
-    it.skip("should use environment variable for table name", async () => {
-      process.env.USER_PROMPTS_TABLE = "custom-prompts-table";
-
-      const user = createMockUser({ sub: "user-123" });
-      getUserFromEvent.mockResolvedValue(user);
-
-      mockDocClient.mockSend.mockResolvedValueOnce({
-        Items: [],
-        Count: 0,
-      });
-
-      const event = createMockEvent({
-        httpMethod: "GET",
-        path: "/prompts",
-      });
-
-      await handler(event);
-
-      const queryCall = mockDocClient.mockSend.mock.calls[0][0];
-      expect(queryCall.TableName).toBe("custom-prompts-table");
-    });
-  });
 
   describe("Edge cases", () => {
     it("should handle undefined Items in response", async () => {

@@ -110,7 +110,7 @@ describe("Create Template Lambda", () => {
           content: "Hello {{name}}, welcome to {{company}}!",
           visibility: "public",
           moderationStatus: "pending",
-          authorId: "user-123",
+          userId: "user-123",
         }),
         ConditionExpression: "attribute_not_exists(templateId)",
       });

@@ -42,8 +42,18 @@ function isFuzzyMatch(str1, str2, maxDistance = 2) {
 exports.handler = async (event) => {
   try {
     // Get user from authorizer (might be null for public access)
-    const user = await getUserFromEvent(event);
-    const userId = user ? user.sub : null;
+    let user;
+    let userId = null;
+    
+    try {
+      user = await getUserFromEvent(event);
+      userId = user ? user.sub : null;
+    } catch (authError) {
+      // Continue without user authentication
+      console.log("Auth error (continuing as anonymous):", authError.message);
+      user = null;
+      userId = null;
+    }
 
     // Check rate limit - use IP for anonymous users
     const rateLimitKey =
@@ -197,16 +207,20 @@ exports.handler = async (event) => {
     }
 
     // Enhanced search with relevance scoring
-    if (search && items.length > 0) {
+    if (search !== undefined && search !== null && items.length > 0) {
       const searchTerms = search
         .toLowerCase()
         .split(/\s+/)
         .filter((term) => term.length > 0);
+      
+      // Only apply search filtering if there are actual search terms
+      if (searchTerms.length > 0) {
 
       // Score and filter items
       const scoredItems = items
         .map((item) => {
           let score = 0;
+          let hasMatch = false; // Track if there's an actual search match
           const titleLower = item.title.toLowerCase();
           const contentLower = (item.content || "").toLowerCase();
           const tags = Array.isArray(item.tags)
@@ -218,32 +232,42 @@ exports.handler = async (event) => {
 
           searchTerms.forEach((term) => {
             // Title matches (highest weight)
-            if (titleLower === term)
+            if (titleLower === term) {
               score += 100; // Exact title match
-            else if (titleLower.includes(term)) {
+              hasMatch = true;
+            } else if (titleLower.includes(term)) {
               score += 50; // Title contains term
+              hasMatch = true;
               // Bonus for word boundary matches
               const wordBoundaryRegex = new RegExp(`\\b${term}\\b`, "i");
               if (wordBoundaryRegex.test(item.title)) score += 25;
+              // Extra bonus for matches at the beginning of title
+              if (titleLower.startsWith(term)) score += 70;
             } else {
               // Fuzzy match for typos in title words
               const titleWords = item.title.toLowerCase().split(/\s+/);
               for (const word of titleWords) {
                 if (term.length > 3 && isFuzzyMatch(word, term, 1)) {
                   score += 30; // Fuzzy match in title
+                  hasMatch = true;
                   break;
                 }
               }
             }
 
             // Tag matches (high weight)
-            if (tags.some((tag) => tag && tag.toLowerCase() === term))
+            if (tags.some((tag) => tag && tag.toLowerCase() === term)) {
               score += 40; // Exact tag match
-            else if (tagsLower.includes(term)) score += 20; // Tag contains term
+              hasMatch = true;
+            } else if (tagsLower.includes(term)) {
+              score += 20; // Tag contains term
+              hasMatch = true;
+            }
 
             // Content matches (lower weight)
             if (contentLower.includes(term)) {
               score += 10;
+              hasMatch = true;
               // Bonus for early matches (more relevant if term appears early)
               const position = contentLower.indexOf(term);
               if (position < 100) score += 10;
@@ -258,20 +282,26 @@ exports.handler = async (event) => {
             // Variable name matches
             if (item.variables && item.variables.length > 0) {
               const variablesLower = item.variables.join(" ").toLowerCase();
-              if (variablesLower.includes(term)) score += 15;
+              if (variablesLower.includes(term)) {
+                score += 15;
+                hasMatch = true;
+              }
             }
           });
 
-          // Boost by popularity metrics
-          score += Math.min(item.useCount || 0, 50) / 10; // Up to 5 points for popularity
-          score += Math.min(item.viewCount || 0, 100) / 50; // Up to 2 points for views
+          // Boost by popularity metrics only if there's a match
+          if (hasMatch) {
+            score += Math.min(item.useCount || 0, 50) / 10; // Up to 5 points for popularity
+            score += Math.min(item.viewCount || 0, 100) / 50; // Up to 2 points for views
+          }
 
-          return { item, score };
+          return { item, score, hasMatch };
         })
-        .filter(({ score }) => score > 0) // Only include items with matches
+        .filter(({ hasMatch }) => hasMatch) // Only include items with matches
         .sort((a, b) => b.score - a.score); // Sort by relevance
 
       items = scoredItems.map(({ item }) => item);
+      }
     }
 
     // Sort items if not using index sort
@@ -299,7 +329,7 @@ exports.handler = async (event) => {
       viewCount: item.viewCount || 0,
       useCount: item.useCount || 0,
       variableCount: item.variables?.length || 0,
-      isOwner: userId && item.userId === userId,
+      isOwner: !!(userId && item.userId === userId),
     }));
 
     return createResponse(200, {

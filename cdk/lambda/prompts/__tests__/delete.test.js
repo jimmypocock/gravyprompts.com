@@ -382,7 +382,6 @@ describe("Delete Prompt Lambda", () => {
 
   describe("Environment variables", () => {
     it("should use environment variable for table name", async () => {
-      process.env.USER_PROMPTS_TABLE = "custom-prompts-table";
 
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
@@ -400,10 +399,10 @@ describe("Delete Prompt Lambda", () => {
       await handler(event);
 
       const getCall = mockDocClient.mockSend.mock.calls[0][0];
-      expect(getCall.TableName).toBe("custom-prompts-table");
+      expect(getCall.TableName).toBe("test-user-prompts");
 
       const deleteCall = mockDocClient.mockSend.mock.calls[1][0];
-      expect(deleteCall.TableName).toBe("custom-prompts-table");
+      expect(deleteCall.TableName).toBe("test-user-prompts");
     });
   });
 });

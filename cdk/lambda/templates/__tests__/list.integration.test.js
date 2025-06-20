@@ -255,10 +255,8 @@ describe("Templates List Handler - Real Integration Tests", () => {
       expect(pendingTemplate).toBeUndefined();
     });
 
-    it.skip("should handle empty search results gracefully - KNOWN BUG: popularity boost prevents empty results", async () => {
-      // BUG: The search implementation adds popularity points (useCount/viewCount) to all templates
-      // even when there are no text matches. This means searches never return empty results.
-      // Fix needed in list.js lines 228-229: only add popularity boost if there's already a text match
+    it("should handle empty search results gracefully", async () => {
+      // Bug fixed: popularity boost now only applies when there's a text match
 
       const event = createTestEvent({
         queryStringParameters: {

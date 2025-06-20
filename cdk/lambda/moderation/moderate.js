@@ -16,11 +16,12 @@ const BLOCKED_WORDS = [
 
 // Basic content checking without external APIs
 function checkContent(title, content) {
-  const fullText = `${title} ${stripHtml(content)}`.toLowerCase();
+  const fullText = `${title} ${stripHtml(content)}`;
+  const fullTextLower = fullText.toLowerCase();
 
   // Check for blocked words
   for (const word of BLOCKED_WORDS) {
-    if (fullText.includes(word.toLowerCase())) {
+    if (fullTextLower.includes(word.toLowerCase())) {
       return {
         status: "rejected",
         reason: "Inappropriate content detected",
@@ -39,7 +40,7 @@ function checkContent(title, content) {
   }
 
   // Check for repetitive content (potential spam)
-  const words = fullText.split(/\s+/);
+  const words = fullTextLower.split(/\s+/);
   const uniqueWords = new Set(words);
   if (words.length > 10 && uniqueWords.size < words.length * 0.3) {
     return {

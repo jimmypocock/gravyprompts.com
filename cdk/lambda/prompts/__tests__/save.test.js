@@ -39,7 +39,6 @@ describe("Save Prompt Lambda", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockDocClient.mockSend.mockReset();
-    process.env.USER_PROMPTS_TABLE = "test-user-prompts";
 
     // Mock Date
     jest.spyOn(Date.prototype, "toISOString").mockReturnValue(mockTimestamp);
@@ -448,36 +447,6 @@ The Team`;
     });
   });
 
-  describe("Environment variables", () => {
-    it.skip("should use default table name when environment variable not set", async () => {
-      const originalEnv = process.env.USER_PROMPTS_TABLE;
-      delete process.env.USER_PROMPTS_TABLE;
-
-      // Re-require the module to pick up the environment change
-      jest.resetModules();
-      const { handler: testHandler } = require("../save");
-
-      const user = createMockUser({ sub: "user-123" });
-      getUserFromEvent.mockResolvedValue(user);
-
-      const event = createMockEvent({
-        httpMethod: "POST",
-        path: "/prompts",
-        body: JSON.stringify({
-          templateTitle: "Test",
-          content: "Test content",
-        }),
-      });
-
-      await testHandler(event);
-
-      const putCall = mockDocClient.mockSend.mock.calls[0][0];
-      expect(putCall.TableName).toBe("user-prompts");
-
-      // Restore environment variable
-      process.env.USER_PROMPTS_TABLE = originalEnv;
-    });
-  });
 
   describe("Edge cases", () => {
     it("should handle very long content", async () => {

@@ -723,7 +723,7 @@ describe("List Templates Lambda", () => {
 
       expect(response.statusCode).toBe(200);
       expect(parsedResponse.items[0].preview).toHaveLength(203); // 200 + '...'
-      expect(parsedResponse.items[0].preview).toEndWith("...");
+      expect(parsedResponse.items[0].preview).toMatch(/\.\.\.$/);
     });
 
     it("should include all required fields in response", async () => {

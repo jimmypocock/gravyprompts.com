@@ -3,6 +3,8 @@ const {
   createMockEvent,
   createMockUser,
 } = require("../../../test-utils/dynamodb-mock");
+const { HTTP_STATUS, TEST_IDS, ERROR_MESSAGES } = require("../../../test-constants");
+const { parseResponse, expectSuccessResponse, expectErrorResponse } = require("../../../test-utils/response");
 
 // Create mock client before mocking
 const mockDocClient = createMockDocClient();
@@ -42,9 +44,14 @@ const { handler } = require("../update");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
 
 describe("Update Template Lambda", () => {
+  // Helper to mock successful GetCommand
+  const mockGetTemplate = () => {
+    mockDocClient.mockSend.mockResolvedValueOnce({ Item: existingTemplate });
+  };
+
   const existingTemplate = {
-    templateId: "template-123",
-    userId: "user-123",
+    templateId: TEST_IDS.TEMPLATE,
+    userId: TEST_IDS.USER,
     title: "Original Title",
     content: "Hello {{name}}!",
     variables: ["name"],
@@ -61,43 +68,40 @@ describe("Update Template Lambda", () => {
     process.env.ENVIRONMENT = "test";
 
     // Default mock implementations
-    mockUtils.extractVariables.mockReturnValue(["name"]);
     mockUtils.validateTemplate.mockReturnValue([]);
     mockUtils.checkRateLimit.mockResolvedValue(true);
-
-    // Default: template exists and update succeeds
-    mockDocClient.mockSend
-      .mockResolvedValueOnce({ Item: existingTemplate }) // GetCommand
-      .mockResolvedValueOnce({
-        // UpdateCommand
-        Attributes: {
-          ...existingTemplate,
-          title: "Updated Title",
-          updatedAt: "2024-01-02T00:00:00Z",
-        },
-      });
   });
 
   describe("Successful updates", () => {
     it("should update template title successfully", async () => {
-      const user = createMockUser({ sub: "user-123" });
+      const user = createMockUser({ sub: TEST_IDS.USER });
       getUserFromEvent.mockResolvedValue(user);
+
+      mockDocClient.mockSend
+        .mockResolvedValueOnce({ Item: existingTemplate }) // GetCommand
+        .mockResolvedValueOnce({
+          // UpdateCommand
+          Attributes: {
+            ...existingTemplate,
+            title: "Updated Title",
+            updatedAt: "2024-01-02T00:00:00Z",
+          },
+        });
 
       const event = createMockEvent({
         httpMethod: "PUT",
-        path: "/templates/template-123",
-        pathParameters: { templateId: "template-123" },
+        path: `/templates/${TEST_IDS.TEMPLATE}`,
+        pathParameters: { templateId: TEST_IDS.TEMPLATE },
         body: JSON.stringify({
           title: "Updated Title",
         }),
       });
 
       const response = await handler(event);
-      const parsedResponse = JSON.parse(response.body);
+      const body = expectSuccessResponse(response, HTTP_STATUS.OK);
 
-      expect(response.statusCode).toBe(200);
-      expect(parsedResponse.message).toBe("Template updated successfully");
-      expect(parsedResponse.template.title).toBe("Updated Title");
+      expect(body.message).toBe("Template updated successfully");
+      expect(body.template.title).toBe("Updated Title");
 
       // Verify update command was called correctly
       const updateCall = mockDocClient.mockSend.mock.calls[1][0];
@@ -152,9 +156,15 @@ describe("Update Template Lambda", () => {
 
     it("should update visibility from private to public and reset moderation", async () => {
       const privateTemplate = {
-        ...existingTemplate,
+        templateId: "template-123",
+        userId: "user-123",
+        title: "Original Title",
+        content: "Hello {{name}}!",
+        variables: ["name"],
+        tags: ["greeting"],
         visibility: "private",
         moderationStatus: "not_required",
+        createdAt: "2024-01-01T00:00:00Z",
       };
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
@@ -203,6 +213,20 @@ describe("Update Template Lambda", () => {
 
       mockUtils.extractVariables.mockReturnValue(["name", "company"]);
 
+      mockDocClient.mockSend
+        .mockResolvedValueOnce({ Item: existingTemplate }) // GetCommand
+        .mockResolvedValueOnce({
+          // UpdateCommand
+          Attributes: {
+            ...existingTemplate,
+            title: "New Title",
+            content: "Welcome {{name}} from {{company}}",
+            variables: ["name", "company"],
+            tags: ["welcome", "corporate"],
+            updatedAt: "2024-01-02T00:00:00Z",
+          },
+        });
+
       const event = createMockEvent({
         httpMethod: "PUT",
         path: "/templates/template-123",
@@ -231,6 +255,16 @@ describe("Update Template Lambda", () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
 
+      mockDocClient.mockSend
+        .mockResolvedValueOnce({ Item: existingTemplate }) // GetCommand
+        .mockResolvedValueOnce({
+          // UpdateCommand
+          Attributes: {
+            ...existingTemplate,
+            updatedAt: "2024-01-02T00:00:00Z",
+          },
+        });
+
       const event = createMockEvent({
         httpMethod: "PUT",
         path: "/templates/template-123",
@@ -250,23 +284,23 @@ describe("Update Template Lambda", () => {
 
   describe("Authorization and ownership", () => {
     it("should reject updates from non-owner", async () => {
-      const user = createMockUser({ sub: "different-user" });
+      const user = createMockUser({ sub: TEST_IDS.DIFFERENT_USER });
       getUserFromEvent.mockResolvedValue(user);
+
+      mockDocClient.mockSend
+        .mockResolvedValueOnce({ Item: existingTemplate }); // GetCommand - owner is TEST_IDS.USER
 
       const event = createMockEvent({
         httpMethod: "PUT",
-        path: "/templates/template-123",
-        pathParameters: { templateId: "template-123" },
+        path: `/templates/${TEST_IDS.TEMPLATE}`,
+        pathParameters: { templateId: TEST_IDS.TEMPLATE },
         body: JSON.stringify({
           title: "Hacked Title",
         }),
       });
 
       const response = await handler(event);
-      const parsedResponse = JSON.parse(response.body);
-
-      expect(response.statusCode).toBe(403);
-      expect(parsedResponse.error).toBe("You can only edit your own templates");
+      expectErrorResponse(response, HTTP_STATUS.FORBIDDEN, "You can only edit your own templates");
 
       // Ensure no update was attempted
       expect(mockDocClient.mockSend).toHaveBeenCalledTimes(1); // Only GetCommand
@@ -277,18 +311,15 @@ describe("Update Template Lambda", () => {
 
       const event = createMockEvent({
         httpMethod: "PUT",
-        path: "/templates/template-123",
-        pathParameters: { templateId: "template-123" },
+        path: `/templates/${TEST_IDS.TEMPLATE}`,
+        pathParameters: { templateId: TEST_IDS.TEMPLATE },
         body: JSON.stringify({
           title: "Updated Title",
         }),
       });
 
       const response = await handler(event);
-      const parsedResponse = JSON.parse(response.body);
-
-      expect(response.statusCode).toBe(401);
-      expect(parsedResponse.error).toBe("Unauthorized");
+      expectErrorResponse(response, HTTP_STATUS.UNAUTHORIZED, ERROR_MESSAGES.UNAUTHORIZED);
     });
   });
 
@@ -296,6 +327,7 @@ describe("Update Template Lambda", () => {
     it("should reject invalid visibility value", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -318,6 +350,7 @@ describe("Update Template Lambda", () => {
     it("should reject too many tags", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -338,6 +371,7 @@ describe("Update Template Lambda", () => {
     it("should reject non-array tags", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -358,6 +392,7 @@ describe("Update Template Lambda", () => {
     it("should reject non-array viewers", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -378,6 +413,7 @@ describe("Update Template Lambda", () => {
     it("should reject updates that fail template validation", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
 
       mockUtils.validateTemplate.mockReturnValue([
         "Content is too long",
@@ -408,6 +444,14 @@ describe("Update Template Lambda", () => {
     it("should trim and lowercase tags", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
+      mockDocClient.mockSend.mockResolvedValueOnce({
+        Attributes: {
+          ...existingTemplate,
+          tags: ["greeting", "welcome", "test"],
+          updatedAt: "2024-01-02T00:00:00Z",
+        },
+      });
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -433,6 +477,14 @@ describe("Update Template Lambda", () => {
     it("should trim title", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
+      mockDocClient.mockSend.mockResolvedValueOnce({
+        Attributes: {
+          ...existingTemplate,
+          title: "Trimmed Title",
+          updatedAt: "2024-01-02T00:00:00Z",
+        },
+      });
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -479,7 +531,7 @@ describe("Update Template Lambda", () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
 
-      mockDocClient.mockSend.mockResolvedValueOnce({ Item: null });
+      mockDocClient.mockSend.mockResolvedValueOnce({});
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -568,6 +620,13 @@ describe("Update Template Lambda", () => {
     it("should not change visibility from public to public", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
+      mockDocClient.mockSend.mockResolvedValueOnce({
+        Attributes: {
+          ...existingTemplate,
+          updatedAt: "2024-01-02T00:00:00Z",
+        },
+      });
 
       const event = createMockEvent({
         httpMethod: "PUT",
@@ -592,6 +651,14 @@ describe("Update Template Lambda", () => {
     it("should handle undefined fields gracefully", async () => {
       const user = createMockUser({ sub: "user-123" });
       getUserFromEvent.mockResolvedValue(user);
+      mockGetTemplate();
+      mockDocClient.mockSend.mockResolvedValueOnce({
+        Attributes: {
+          ...existingTemplate,
+          title: "New Title",
+          updatedAt: "2024-01-02T00:00:00Z",
+        },
+      });
 
       const event = createMockEvent({
         httpMethod: "PUT",
