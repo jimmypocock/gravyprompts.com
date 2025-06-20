@@ -128,9 +128,25 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefer-offline --no-audit
 
-      - name: Setup local environment
+      - name: Wait for DynamoDB
         run: |
-          cd cdk/local-test && npm install && npm run setup
+          echo "Waiting for DynamoDB to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8000 > /dev/null; then
+              echo "DynamoDB is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 1
+          done
+
+      - name: Create DynamoDB tables
+        run: |
+          cd cdk/local-test
+          npm install
+          DYNAMODB_ENDPOINT=http://localhost:8000 node setup-local-db.js
+        env:
+          AWS_REGION: us-east-1
 
       - name: Run integration tests
         run: |
@@ -138,7 +154,15 @@ jobs:
         env:
           DYNAMODB_ENDPOINT: http://localhost:8000
           AWS_REGION: us-east-1
+          AWS_ACCESS_KEY_ID: test
+          AWS_SECRET_ACCESS_KEY: test
           CI: true
+          TEMPLATES_TABLE: local-templates
+          TEMPLATE_VIEWS_TABLE: local-template-views
+          USER_PROMPTS_TABLE: local-user-prompts
+          USER_PERMISSIONS_TABLE: local-user-permissions
+          APPROVAL_HISTORY_TABLE: local-approval-history
+          RATE_LIMITS_TABLE: local-rate-limits
 
   # Job 4: Security Scan
   security:

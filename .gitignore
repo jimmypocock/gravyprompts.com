@@ -82,6 +82,9 @@ cdk/lib/
 cdk/*.d.ts
 cdk/*.js
 cdk/*.js.map
+# Exception for jest config files
+!cdk/jest.config.js
+!cdk/jest.config.*.js
 
 # AWS
 .aws/
