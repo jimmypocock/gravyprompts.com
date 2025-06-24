@@ -10,6 +10,7 @@ const {
   checkRateLimit,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 exports.handler = async (event) => {
   try {
@@ -36,6 +37,16 @@ exports.handler = async (event) => {
 
     // Get share token from query parameters if provided
     const shareToken = event.queryStringParameters?.token;
+
+    // Check cache first for public templates (no share token)
+    const cacheKey = cache.keyGenerators.template(templateId);
+    if (!shareToken && !userId) {
+      const cachedTemplate = await cache.get(cacheKey);
+      if (cachedTemplate) {
+        console.log(`Cache hit for template: ${templateId}`);
+        return createResponse(200, cachedTemplate);
+      }
+    }
 
     // Get template from DynamoDB
     const result = await docClient.send(
@@ -101,6 +112,12 @@ exports.handler = async (event) => {
           expiresAt: info.expiresAt,
           // Don't expose the actual token in the list
         }));
+    }
+
+    // Cache public templates for anonymous users
+    if (!shareToken && !userId && isPublic) {
+      await cache.set(cacheKey, response, cache.DEFAULT_TTL);
+      console.log(`Cached public template: ${templateId}`);
     }
 
     return createResponse(200, response);

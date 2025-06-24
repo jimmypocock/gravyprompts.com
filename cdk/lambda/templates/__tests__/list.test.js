@@ -12,6 +12,22 @@ jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
 }), { virtual: true });
 
+// Mock the cache module to prevent cache interference
+jest.mock("/opt/nodejs/cache", () => ({
+  get: jest.fn().mockResolvedValue(null), // Always return cache miss
+  set: jest.fn().mockResolvedValue(undefined),
+  del: jest.fn().mockResolvedValue(undefined),
+  clearPattern: jest.fn().mockResolvedValue(undefined),
+  keyGenerators: {
+    template: jest.fn((id) => `templates:get:${id}`),
+    templateList: jest.fn(() => 'templates:list:mock'),
+    userTemplates: jest.fn((userId) => `templates:user:${userId}`),
+  },
+  DEFAULT_TTL: 5 * 60 * 1000,
+  POPULAR_TTL: 30 * 60 * 1000,
+  USER_TTL: 60 * 1000,
+}), { virtual: true });
+
 // Mock the utils module
 jest.mock("/opt/nodejs/utils", () => ({
   docClient: mockDocClient,

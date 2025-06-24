@@ -151,14 +151,33 @@ const generateShareToken = () => {
   return require("uuid").v4();
 };
 
-// Standard response helper
+// Standard response helper with cache support
 const createResponse = (statusCode, body, headers = {}) => {
+  const defaultHeaders = {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": true,
+  };
+
+  // Add cache headers for successful responses
+  if (statusCode === 200) {
+    // Default cache headers for successful responses
+    defaultHeaders["Cache-Control"] = headers["Cache-Control"] || "public, max-age=300, s-maxage=600"; // 5 min browser, 10 min CDN
+    defaultHeaders["Vary"] = "Authorization, Accept-Encoding";
+    
+    // Add ETag if provided
+    if (headers["ETag"]) {
+      defaultHeaders["ETag"] = headers["ETag"];
+    }
+  } else {
+    // Don't cache error responses
+    defaultHeaders["Cache-Control"] = "no-cache, no-store, must-revalidate";
+  }
+
   return {
     statusCode,
     headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": true,
+      ...defaultHeaders,
       ...headers,
     },
     body: JSON.stringify(body),

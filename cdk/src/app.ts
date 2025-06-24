@@ -9,6 +9,7 @@ import { AuthStack } from "./auth-stack";
 import { ApiStack } from "./api-stack";
 import { BudgetStack } from "./budget-stack";
 import { ComprehensiveMonitoringStack } from "./comprehensive-monitoring-stack";
+import { CacheStack } from "./cache-stack";
 
 const app = new cdk.App();
 
@@ -91,7 +92,17 @@ const apiWafStack = new ApiWafStack(app, `${stackPrefix}-API-WAF`, {
 // API WAF depends on API stack
 apiWafStack.addDependency(apiStack);
 
-// 5. Monitoring Stack for Amplify
+// 5. Cache Stack - CloudFront CDN for API caching
+const cacheStack = new CacheStack(app, `${stackPrefix}-Cache`, {
+  api: apiStack.api,
+  env: usEast1Env,
+  description: `CloudFront CDN caching for ${appName} API`,
+});
+
+// Cache stack depends on API stack
+cacheStack.addDependency(apiStack);
+
+// 6. Monitoring Stack for Amplify
 // Only create if explicitly requested for Amplify deployments
 if (
   app.node.tryGetContext("amplifyMonitoring") === "true" ||

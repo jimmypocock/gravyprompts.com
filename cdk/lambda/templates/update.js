@@ -8,6 +8,7 @@ const {
   checkRateLimit,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 exports.handler = async (event) => {
   try {
@@ -135,6 +136,19 @@ exports.handler = async (event) => {
         ReturnValues: "ALL_NEW",
       }),
     );
+
+    // Invalidate cache for this template
+    const templateCacheKey = cache.keyGenerators.template(templateId);
+    await cache.del(templateCacheKey);
+    console.log(`Cache invalidated for template: ${templateId}`);
+
+    // Also invalidate list caches if visibility changed
+    if (updates.visibility || updates.moderationStatus) {
+      // Clear all list caches since visibility affects what appears in lists
+      await cache.clearPattern('templates:list:*');
+      await cache.del(cache.keyGenerators.userTemplates(userId));
+      console.log('List caches invalidated due to visibility/moderation change');
+    }
 
     return createResponse(200, {
       message: "Template updated successfully",

@@ -393,6 +393,10 @@ describe("Admin/Approval End-to-End Integration Tests", () => {
       expect(searchResponse.statusCode).toBe(200);
       const searchBody = JSON.parse(searchResponse.body);
 
+      console.log(`Search returned ${searchBody.items.length} items`);
+      console.log("Looking for template ID:", pendingTemplate.templateId);
+      console.log("Found template IDs:", searchBody.items.map(t => t.templateId));
+
       const approvedTemplate = searchBody.items.find(
         (t) => t.templateId === pendingTemplate.templateId,
       );

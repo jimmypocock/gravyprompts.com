@@ -17,6 +17,16 @@ jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
 }), { virtual: true });
 
+// Mock the cache module
+jest.mock("/opt/nodejs/cache", () => ({
+  get: jest.fn().mockResolvedValue(null), // Default to cache miss
+  set: jest.fn().mockResolvedValue(undefined),
+  del: jest.fn().mockResolvedValue(undefined),
+  keyGenerators: {
+    template: jest.fn((id) => `templates:get:${id}`),
+  }
+}), { virtual: true });
+
 // Mock the utils module
 const mockUtils = {
   docClient: mockDocClient,
@@ -43,8 +53,16 @@ jest.mock("@aws-sdk/lib-dynamodb", () => ({
 // Now require the modules
 const { handler } = require("../get");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 describe("Get Template Lambda", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Reset cache to default behavior (cache miss)
+    cache.get.mockResolvedValue(null);
+    cache.set.mockResolvedValue(undefined);
+  });
+
   const publicTemplate = {
     templateId: "template-123",
     userId: "user-123",

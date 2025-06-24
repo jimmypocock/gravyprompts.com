@@ -29,12 +29,33 @@ This single command will:
 
 1. Clean up any existing Docker containers
 2. Start DynamoDB Local on port 8000
-3. Create all necessary database tables
-4. Load sample template data automatically
+3. Create all necessary database tables:
+   - `local-templates` - Template storage with search indexes
+   - `local-template-views` - View tracking
+   - `local-user-prompts` - Saved user prompts
+   - `local-user-permissions` - User permission management
+   - `local-approval-history` - Template approval logs
+   - `local-rate-limits` - API rate limiting
+4. Load 10 sample templates from `data/sample-templates.json`:
+   - AI Prompt Engineering Guide
+   - Data Analysis Report
+   - React Component Template
+   - LinkedIn Connection Request
+   - User Story Template
+   - SQL Query Template
+   - Marketing Campaign Brief
+   - Error Message Template
+   - Performance Review Template
+   - Git Commit Message
 5. Start SAM Local API Gateway on port 7429
 6. Start Next.js development server on port 6827
 7. Start GravyJS demo on port 5173
 8. Make DynamoDB Admin UI available on port 8001
+
+**Note**: To start with an empty database (no sample templates), use:
+```bash
+npm run dev:all:empty
+```
 
 ## Access Points
 
@@ -64,6 +85,22 @@ Local development uses mock authentication:
 - User IDs are automatically generated as `local-user-{timestamp}`
 - No actual AWS Cognito calls are made
 - Rate limiting is disabled for easier testing
+
+### Granting Admin Permissions
+
+To grant yourself admin permissions in local development:
+
+1. First, sign in to the app and note your user ID from the Auth Debug panel (bottom-right in dev mode)
+2. Run the admin grant script:
+   ```bash
+   node scripts/grant-admin-local.js --userId YOUR_USER_ID
+   ```
+3. Refresh your browser - you should see:
+   - "Admin" role in the Auth Debug panel
+   - Yellow indicator dot on your profile avatar
+   - Admin link in the navigation menu
+
+Admin permissions persist in the local database between restarts.
 
 ## Local Services Architecture
 
@@ -237,14 +274,6 @@ npm run start:next     # Next.js only
 npm run demo:dev       # GravyJS demo
 ```
 
-### Direct Lambda Testing
-
-Test Lambda functions without the API:
-
-```bash
-cd cdk/lambda/templates
-IS_LOCAL=true node local-test.js
-```
 
 ### Switching to AWS Backend
 
@@ -276,10 +305,12 @@ To test against real AWS services:
 
 ## Data Persistence
 
-- DynamoDB data persists between restarts (stored in Docker volumes)
+- DynamoDB data persists between restarts in `cdk/local-test/dynamodb-data/shared-local-instance.db`
+- The database file typically grows to ~2.5MB with sample data
 - To start fresh, run `npm run local:cleanup` before `npm run dev:all`
-- Templates are automatically loaded on first start
-- User data and permissions are preserved
+- Templates are automatically loaded from `data/sample-templates.json`
+- User data and permissions are preserved between restarts
+- To clear only the data (keeping tables), use `npm run local:clear:all`
 
 ## Next Steps
 

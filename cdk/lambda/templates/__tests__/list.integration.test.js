@@ -287,6 +287,19 @@ describe("Templates List Handler - Real Integration Tests", () => {
 
       expect(response.statusCode).toBe(200);
 
+      // Debug output
+      console.log(`Total results: ${body.items.length}`);
+      if (body.items.length > 0) {
+        console.log("Results for email + marketing tag:");
+        body.items.forEach((template, index) => {
+          console.log(`  ${index + 1}. ${template.title} - Tags: ${JSON.stringify(template.tags)}`);
+          const hasEmail = template.title.toLowerCase().includes('email') || 
+                          (template.content || '').toLowerCase().includes('email') ||
+                          template.tags.some(t => t.toLowerCase().includes('email'));
+          console.log(`     Has 'email': ${hasEmail}, Has 'marketing' tag: ${template.tags.includes('marketing')}`);
+        });
+      }
+
       // All results should have both 'email' match AND 'marketing' tag
       body.items.forEach((template) => {
         expect(template.tags).toContain("marketing");
