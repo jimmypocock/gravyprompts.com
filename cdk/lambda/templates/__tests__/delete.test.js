@@ -12,6 +12,18 @@ jest.mock("/opt/nodejs/auth", () => ({
   getUserFromEvent: jest.fn(),
 }), { virtual: true });
 
+// Mock the cache module
+jest.mock("/opt/nodejs/cache", () => ({
+  get: jest.fn().mockResolvedValue(null),
+  set: jest.fn().mockResolvedValue(undefined),
+  del: jest.fn().mockResolvedValue(undefined),
+  clearPattern: jest.fn().mockResolvedValue(undefined),
+  keyGenerators: {
+    template: jest.fn((id) => `templates:get:${id}`),
+    userTemplates: jest.fn((userId) => `templates:user:${userId}`),
+  },
+}), { virtual: true });
+
 // Mock the utils module
 const mockUtils = {
   docClient: mockDocClient,
@@ -21,6 +33,14 @@ const mockUtils = {
     body: JSON.stringify(body),
   })),
   checkRateLimit: jest.fn(() => true),
+  CACHE_PRESETS: {
+    PUBLIC_LONG: "public, max-age=3600, s-maxage=86400",
+    PUBLIC_MEDIUM: "public, max-age=300, s-maxage=3600",
+    PUBLIC_SHORT: "public, max-age=60, s-maxage=300",
+    PRIVATE: "private, max-age=0, no-cache",
+    NO_CACHE: "no-cache, no-store, must-revalidate",
+    SEARCH: "public, max-age=30, s-maxage=60",
+  },
 };
 
 jest.mock("/opt/nodejs/utils", () => mockUtils, { virtual: true });

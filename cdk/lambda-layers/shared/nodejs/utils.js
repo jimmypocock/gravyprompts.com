@@ -152,6 +152,27 @@ const generateShareToken = () => {
 };
 
 // Standard response helper with cache support
+// Cache control presets for different types of responses
+const CACHE_PRESETS = {
+  // Public content that rarely changes
+  PUBLIC_LONG: "public, max-age=3600, s-maxage=86400", // 1 hour browser, 24 hours CDN
+  
+  // Public content that might change
+  PUBLIC_MEDIUM: "public, max-age=300, s-maxage=3600", // 5 min browser, 1 hour CDN
+  
+  // Public content that changes frequently
+  PUBLIC_SHORT: "public, max-age=60, s-maxage=300", // 1 min browser, 5 min CDN
+  
+  // User-specific content (never cache in CDN)
+  PRIVATE: "private, max-age=0, no-cache",
+  
+  // No caching at all
+  NO_CACHE: "no-cache, no-store, must-revalidate",
+  
+  // Search results (very short cache)
+  SEARCH: "public, max-age=30, s-maxage=60", // 30s browser, 1 min CDN
+};
+
 const createResponse = (statusCode, body, headers = {}) => {
   const defaultHeaders = {
     "Content-Type": "application/json",
@@ -160,10 +181,20 @@ const createResponse = (statusCode, body, headers = {}) => {
   };
 
   // Add cache headers for successful responses
-  if (statusCode === 200) {
-    // Default cache headers for successful responses
-    defaultHeaders["Cache-Control"] = headers["Cache-Control"] || "public, max-age=300, s-maxage=600"; // 5 min browser, 10 min CDN
-    defaultHeaders["Vary"] = "Authorization, Accept-Encoding";
+  if (statusCode === 200 || statusCode === 201) {
+    if (!headers["Cache-Control"]) {
+      // Status 201 (Created) indicates a mutation, should not be cached
+      if (statusCode === 201) {
+        defaultHeaders["Cache-Control"] = CACHE_PRESETS.NO_CACHE;
+      } else {
+        // Default caching for successful GET requests (200)
+        // Individual handlers should override this for specific caching needs
+        defaultHeaders["Cache-Control"] = CACHE_PRESETS.PUBLIC_MEDIUM;
+      }
+    }
+    
+    // Always add Vary header for proper caching
+    defaultHeaders["Vary"] = headers["Vary"] || "Authorization, Accept-Encoding";
     
     // Add ETag if provided
     if (headers["ETag"]) {
@@ -171,7 +202,7 @@ const createResponse = (statusCode, body, headers = {}) => {
     }
   } else {
     // Don't cache error responses
-    defaultHeaders["Cache-Control"] = "no-cache, no-store, must-revalidate";
+    defaultHeaders["Cache-Control"] = CACHE_PRESETS.NO_CACHE;
   }
 
   return {
@@ -263,6 +294,7 @@ module.exports = {
   checkRateLimit,
   generateShareToken,
   createResponse,
+  CACHE_PRESETS,
   getUserIdFromEvent,
   validateTemplate,
 };

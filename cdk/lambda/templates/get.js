@@ -8,11 +8,14 @@ const {
   docClient,
   createResponse,
   checkRateLimit,
+  CACHE_PRESETS,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
 const cache = require("/opt/nodejs/cache");
 
 exports.handler = async (event) => {
+  let template; // Declare template in outer scope for cache header access
+  
   try {
     const templateId = event.pathParameters?.templateId;
     if (!templateId) {
@@ -60,7 +63,7 @@ exports.handler = async (event) => {
       return createResponse(404, { error: "Template not found" });
     }
 
-    const template = result.Item;
+    template = result.Item;
 
     // Check access permissions
     const isOwner = userId && template.userId === userId;
@@ -120,7 +123,22 @@ exports.handler = async (event) => {
       console.log(`Cached public template: ${templateId}`);
     }
 
-    return createResponse(200, response);
+    // Determine cache headers based on template visibility and user
+    let cacheControl;
+    if (template.visibility === 'private' || response.isOwner) {
+      // Private templates or owner views should not be cached by CDN
+      cacheControl = CACHE_PRESETS.PRIVATE;
+    } else if (template.moderationStatus === 'approved' && template.visibility === 'public') {
+      // Public approved templates can be cached longer
+      cacheControl = CACHE_PRESETS.PUBLIC_LONG;
+    } else {
+      // Default to no caching for templates pending moderation
+      cacheControl = CACHE_PRESETS.NO_CACHE;
+    }
+
+    return createResponse(200, response, {
+      'Cache-Control': cacheControl,
+    });
   } catch (error) {
     console.error("Error getting template:", error);
     return createResponse(500, {

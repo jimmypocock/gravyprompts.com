@@ -3,6 +3,7 @@ const {
   docClient,
   createResponse,
   checkRateLimit,
+  CACHE_PRESETS,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
 const cache = require("/opt/nodejs/cache");
@@ -364,7 +365,25 @@ exports.handler = async (event) => {
       console.log(`Cached template list for filter: ${filter}`);
     }
 
-    return createResponse(200, response);
+    // Determine appropriate cache headers based on filter and user
+    let cacheControl;
+    if (userId && (filter === 'mine' || filter === 'all')) {
+      // User-specific content should not be cached by CDN
+      cacheControl = CACHE_PRESETS.PRIVATE;
+    } else if (search) {
+      // Search results should have very short cache
+      cacheControl = CACHE_PRESETS.SEARCH;
+    } else if (filter === 'popular') {
+      // Popular templates can be cached longer
+      cacheControl = CACHE_PRESETS.PUBLIC_MEDIUM;
+    } else {
+      // Default public content caching
+      cacheControl = CACHE_PRESETS.PUBLIC_SHORT;
+    }
+
+    return createResponse(200, response, {
+      'Cache-Control': cacheControl,
+    });
   } catch (error) {
     console.error("Error listing templates:", error);
     return createResponse(500, {
