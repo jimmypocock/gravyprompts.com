@@ -10,22 +10,24 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  // Global ignores should be first and separate
   {
     ignores: [
-      "cdk/**/*", 
-      "cdk.out/**/*",
-      "cdk/lambda/**/*.js",
-      "cdk/lambda-layers/**/*.js",
-      "scripts/**/*.js",
-      ".next/**/*",
-      "out/**/*",
-      "dist/**/*",
-      "build/**/*",
-      "node_modules/**/*",
+      "**/cdk/**",
+      "cdk/**",
+      "cdk.out/**",
+      "scripts/**",
+      ".next/**",
+      "out/**",
+      "dist/**",
+      "build/**",
+      "node_modules/**",
       "*.generated.ts",
       "*.d.ts"
-    ],
+    ]
+  },
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "react/display-name": "off"
