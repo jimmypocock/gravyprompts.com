@@ -425,8 +425,11 @@ export default function HomePage() {
                     <div className="flex gap-1 flex-wrap">
                       {(Array.isArray(template.tags)
                         ? template.tags
-                        : [template.tags]
+                        : template.tags
+                        ? [template.tags]
+                        : []
                       )
+                        .filter(tag => tag && typeof tag === 'string')
                         .slice(0, 3)
                         .map((tag) => (
                           <span

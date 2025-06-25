@@ -19,6 +19,8 @@ export async function GET(
   const url = new URL(request.url);
   const targetUrl = `${SAM_LOCAL_URL}/${path}${url.search}`;
 
+  console.log("[Proxy] GET request to:", targetUrl);
+  
   try {
     const response = await fetch(targetUrl, {
       method: "GET",
@@ -71,7 +73,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Proxy error:", error);
+    console.error("[Proxy] Error for URL:", targetUrl);
+    console.error("[Proxy] Error details:", error);
+    
     // Check if it's a connection error
     if (error instanceof Error && error.message.includes("ECONNREFUSED")) {
       return NextResponse.json(
@@ -81,7 +85,7 @@ export async function GET(
     }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Proxy request failed" },
-      { status: 500 },
+      { status: 502 },
     );
   }
 }

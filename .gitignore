@@ -136,5 +136,9 @@ temp/
 # local dynamodb data
 cdk/local-test/dynamodb-data/
 
+# Redis data
+cdk/local-test/redis-data/
+*.rdb
+
 # Claude Code configuration
 .claude/
