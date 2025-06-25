@@ -4,7 +4,7 @@ import { middleware } from "@/middleware";
 // Create a mock Request class if it doesn't exist in the test environment
 if (typeof Request === 'undefined') {
   global.Request = class Request {
-    constructor(_input: RequestInfo | URL, _init?: RequestInit) {
+    constructor() {
       // Basic mock implementation
     }
   } as any;

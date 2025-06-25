@@ -44,12 +44,10 @@ const environment = (process.env.ENVIRONMENT || "development") as
   | "production";
 
 // 1. Certificate Stack - ACM certificate management (optional, can be reused by Amplify)
-let certificateStack: CertificateStack | undefined;
-
 // Only create certificate stack if explicitly requested via context
 // Never create it when we already have a certificate ARN (to avoid deletion)
 if (app.node.tryGetContext("createCertificate") === "true") {
-  certificateStack = new CertificateStack(app, `${stackPrefix}-Certificate`, {
+  new CertificateStack(app, `${stackPrefix}-Certificate`, {
     domainName: domainName,
     certificateArn: certificateArn,
     env: usEast1Env,
