@@ -96,7 +96,7 @@
     "templates:consolidate": "python scripts/consolidate-templates.py",
     "check:templates": "./scripts/check-templates.sh",
     "deploy:cert": "./scripts/deploy-cert.sh",
-    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'",
+    "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'"
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",
