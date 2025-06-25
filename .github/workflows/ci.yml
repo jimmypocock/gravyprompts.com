@@ -175,6 +175,7 @@ jobs:
           USER_PERMISSIONS_TABLE: local-user-permissions
           APPROVAL_HISTORY_TABLE: local-approval-history
           RATE_LIMITS_TABLE: local-rate-limits
+          NODE_PATH: ./lambda-layers/shared/nodejs/node_modules:./lambda-layers/shared/nodejs
 
   # Job 4: Security Scan
   security:

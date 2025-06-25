@@ -4,7 +4,20 @@
 
 const { createMockEvent } = require("../../../test-utils/dynamodb-mock");
 
-// Test the actual createResponse function
+// Mock the modules that utils.js depends on
+jest.mock("dompurify", () => ({
+  sanitize: jest.fn((html) => html),
+}));
+
+jest.mock("jsdom", () => ({
+  JSDOM: jest.fn().mockImplementation(() => ({
+    window: {
+      document: {},
+    },
+  })),
+}));
+
+// Now we can safely require utils
 const { createResponse, CACHE_PRESETS } = require("/opt/nodejs/utils");
 
 describe("Cache-Control Headers", () => {
