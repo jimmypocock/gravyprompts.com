@@ -7,6 +7,7 @@ process.env.AWS_ENDPOINT_URL_DYNAMODB = "http://localhost:8000";
 
 // For integration tests, we need to mock the Lambda layer modules
 // but NOT the AWS SDK itself
+// Remove the cache import from the mock to let the global mock handle it
 jest.mock("/opt/nodejs/utils", () => {
   const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
   const { DynamoDBDocumentClient } = require("@aws-sdk/lib-dynamodb");
