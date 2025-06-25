@@ -8,10 +8,14 @@ const {
   docClient,
   createResponse,
   checkRateLimit,
+  CACHE_PRESETS,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 exports.handler = async (event) => {
+  let template; // Declare template in outer scope for cache header access
+  
   try {
     const templateId = event.pathParameters?.templateId;
     if (!templateId) {
@@ -37,6 +41,16 @@ exports.handler = async (event) => {
     // Get share token from query parameters if provided
     const shareToken = event.queryStringParameters?.token;
 
+    // Check cache first for public templates (no share token)
+    const cacheKey = cache.keyGenerators.template(templateId);
+    if (!shareToken && !userId) {
+      const cachedTemplate = await cache.get(cacheKey);
+      if (cachedTemplate) {
+        console.log(`Cache hit for template: ${templateId}`);
+        return createResponse(200, cachedTemplate);
+      }
+    }
+
     // Get template from DynamoDB
     const result = await docClient.send(
       new GetCommand({
@@ -49,7 +63,7 @@ exports.handler = async (event) => {
       return createResponse(404, { error: "Template not found" });
     }
 
-    const template = result.Item;
+    template = result.Item;
 
     // Check access permissions
     const isOwner = userId && template.userId === userId;
@@ -103,7 +117,28 @@ exports.handler = async (event) => {
         }));
     }
 
-    return createResponse(200, response);
+    // Cache public templates for anonymous users
+    if (!shareToken && !userId && isPublic) {
+      await cache.set(cacheKey, response, cache.DEFAULT_TTL);
+      console.log(`Cached public template: ${templateId}`);
+    }
+
+    // Determine cache headers based on template visibility and user
+    let cacheControl;
+    if (template.visibility === 'private' || response.isOwner) {
+      // Private templates or owner views should not be cached by CDN
+      cacheControl = CACHE_PRESETS.PRIVATE;
+    } else if (template.moderationStatus === 'approved' && template.visibility === 'public') {
+      // Public approved templates can be cached longer
+      cacheControl = CACHE_PRESETS.PUBLIC_LONG;
+    } else {
+      // Default to no caching for templates pending moderation
+      cacheControl = CACHE_PRESETS.NO_CACHE;
+    }
+
+    return createResponse(200, response, {
+      'Cache-Control': cacheControl,
+    });
   } catch (error) {
     console.error("Error getting template:", error);
     return createResponse(500, {

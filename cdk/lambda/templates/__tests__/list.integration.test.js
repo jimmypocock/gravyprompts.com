@@ -7,6 +7,7 @@ process.env.AWS_ENDPOINT_URL_DYNAMODB = "http://localhost:8000";
 
 // For integration tests, we need to mock the Lambda layer modules
 // but NOT the AWS SDK itself
+// Remove the cache import from the mock to let the global mock handle it
 jest.mock("/opt/nodejs/utils", () => {
   const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
   const { DynamoDBDocumentClient } = require("@aws-sdk/lib-dynamodb");
@@ -286,6 +287,19 @@ describe("Templates List Handler - Real Integration Tests", () => {
       const body = JSON.parse(response.body);
 
       expect(response.statusCode).toBe(200);
+
+      // Debug output
+      console.log(`Total results: ${body.items.length}`);
+      if (body.items.length > 0) {
+        console.log("Results for email + marketing tag:");
+        body.items.forEach((template, index) => {
+          console.log(`  ${index + 1}. ${template.title} - Tags: ${JSON.stringify(template.tags)}`);
+          const hasEmail = template.title.toLowerCase().includes('email') || 
+                          (template.content || '').toLowerCase().includes('email') ||
+                          template.tags.some(t => t.toLowerCase().includes('email'));
+          console.log(`     Has 'email': ${hasEmail}, Has 'marketing' tag: ${template.tags.includes('marketing')}`);
+        });
+      }
 
       // All results should have both 'email' match AND 'marketing' tag
       body.items.forEach((template) => {

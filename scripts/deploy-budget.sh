@@ -5,16 +5,19 @@
 
 set -e
 
-# Load environment variables from .env file if it exists
-if [ -f .env ]; then
-    # Use a safer method to export variables to handle special characters
-    set -a
-    source .env
-    set +a
-fi
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
 echo "🚀 Deploying Budget Stack..."
 echo "================================"
+
+# Check AWS credentials
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
+    exit 1
+fi
 
 # Check if email is provided
 if [ -z "$BUDGET_ALERT_EMAIL" ]; then
@@ -30,32 +33,16 @@ echo ""
 # Navigate to CDK directory
 cd cdk
 
-# Set AWS profile if provided in .env
-if [ ! -z "$AWS_PROFILE" ]; then
-    echo "🔑 Using AWS Profile: $AWS_PROFILE"
-    export AWS_PROFILE
-fi
-
 # Bootstrap CDK if needed
 echo "🔧 Checking CDK bootstrap status..."
-if [ ! -z "$AWS_PROFILE" ]; then
-    npx cdk bootstrap aws://$(aws sts get-caller-identity --profile $AWS_PROFILE --query Account --output text)/us-east-1 --profile $AWS_PROFILE || true
-else
-    npx cdk bootstrap aws://$(aws sts get-caller-identity --query Account --output text)/us-east-1 || true
-fi
+npx cdk bootstrap aws://$(aws sts get-caller-identity --profile "$AWS_PROFILE" --query Account --output text)/us-east-1 --profile "$AWS_PROFILE" || true
 
 # Deploy the budget stack
 echo "💰 Deploying budget alerts..."
-if [ ! -z "$AWS_PROFILE" ]; then
-    npx cdk deploy GRAVYPROMPTS-Budget \
-      --context alertEmail="$BUDGET_ALERT_EMAIL" \
-      --profile $AWS_PROFILE \
-      --require-approval never
-else
-    npx cdk deploy GRAVYPROMPTS-Budget \
-      --context alertEmail="$BUDGET_ALERT_EMAIL" \
-      --require-approval never
-fi
+npx cdk deploy GRAVYPROMPTS-Budget \
+  --context alertEmail="$BUDGET_ALERT_EMAIL" \
+  --profile "$AWS_PROFILE" \
+  --require-approval never
 
 echo ""
 echo "✅ Budget Stack deployed successfully!"

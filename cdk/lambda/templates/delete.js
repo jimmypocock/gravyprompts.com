@@ -5,6 +5,7 @@ const {
   checkRateLimit,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 exports.handler = async (event) => {
   try {
@@ -59,6 +60,16 @@ exports.handler = async (event) => {
         },
       }),
     );
+
+    // Invalidate cache for this template
+    const templateCacheKey = cache.keyGenerators.template(templateId);
+    await cache.del(templateCacheKey);
+    console.log(`Cache invalidated for deleted template: ${templateId}`);
+
+    // Invalidate list caches since the template is removed
+    await cache.clearPattern('templates:list:*');
+    await cache.del(cache.keyGenerators.userTemplates(userId));
+    console.log('List caches invalidated after template deletion');
 
     // TODO: In production, you might want to:
     // 1. Soft delete instead of hard delete

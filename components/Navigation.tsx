@@ -141,11 +141,14 @@ export default function Navigation() {
                   {user ? (
                     <Link
                       href="/profile"
-                      className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition-colors relative"
                     >
                       <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">
                         {user.email?.[0]?.toUpperCase() || "U"}
                       </div>
+                      {isAdmin && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white" title="Admin" />
+                      )}
                     </Link>
                   ) : (
                     <>

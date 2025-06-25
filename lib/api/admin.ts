@@ -168,6 +168,26 @@ export async function processApproval(
   }
 }
 
+// Get current user's permissions
+export async function getPermissions(): Promise<string[]> {
+  try {
+    const response = await fetchWithAuth(
+      `${getApiBaseUrl()}/admin/permissions/me`,
+    );
+
+    if (!response.ok) {
+      console.log("Failed to fetch user permissions:", response.status);
+      return [];
+    }
+
+    const data = await response.json();
+    return data.permissions || [];
+  } catch (error) {
+    console.error("Error fetching permissions:", error);
+    return [];
+  }
+}
+
 // Check if current user has admin permissions (approval or admin)
 export async function checkAdminAccess(): Promise<boolean> {
   try {

@@ -5,36 +5,28 @@
 
 set -e
 
-# Load environment variables from .env file if it exists
-if [ -f .env ]; then
-    # Use a safer method to export variables to handle special characters
-    set -a
-    source .env
-    set +a
-fi
+# Load configuration
+source "$(dirname "$0")/config.sh"
 
 echo "📊 Deploying Monitoring Dashboard..."
 echo "================================"
 
+# Check AWS credentials
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
+    exit 1
+fi
+
 # Navigate to CDK directory
 cd cdk
 
-# Set AWS profile if provided in .env
-if [ ! -z "$AWS_PROFILE" ]; then
-    echo "🔑 Using AWS Profile: $AWS_PROFILE"
-    export AWS_PROFILE
-fi
-
 # Deploy the dashboard stack
 echo "📈 Creating comprehensive monitoring dashboard..."
-if [ ! -z "$AWS_PROFILE" ]; then
-    npx cdk deploy GRAVYPROMPTS-Dashboard \
-      --profile $AWS_PROFILE \
-      --require-approval never
-else
-    npx cdk deploy GRAVYPROMPTS-Dashboard \
-      --require-approval never
-fi
+npx cdk deploy GRAVYPROMPTS-Dashboard \
+  --profile "$AWS_PROFILE" \
+  --require-approval never
 
 echo ""
 echo "✅ Monitoring Dashboard deployed successfully!"

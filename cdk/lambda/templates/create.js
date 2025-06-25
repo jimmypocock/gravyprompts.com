@@ -1,6 +1,7 @@
 const { PutCommand } = require("@aws-sdk/lib-dynamodb");
 const { v4: uuidv4 } = require("uuid");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 const {
   docClient,
@@ -91,6 +92,18 @@ exports.handler = async (event) => {
         ConditionExpression: "attribute_not_exists(templateId)",
       }),
     );
+
+    // Invalidate list caches since there's a new template
+    if (template.visibility === 'public' && template.moderationStatus === 'approved') {
+      // New public template affects public lists
+      await cache.clearPattern('templates:list:public:*');
+      await cache.clearPattern('templates:list:popular:*');
+      console.log('List caches invalidated for new public template');
+    }
+    
+    // Always invalidate user's template list
+    await cache.del(cache.keyGenerators.userTemplates(userId));
+    console.log('User template cache invalidated');
 
     return createResponse(201, {
       message: "Template created successfully",

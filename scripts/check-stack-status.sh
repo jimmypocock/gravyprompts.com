@@ -21,8 +21,8 @@ fi
 
 STACK_NAME=$1
 
-# Get AWS profile from environment or use default
-AWS_PROFILE=${AWS_PROFILE:-default}
+# AWS_PROFILE is already set by config.sh
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
 
 while true; do
     STATUS=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --profile $AWS_PROFILE --region us-east-1 --query 'Stacks[0].StackStatus' --output text 2>/dev/null)

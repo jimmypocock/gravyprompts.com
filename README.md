@@ -62,10 +62,13 @@ npm run dev:all
 
 This starts:
 
-- Local DynamoDB database
+- Local DynamoDB database with 10 sample templates
 - API Gateway on http://localhost:7429
 - Next.js frontend on http://localhost:6827
 - GravyJS demo on http://localhost:5173
+- DynamoDB Admin UI on http://localhost:8001
+
+**Note**: To start with an empty database, use `npm run dev:all:empty`
 
 ### Testing
 
@@ -80,7 +83,7 @@ npm run test:local
 npm test
 ```
 
-See [Local Development Guide](docs/LOCAL_DEVELOPMENT.md) for detailed instructions.
+See [Local Development Guide](docs/DEVELOPMENT/LOCAL_SETUP.md) for detailed instructions.
 
 ### Production Deployment
 

@@ -21,6 +21,14 @@ echo ""
 echo "Frontend hosting will be handled by AWS Amplify"
 echo ""
 
+# Check AWS credentials
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
+    exit 1
+fi
+
 # Export environment variables for CDK
 export APP_NAME="${APP_NAME}"
 export DOMAIN_NAME="${DOMAIN_NAME}"
@@ -44,12 +52,12 @@ echo ""
 
 # First, synthesize all stacks
 echo "📦 Synthesizing CDK stacks..."
-"${SCRIPT_DIR}/cdk-env.sh" npx cdk synth --all
+"${SCRIPT_DIR}/cdk-env.sh" npx cdk synth --all --profile "$AWS_PROFILE"
 
 # List available stacks
 echo ""
 echo "📋 Available stacks:"
-"${SCRIPT_DIR}/cdk-env.sh" npx cdk list
+"${SCRIPT_DIR}/cdk-env.sh" npx cdk list --profile "$AWS_PROFILE"
 echo ""
 
 # 1. Certificate Stack
@@ -65,7 +73,8 @@ else
     "${SCRIPT_DIR}/cdk-env.sh" npx cdk deploy ${STACK_PREFIX}-Certificate \
         --require-approval never \
         --outputs-file certificate-outputs.json \
-        --region ${AWS_REGION:-us-east-1}
+        --region ${AWS_REGION:-us-east-1} \
+        --profile "$AWS_PROFILE"
     
     # Extract and save certificate ARN
     CERT_ARN=$(jq -r ".\"${STACK_PREFIX}-Certificate\".CertificateArn" certificate-outputs.json)
@@ -80,11 +89,18 @@ else
     echo "✅ Certificate ARN saved to .env file"
     echo ""
     echo "⚠️  IMPORTANT: Certificate validation required!"
-    npm run check:cert
+    echo "================================="
+    aws acm describe-certificate \
+        --certificate-arn "$CERT_ARN" \
+        --query 'Certificate.DomainValidationOptions[*].[DomainName,ResourceRecord.Name,ResourceRecord.Value]' \
+        --output table \
+        --region us-east-1 \
+        --profile "$AWS_PROFILE"
+    echo "================================="
     echo ""
     echo "1. Add the CNAME records shown above to your DNS provider"
     echo "2. Wait for validation (usually 5-30 minutes)"
-    echo "3. Run 'npm run check:cert' to verify ISSUED status"
+    echo "3. Check validation status with: aws acm describe-certificate --certificate-arn \"$CERT_ARN\" --region us-east-1 --profile \"$AWS_PROFILE\" --query 'Certificate.Status'"
     echo ""
     read -p "Press Enter when certificate is validated..."
 fi
@@ -108,6 +124,7 @@ fi
     --require-approval never \
     --outputs-file auth-outputs.json \
     --region ${AWS_REGION:-us-east-1} \
+    --profile "$AWS_PROFILE" \
     $CDK_CONTEXT
 
 # 3. API Stack
@@ -126,7 +143,8 @@ echo "Deploying API stack: ${API_STACK_NAME}"
 "${SCRIPT_DIR}/cdk-env.sh" npx cdk deploy ${API_STACK_NAME} \
     --require-approval never \
     --outputs-file api-outputs.json \
-    --region ${AWS_REGION:-us-east-1}
+    --region ${AWS_REGION:-us-east-1} \
+    --profile "$AWS_PROFILE"
 
 # 4. WAF Stack (optional)
 echo ""
@@ -138,7 +156,8 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     "${SCRIPT_DIR}/cdk-env.sh" npx cdk deploy ${STACK_PREFIX}-WAF \
         --require-approval never \
-        --region ${AWS_REGION:-us-east-1}
+        --region ${AWS_REGION:-us-east-1} \
+        --profile "$AWS_PROFILE"
     echo "✅ WAF Stack deployed"
 else
     echo "⏭️  Skipping WAF Stack"
@@ -168,6 +187,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     "${SCRIPT_DIR}/cdk-env.sh" npx cdk deploy ${STACK_PREFIX}-Monitoring-Amplify \
         --require-approval never \
         --region ${AWS_REGION:-us-east-1} \
+        --profile "$AWS_PROFILE" \
         $MONITORING_PARAMS
     
     echo "✅ Monitoring Stack deployed"

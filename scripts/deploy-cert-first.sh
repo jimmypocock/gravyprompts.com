@@ -9,8 +9,10 @@ echo "======================================"
 echo ""
 
 # Check AWS credentials
-if ! aws sts get-caller-identity &> /dev/null; then
-    echo "❌ AWS CLI is not configured. Please run 'aws configure' or set AWS_PROFILE"
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
     exit 1
 fi
 
@@ -19,7 +21,8 @@ echo "🔍 Step 1: Checking for existing certificate..."
 EXISTING_CERT_ARN=$(aws acm list-certificates \
     --query "CertificateSummaryList[?DomainName=='$DOMAIN_NAME'].CertificateArn | [0]" \
     --output text \
-    --region us-east-1 2>/dev/null)
+    --region us-east-1 \
+    --profile "$AWS_PROFILE" 2>/dev/null)
 
 if [ "$EXISTING_CERT_ARN" != "null" ] && [ "$EXISTING_CERT_ARN" != "None" ] && [ ! -z "$EXISTING_CERT_ARN" ]; then
     echo "✅ Found existing certificate: $EXISTING_CERT_ARN"
@@ -58,6 +61,7 @@ npm run build
 npx cdk deploy "$CERTIFICATE_STACK" \
     --require-approval never \
     --context createCertificate=true \
+    --profile "$AWS_PROFILE" \
     "$@"
 
 cd ..
@@ -69,7 +73,8 @@ NEW_CERT_ARN=$(aws cloudformation describe-stacks \
     --stack-name "$CERTIFICATE_STACK" \
     --query 'Stacks[0].Outputs[?OutputKey==`CertificateArn`].OutputValue | [0]' \
     --output text \
-    --region us-east-1 2>/dev/null)
+    --region us-east-1 \
+    --profile "$AWS_PROFILE" 2>/dev/null)
 
 if [ -z "$NEW_CERT_ARN" ] || [ "$NEW_CERT_ARN" == "null" ]; then
     echo "❌ Failed to retrieve certificate ARN from stack"
@@ -99,7 +104,8 @@ aws acm describe-certificate \
     --certificate-arn "$NEW_CERT_ARN" \
     --query 'Certificate.DomainValidationOptions[*].[DomainName,ResourceRecord.Name,ResourceRecord.Value]' \
     --output table \
-    --region us-east-1
+    --region us-east-1 \
+    --profile "$AWS_PROFILE"
 echo "=================================="
 
 echo ""

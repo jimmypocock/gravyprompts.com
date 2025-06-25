@@ -3,8 +3,10 @@ const {
   docClient,
   createResponse,
   checkRateLimit,
+  CACHE_PRESETS,
 } = require("/opt/nodejs/utils");
 const { getUserFromEvent } = require("/opt/nodejs/auth");
+const cache = require("/opt/nodejs/cache");
 
 // Simple fuzzy matching for typos (Levenshtein distance)
 function levenshteinDistance(str1, str2) {
@@ -79,6 +81,24 @@ exports.handler = async (event) => {
     } = event.queryStringParameters || {};
 
     const limitNum = Math.min(parseInt(limit), 100); // Max 100 items
+
+    // Generate cache key for this request
+    const cacheKey = cache.keyGenerators.templateList({
+      filter,
+      search: search || '',
+      limit: limitNum,
+      lastEvaluatedKey: nextTokenParam || '',
+      userId: userId || 'anonymous'
+    });
+
+    // Check cache first for public/popular content
+    if ((filter === 'public' || filter === 'popular') && !nextTokenParam) {
+      const cachedResult = await cache.get(cacheKey);
+      if (cachedResult) {
+        console.log('Cache hit for template list');
+        return createResponse(200, cachedResult);
+      }
+    }
 
     let params;
     let items = [];
@@ -332,10 +352,37 @@ exports.handler = async (event) => {
       isOwner: !!(userId && item.userId === userId),
     }));
 
-    return createResponse(200, {
+    const response = {
       items: responseItems,
       nextToken,
       count: responseItems.length,
+    };
+
+    // Cache the response for public/popular content
+    if ((filter === 'public' || filter === 'popular') && !nextTokenParam) {
+      const ttl = filter === 'popular' ? cache.POPULAR_TTL : cache.DEFAULT_TTL;
+      await cache.set(cacheKey, response, ttl);
+      console.log(`Cached template list for filter: ${filter}`);
+    }
+
+    // Determine appropriate cache headers based on filter and user
+    let cacheControl;
+    if (userId && (filter === 'mine' || filter === 'all')) {
+      // User-specific content should not be cached by CDN
+      cacheControl = CACHE_PRESETS.PRIVATE;
+    } else if (search) {
+      // Search results should have very short cache
+      cacheControl = CACHE_PRESETS.SEARCH;
+    } else if (filter === 'popular') {
+      // Popular templates can be cached longer
+      cacheControl = CACHE_PRESETS.PUBLIC_MEDIUM;
+    } else {
+      // Default public content caching
+      cacheControl = CACHE_PRESETS.PUBLIC_SHORT;
+    }
+
+    return createResponse(200, response, {
+      'Cache-Control': cacheControl,
     });
   } catch (error) {
     console.error("Error listing templates:", error);

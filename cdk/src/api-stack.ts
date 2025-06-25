@@ -342,7 +342,7 @@ export class ApiStack extends Stack {
         role: lambdaRole,
         layers: [sharedLayer],
         timeout: Duration.seconds(10),
-        memorySize: 128,
+        memorySize: 256, // Increased from 128MB for better performance
         logRetention: logs.RetentionDays.ONE_WEEK,
       },
     );
@@ -367,8 +367,8 @@ export class ApiStack extends Stack {
         environment,
         role: lambdaRole,
         layers: [sharedLayer],
-        timeout: Duration.seconds(10),
-        memorySize: 128,
+        timeout: Duration.seconds(30),
+        memorySize: 1024, // Increased from 128MB for better CPU and search performance
         logRetention: logs.RetentionDays.ONE_WEEK,
       },
     );

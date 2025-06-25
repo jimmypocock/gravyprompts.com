@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { useRouter } from "next/navigation";
+import { getPermissions } from "@/lib/api/admin";
 
 export default function ProfilePage() {
   return (
@@ -20,6 +21,7 @@ function ProfileContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [permissions, setPermissions] = useState<string[]>([]);
 
   // Form states
   const [fullname, setFullname] = useState(user?.fullname || "");
@@ -27,6 +29,29 @@ function ProfileContent() {
   const [github, setGithub] = useState(user?.github || "");
   const [twitter, setTwitter] = useState(user?.twitter || "");
   const [linkedin, setLinkedin] = useState(user?.linkedin || "");
+
+  // Load user permissions
+  useEffect(() => {
+    async function loadPermissions() {
+      if (user) {
+        const userPermissions = await getPermissions();
+        setPermissions(userPermissions);
+      }
+    }
+    loadPermissions();
+  }, [user]);
+
+  const getUserRole = () => {
+    if (permissions.includes("admin")) return "Admin";
+    if (permissions.includes("approval")) return "Moderator";
+    return "User";
+  };
+
+  const getRoleBadgeColor = () => {
+    if (permissions.includes("admin")) return "bg-yellow-100 text-yellow-800";
+    if (permissions.includes("approval")) return "bg-blue-100 text-blue-800";
+    return "bg-gray-100 text-gray-800";
+  };
 
   const handleSignOut = async () => {
     try {
@@ -81,7 +106,22 @@ function ProfileContent() {
               <h3 className="text-lg leading-6 font-medium text-gray-900">
                 Profile Information
               </h3>
-              <p className="mt-1 text-sm text-gray-500">{user?.email}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-sm text-gray-500">{user?.email}</p>
+                <span className={`text-xs px-2 py-1 rounded-full ${getRoleBadgeColor()}`}>
+                  {getUserRole()}
+                </span>
+              </div>
+              {!isEditing && (
+                <p className="mt-2 text-sm text-gray-600 bg-gray-100 inline-block px-3 py-1 rounded-md">
+                  🔒 View Mode - Click &quot;Edit Profile&quot; to make changes
+                </p>
+              )}
+              {isEditing && (
+                <p className="mt-2 text-sm text-green-600 bg-green-100 inline-block px-3 py-1 rounded-md">
+                  ✏️ Edit Mode - Make your changes and click &quot;Save&quot;
+                </p>
+              )}
             </div>
             <button
               onClick={handleSignOut}

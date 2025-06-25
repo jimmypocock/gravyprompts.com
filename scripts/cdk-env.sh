@@ -17,6 +17,7 @@ export CERTIFICATE_ARN="${CERTIFICATE_ARN}"
 export ENVIRONMENT="${RAW_ENVIRONMENT}"
 export CDK_DEFAULT_ACCOUNT="${CDK_DEFAULT_ACCOUNT:-$AWS_ACCOUNT_ID}"
 export CDK_DEFAULT_REGION="${CDK_DEFAULT_REGION:-$AWS_REGION}"
+export AWS_PROFILE="${AWS_PROFILE}"
 
 # Execute the command passed as arguments with the environment set
 exec "$@"

@@ -8,6 +8,7 @@ import GoogleConsentInit from "@/components/GoogleConsentInit";
 import { AuthProvider } from "@/lib/auth-context";
 import { SearchProvider } from "@/lib/search-context";
 import Navigation from "@/components/Navigation";
+import DebugWrapper from "@/components/DebugWrapper";
 
 // Configure Inter for the entire site
 const inter = Inter({
@@ -225,6 +226,7 @@ export default function RootLayout({
           </SearchProvider>
         </AuthProvider>
         <GoogleCMP />
+        <DebugWrapper />
       </body>
     </html>
   );

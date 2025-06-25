@@ -6,6 +6,7 @@ const {
   createResponse,
   getUserIdFromEvent,
   sanitizeHtml,
+  CACHE_PRESETS,
 } = require("/opt/nodejs/utils");
 
 exports.handler = async (event) => {
@@ -96,7 +97,10 @@ exports.handler = async (event) => {
       response.warning = `Missing values for variables: ${missingVariables.join(", ")}`;
     }
 
-    return createResponse(200, response);
+    // Populated content is user-specific and dynamic, should not be cached
+    return createResponse(200, response, {
+      'Cache-Control': CACHE_PRESETS.NO_CACHE,
+    });
   } catch (error) {
     console.error("Error populating template:", error);
     return createResponse(500, {

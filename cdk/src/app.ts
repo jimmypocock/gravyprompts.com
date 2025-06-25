@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 import { CertificateStack } from "./certificate-stack";
 import { WafStack } from "./waf-stack";
 import { ApiWafStack } from "./api-waf-stack";
@@ -9,6 +13,7 @@ import { AuthStack } from "./auth-stack";
 import { ApiStack } from "./api-stack";
 import { BudgetStack } from "./budget-stack";
 import { ComprehensiveMonitoringStack } from "./comprehensive-monitoring-stack";
+import { CacheStack } from "./cache-stack";
 
 const app = new cdk.App();
 
@@ -39,12 +44,10 @@ const environment = (process.env.ENVIRONMENT || "development") as
   | "production";
 
 // 1. Certificate Stack - ACM certificate management (optional, can be reused by Amplify)
-let certificateStack: CertificateStack | undefined;
-
 // Only create certificate stack if explicitly requested via context
 // Never create it when we already have a certificate ARN (to avoid deletion)
 if (app.node.tryGetContext("createCertificate") === "true") {
-  certificateStack = new CertificateStack(app, `${stackPrefix}-Certificate`, {
+  new CertificateStack(app, `${stackPrefix}-Certificate`, {
     domainName: domainName,
     certificateArn: certificateArn,
     env: usEast1Env,
@@ -53,7 +56,7 @@ if (app.node.tryGetContext("createCertificate") === "true") {
 }
 
 // 2. WAF Stack - Web Application Firewall (can be attached to Amplify)
-const wafStack = new WafStack(app, `${stackPrefix}-WAF`, {
+new WafStack(app, `${stackPrefix}-WAF`, {
   env: usEast1Env,
   description: `WAF rules for ${appName}`,
 });
@@ -91,7 +94,17 @@ const apiWafStack = new ApiWafStack(app, `${stackPrefix}-API-WAF`, {
 // API WAF depends on API stack
 apiWafStack.addDependency(apiStack);
 
-// 5. Monitoring Stack for Amplify
+// 5. Cache Stack - CloudFront CDN for API caching
+const cacheStack = new CacheStack(app, `${stackPrefix}-Cache`, {
+  api: apiStack.api,
+  env: usEast1Env,
+  description: `CloudFront CDN caching for ${appName} API`,
+});
+
+// Cache stack depends on API stack
+cacheStack.addDependency(apiStack);
+
+// 6. Monitoring Stack for Amplify
 // Only create if explicitly requested for Amplify deployments
 if (
   app.node.tryGetContext("amplifyMonitoring") === "true" ||
@@ -114,7 +127,7 @@ if (
 
 // 6. Budget Stack - Cost alerts and monitoring
 // Always create budget stack to monitor costs
-const budgetStack = new BudgetStack(app, `${stackPrefix}-Budget`, {
+new BudgetStack(app, `${stackPrefix}-Budget`, {
   env: usEast1Env,
   description: `Cost monitoring and budget alerts for ${appName}`,
 });
