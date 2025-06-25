@@ -131,14 +131,8 @@ jobs:
       - name: Wait for DynamoDB
         run: |
           echo "Waiting for DynamoDB to be ready..."
-          for i in {1..30}; do
-            if curl -s http://localhost:8000 > /dev/null; then
-              echo "DynamoDB is ready!"
-              break
-            fi
-            echo "Waiting... ($i/30)"
-            sleep 1
-          done
+          sleep 5
+          curl -s http://localhost:8000
 
       - name: Install CDK dependencies
         run: |
@@ -158,12 +152,14 @@ jobs:
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
           DYNAMODB_ENDPOINT: http://localhost:8000
-
+          AWS_ENDPOINT_URL_DYNAMODB: http://localhost:8000
+          
       - name: Run integration tests
         run: |
           cd cdk && npm run test:integration
         env:
           DYNAMODB_ENDPOINT: http://localhost:8000
+          AWS_ENDPOINT_URL_DYNAMODB: http://localhost:8000
           AWS_REGION: us-east-1
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
