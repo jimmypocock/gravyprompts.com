@@ -40,7 +40,6 @@ export class CacheStack extends cdk.Stack {
       comment: 'Forward headers to API Gateway',
       queryStringBehavior: cloudfront.OriginRequestQueryStringBehavior.all(),
       headerBehavior: cloudfront.OriginRequestHeaderBehavior.allowList(
-        'Authorization',
         'Content-Type',
         'X-Forwarded-For',
         'User-Agent'

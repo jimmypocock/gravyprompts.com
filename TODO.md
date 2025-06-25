@@ -84,6 +84,11 @@
 - [ ] Infrastructure monitoring - CloudWatch dashboards and alerts
 - [ ] Backup and disaster recovery - Automated DynamoDB backups
 - [ ] Cost optimization - AWS cost monitoring and optimization
+- [ ] Configure api.gravyprompts.com as custom domain for CloudFront distribution
+  - [ ] Verify certificate includes api.gravyprompts.com or *.gravyprompts.com
+  - [ ] Update cache-stack.ts to add custom domain alias
+  - [ ] Add CNAME record in DNS pointing to CloudFront distribution
+  - [ ] Update frontend to use api.gravyprompts.com URL
 
 ### Lambda Protection (Prevent Infinite Loops)
 

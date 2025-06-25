@@ -22,6 +22,14 @@ echo "  - App Stack (content deployment)"
 echo "  - Monitoring Stack (requires CDN)"
 echo ""
 
+# Check AWS credentials
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
+    exit 1
+fi
+
 # Build CDK TypeScript files
 echo "🔨 Building CDK..."
 npm run build:cdk
@@ -37,7 +45,8 @@ else
     echo "📝 Deploying Certificate Stack..."
     npx cdk deploy ${STACK_PREFIX}-Certificate \
         --require-approval never \
-        --outputs-file certificate-outputs.json
+        --outputs-file certificate-outputs.json \
+        --profile "$AWS_PROFILE"
     
     # Extract and save certificate ARN
     CERT_ARN=$(jq -r ".\"${STACK_PREFIX}-Certificate\".CertificateArn" certificate-outputs.json)
@@ -50,10 +59,18 @@ else
     fi
     
     echo "✅ Certificate ARN saved to .env file"
-    echo "🔍 Certificate validation status:"
-    npm run check:cert
     echo ""
-    echo "⚠️  Add the CNAME records shown above to your DNS provider"
+    echo "⚠️  DNS VALIDATION REQUIRED:"
+    echo "================================="
+    aws acm describe-certificate \
+        --certificate-arn "$CERT_ARN" \
+        --query 'Certificate.DomainValidationOptions[*].[DomainName,ResourceRecord.Name,ResourceRecord.Value]' \
+        --output table \
+        --region us-east-1 \
+        --profile "$AWS_PROFILE"
+    echo "================================="
+    echo ""
+    echo "📝 Add the CNAME records shown above to your DNS provider"
     echo "⏳ Wait for validation (usually 5-30 minutes) before continuing"
     read -p "Press Enter when certificate is validated..."
 fi
@@ -63,20 +80,23 @@ echo ""
 echo "🔐 Deploying Auth Stack..."
 npx cdk deploy ${STACK_PREFIX}-Auth \
     --require-approval never \
-    --outputs-file auth-outputs.json
+    --outputs-file auth-outputs.json \
+    --profile "$AWS_PROFILE"
 
 # Deploy API Stack
 echo ""
 echo "🌐 Deploying API Stack..."
 npx cdk deploy ${STACK_PREFIX}-API \
     --require-approval never \
-    --outputs-file api-outputs.json
+    --outputs-file api-outputs.json \
+    --profile "$AWS_PROFILE"
 
 # Deploy API WAF Stack
 echo ""
 echo "🛡️ Deploying API WAF Stack for enhanced security..."
 npx cdk deploy ${STACK_PREFIX}-API-WAF \
-    --require-approval never
+    --require-approval never \
+    --profile "$AWS_PROFILE"
 
 # Note: The CloudFront WAF (${STACK_PREFIX}-WAF) is only needed if using CloudFront CDN
 

@@ -25,8 +25,10 @@ echo "📝 Stack name: $AUTH_STACK"
 echo "🌍 Environment: $ENVIRONMENT"
 
 # Check AWS credentials
-if ! aws sts get-caller-identity &> /dev/null; then
-    echo "❌ AWS CLI is not configured. Please run 'aws configure' or set AWS_PROFILE"
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
     exit 1
 fi
 
@@ -40,7 +42,7 @@ npm run build
 
 # Deploy auth stack
 echo "☁️  Deploying Cognito User Pool..."
-ENVIRONMENT=$ENVIRONMENT npx cdk deploy "$AUTH_STACK" --require-approval never "$@"
+ENVIRONMENT=$ENVIRONMENT npx cdk deploy "$AUTH_STACK" --require-approval never --profile "$AWS_PROFILE" "$@"
 
 cd ..
 
@@ -52,11 +54,19 @@ USER_POOL_ID=$(aws cloudformation describe-stacks \
     --stack-name "$AUTH_STACK" \
     --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
     --output text \
-    --region us-east-1 2>/dev/null)
+    --region us-east-1 \
+    --profile "$AWS_PROFILE" 2>/dev/null)
 
 CLIENT_ID=$(aws cloudformation describe-stacks \
     --stack-name "$AUTH_STACK" \
     --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' \
+    --output text \
+    --region us-east-1 \
+    --profile "$AWS_PROFILE" 2>/dev/null)
+
+IDENTITY_POOL_ID=$(aws cloudformation describe-stacks \
+    --stack-name "$AUTH_STACK" \
+    --query 'Stacks[0].Outputs[?OutputKey==`IdentityPoolId`].OutputValue' \
     --output text \
     --region us-east-1 2>/dev/null)
 

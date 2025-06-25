@@ -100,6 +100,7 @@
   },
   "dependencies": {
     "aws-amplify": "^6.15.0",
+    "colors": "^1.4.0",
     "date-fns": "^4.1.0",
     "gravyjs": "*",
     "lucide-react": "^0.522.0",

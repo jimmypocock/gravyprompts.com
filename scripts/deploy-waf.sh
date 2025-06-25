@@ -8,8 +8,10 @@ echo "🛡️  Deploying WAF Stack..."
 echo "📝 Stack name: $WAF_STACK"
 
 # Check AWS credentials
-if ! aws sts get-caller-identity &> /dev/null; then
-    echo "❌ AWS CLI is not configured. Please run 'aws configure' or set AWS_PROFILE"
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
     exit 1
 fi
 
@@ -23,7 +25,7 @@ npm run build
 
 # Deploy only the WAF stack
 echo "☁️  Deploying WAF rules..."
-npx cdk deploy "$WAF_STACK" --require-approval never "$@"
+npx cdk deploy "$WAF_STACK" --require-approval never --profile "$AWS_PROFILE" "$@"
 
 cd ..
 

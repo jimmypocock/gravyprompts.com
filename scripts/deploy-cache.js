@@ -23,6 +23,19 @@
 
 const { execSync } = require('child_process');
 const colors = require('colors/safe');
+const fs = require('fs');
+const path = require('path');
+const dotenv = require('dotenv');
+
+// Load environment variables from .env file
+const envPath = path.join(__dirname, '..', '.env');
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+}
+
+// Get AWS profile from environment
+const AWS_PROFILE = process.env.AWS_PROFILE || 'default';
+console.log(colors.blue(`Using AWS Profile: ${AWS_PROFILE}`));
 
 console.log(colors.cyan('\n🚀 Deploying CloudFront Cache Stack...\n'));
 
@@ -59,9 +72,21 @@ readline.question(colors.yellow('Deploy cache stack? (y/N): '), (answer) => {
     });
 
     console.log(colors.cyan('\n🚀 Deploying cache stack...\n'));
-    execSync('npx cdk deploy GRAVYPROMPTS-Cache --require-approval never', {
+    
+    // Get email from environment or use a placeholder
+    const alertEmail = process.env.BUDGET_ALERT_EMAIL || 'admin@gravyprompts.com';
+    
+    // First, get the stack prefix
+    const stackList = execSync(`npx cdk list --profile ${AWS_PROFILE}`, { 
+      cwd: './cdk',
+      env: { ...process.env, AWS_PROFILE }
+    }).toString();
+    const stackPrefix = stackList.split('-')[0].trim();
+    
+    execSync(`npx cdk deploy ${stackPrefix}-Cache --require-approval never --context alertEmail=${alertEmail} --profile ${AWS_PROFILE}`, {
       stdio: 'inherit',
-      cwd: './cdk'
+      cwd: './cdk',
+      env: { ...process.env, AWS_PROFILE }
     });
 
     console.log(colors.green('\n✅ Cache stack deployed successfully!\n'));

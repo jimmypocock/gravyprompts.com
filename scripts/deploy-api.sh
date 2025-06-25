@@ -19,15 +19,17 @@ echo "📝 Stack name: $API_STACK"
 echo "🌍 Environment: $ENVIRONMENT"
 
 # Check AWS credentials
-if ! aws sts get-caller-identity &> /dev/null; then
-    echo "❌ AWS CLI is not configured. Please run 'aws configure' or set AWS_PROFILE"
+echo "🔐 Using AWS Profile: $AWS_PROFILE"
+if ! aws sts get-caller-identity --profile "$AWS_PROFILE" &> /dev/null; then
+    echo "❌ AWS credentials not configured for profile '$AWS_PROFILE'"
+    echo "   Please run 'aws configure --profile $AWS_PROFILE' or set AWS_PROFILE to a configured profile"
     exit 1
 fi
 
 # Check if Auth stack exists
 AUTH_STACK_NAME="${STACK_PREFIX}-Auth"
 
-if ! aws cloudformation describe-stacks --stack-name "$AUTH_STACK_NAME" --region us-east-1 &>/dev/null; then
+if ! aws cloudformation describe-stacks --stack-name "$AUTH_STACK_NAME" --region us-east-1 --profile "$AWS_PROFILE" &>/dev/null; then
     echo "❌ Error: Auth stack ($AUTH_STACK_NAME) not found. Deploy auth first:"
     echo "   ENVIRONMENT=$ENVIRONMENT npm run deploy:auth"
     exit 1
@@ -52,7 +54,7 @@ npm run build
 
 # Deploy API stack
 echo "☁️  Deploying API Gateway, Lambda, and DynamoDB..."
-ENVIRONMENT=$ENVIRONMENT npx cdk deploy "$API_STACK" --require-approval never "$@"
+ENVIRONMENT=$ENVIRONMENT npx cdk deploy "$API_STACK" --require-approval never --profile "$AWS_PROFILE" "$@"
 
 cd ..
 
@@ -64,7 +66,8 @@ API_URL=$(aws cloudformation describe-stacks \
     --stack-name "$API_STACK" \
     --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
     --output text \
-    --region us-east-1 2>/dev/null)
+    --region us-east-1 \
+    --profile "$AWS_PROFILE" 2>/dev/null)
 
 if [ ! -z "$API_URL" ]; then
     echo "📋 API Configuration:"

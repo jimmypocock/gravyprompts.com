@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
+import * as dotenv from "dotenv";
+
+// Load environment variables from .env file
+dotenv.config();
 import { CertificateStack } from "./certificate-stack";
 import { WafStack } from "./waf-stack";
 import { ApiWafStack } from "./api-waf-stack";

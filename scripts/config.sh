@@ -23,6 +23,11 @@ export APP_NAME=${APP_NAME:-"nextjs-app"}
 export DOMAIN_NAME=${DOMAIN_NAME:-"example.com"}
 export STACK_PREFIX=${STACK_PREFIX:-$(echo "$APP_NAME" | tr '[:lower:]' '[:upper:]' | sed 's/[^A-Z0-9]//g')}
 
+# AWS Profile configuration
+export AWS_PROFILE=${AWS_PROFILE:-"default"}
+export CDK_DEFAULT_ACCOUNT=${CDK_DEFAULT_ACCOUNT:-""}
+export CDK_DEFAULT_REGION=${CDK_DEFAULT_REGION:-"us-east-1"}
+
 # Environment configuration
 # Map "production" to "Prod" for CDK stack naming
 export RAW_ENVIRONMENT=${ENVIRONMENT:-"development"}
