@@ -540,6 +540,70 @@ npm run maintenance:on
 npm run maintenance:off
 ```
 
+## Deployment & Release Process
+
+### AWS Amplify Deployment Options
+
+**Important**: AWS Amplify does NOT natively support tag-based deployments. Choose one of these strategies:
+
+#### Option 1: Continuous Deployment from `main` (Simplest)
+
+**Setup**: Point Amplify to `main` branch with auto-deploy enabled.
+
+**Process**:
+1. Merge PRs to `main`
+2. Amplify automatically deploys
+3. Use branch protection rules for quality control
+
+**Best for**: Teams with good CI/CD practices and automated testing.
+
+#### Option 2: Manual Deployment Control
+
+**Setup**: 
+1. Disable auto-builds in Amplify Console
+2. Create an incoming webhook
+3. Add webhook URL as GitHub secret
+4. Use `.github/workflows/deploy-tag.yml`
+
+**Process**:
+1. Push code to `main` (no auto-deploy)
+2. Create a tag: `npm run release:patch`
+3. GitHub Actions triggers Amplify via webhook
+
+**Best for**: Teams wanting explicit control over production deployments.
+
+#### Option 3: Two-Branch Strategy
+
+**Setup**: 
+1. Create `production` branch
+2. Point Amplify to `production` branch
+3. Keep `main` for development
+
+**Process**:
+1. Work on `main` branch
+2. When ready to deploy:
+   ```bash
+   git checkout production
+   git merge main --ff-only  # or git reset --hard origin/main
+   git push origin production
+   ```
+
+**Best for**: Teams wanting a clear separation between development and production.
+
+### Version Management Commands
+
+Regardless of deployment strategy, use these for version tracking:
+
+```bash
+# Create version tags (updates package.json)
+npm run release:patch   # 1.0.0 -> 1.0.1 (bug fixes)
+npm run release:minor   # 1.0.1 -> 1.1.0 (new features)
+npm run release:major   # 1.1.0 -> 2.0.0 (breaking changes)
+
+# Check current version
+npm run release:status
+```
+
 ### 💰 Cost Estimates
 
 For a low-traffic site, expect ~$6-10/month:
@@ -672,15 +736,34 @@ This prevents recreating certificates and avoids validation delays.
 | `npm run status`     | Check stack status                                      |
 | `npm run deploy:all` | Deploy complete infrastructure                          |
 
+## Important: Repository Visibility
+
+⚠️ **This repository should be PUBLIC on GitHub**
+
+**Why?** GitHub Actions minutes are:
+- **FREE** for public repositories (unlimited minutes)
+- **PAID** for private repositories (2,000 minutes/month free tier, then $0.008/minute)
+
+Since this is a template repository meant for others to use, keeping it public ensures:
+- No surprise GitHub Actions charges
+- CI/CD runs on every commit without cost concerns
+- Community contributions and visibility
+
+If you need a private repository, consider:
+1. Disabling GitHub Actions CI/CD
+2. Using alternative CI/CD services with free tiers
+3. Being aware of the 2,000 free minutes limit per month
+
 ## Testing
 
 The project uses a split testing strategy to ensure fast CI/CD while maintaining comprehensive test coverage:
 
-### CI Tests (Run in GitHub Actions)
+### CI Tests (Run in GitHub Actions - FREE for public repos)
 
 - **Component Tests** - All UI components (`components/__tests__/`)
 - **Contract Tests** - API contract validation
 - **Unit Tests** - Pure functions and utilities
+- **Lambda Tests** - DynamoDB unit tests for Lambda functions
 
 These tests are fast, reliable, and have no external dependencies.
 
@@ -689,7 +772,6 @@ These tests are fast, reliable, and have no external dependencies.
 - **Security Tests** - Test security features (many aspirational)
 - **E2E Tests** - Full user flow tests requiring complete app setup
 - **Integration Tests** - API integrations with AWS services
-- **Lambda Tests** - Require DynamoDB and AWS services
 
 Run local tests with: `npm run test:local`
 

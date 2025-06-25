@@ -1,5 +1,9 @@
 name: CI
 
+# IMPORTANT: This workflow is FREE for public repositories
+# For private repos, you get 2,000 free minutes/month, then $0.008/minute
+# Keep your repository PUBLIC to avoid GitHub Actions charges!
+
 on:
   push:
     branches:
