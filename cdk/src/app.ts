@@ -58,7 +58,7 @@ if (app.node.tryGetContext("createCertificate") === "true") {
 }
 
 // 2. WAF Stack - Web Application Firewall (can be attached to Amplify)
-const wafStack = new WafStack(app, `${stackPrefix}-WAF`, {
+new WafStack(app, `${stackPrefix}-WAF`, {
   env: usEast1Env,
   description: `WAF rules for ${appName}`,
 });
@@ -129,7 +129,7 @@ if (
 
 // 6. Budget Stack - Cost alerts and monitoring
 // Always create budget stack to monitor costs
-const budgetStack = new BudgetStack(app, `${stackPrefix}-Budget`, {
+new BudgetStack(app, `${stackPrefix}-Budget`, {
   env: usEast1Env,
   description: `Cost monitoring and budget alerts for ${appName}`,
 });

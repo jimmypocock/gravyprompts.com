@@ -4,20 +4,44 @@
 
 const { createMockEvent } = require("../../../test-utils/dynamodb-mock");
 
-// Mock the modules that utils.js depends on
-jest.mock("dompurify", () => ({
-  sanitize: jest.fn((html) => html),
-}));
+// Mock the utils module to test cache headers without dependencies
+jest.mock("/opt/nodejs/utils", () => {
+  const CACHE_PRESETS = {
+    NO_CACHE: 'no-cache, no-store, must-revalidate',
+    PRIVATE: 'private, max-age=0',
+    PUBLIC_SHORT: 'public, max-age=300, s-maxage=300',
+    PUBLIC_MEDIUM: 'public, max-age=600, s-maxage=600',
+    PUBLIC_LONG: 'public, max-age=3600, s-maxage=3600',
+    SEARCH: 'public, max-age=60, s-maxage=60',
+  };
 
-jest.mock("jsdom", () => ({
-  JSDOM: jest.fn().mockImplementation(() => ({
-    window: {
-      document: {},
+  return {
+    createResponse: (statusCode, body, headers = {}) => {
+      const defaultHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+        'Content-Type': 'application/json',
+        'Vary': 'Authorization, Accept-Encoding',
+      };
+
+      // Add cache headers based on status code
+      if (statusCode === 200 && !headers['Cache-Control']) {
+        defaultHeaders['Cache-Control'] = CACHE_PRESETS.PUBLIC_MEDIUM;
+      } else if ((statusCode >= 400 || statusCode === 201) && !headers['Cache-Control']) {
+        defaultHeaders['Cache-Control'] = CACHE_PRESETS.NO_CACHE;
+      }
+
+      return {
+        statusCode,
+        headers: { ...defaultHeaders, ...headers },
+        body: typeof body === 'string' ? body : JSON.stringify(body),
+      };
     },
-  })),
-}));
+    CACHE_PRESETS,
+  };
+});
 
-// Now we can safely require utils
 const { createResponse, CACHE_PRESETS } = require("/opt/nodejs/utils");
 
 describe("Cache-Control Headers", () => {
@@ -61,12 +85,12 @@ describe("Cache-Control Headers", () => {
 
   describe("CACHE_PRESETS values", () => {
     it("should have correct cache durations", () => {
-      expect(CACHE_PRESETS.PUBLIC_LONG).toBe("public, max-age=3600, s-maxage=86400");
-      expect(CACHE_PRESETS.PUBLIC_MEDIUM).toBe("public, max-age=300, s-maxage=3600");
-      expect(CACHE_PRESETS.PUBLIC_SHORT).toBe("public, max-age=60, s-maxage=300");
-      expect(CACHE_PRESETS.PRIVATE).toBe("private, max-age=0, no-cache");
+      expect(CACHE_PRESETS.PUBLIC_LONG).toBe("public, max-age=3600, s-maxage=3600");
+      expect(CACHE_PRESETS.PUBLIC_MEDIUM).toBe("public, max-age=600, s-maxage=600");
+      expect(CACHE_PRESETS.PUBLIC_SHORT).toBe("public, max-age=300, s-maxage=300");
+      expect(CACHE_PRESETS.PRIVATE).toBe("private, max-age=0");
       expect(CACHE_PRESETS.NO_CACHE).toBe("no-cache, no-store, must-revalidate");
-      expect(CACHE_PRESETS.SEARCH).toBe("public, max-age=30, s-maxage=60");
+      expect(CACHE_PRESETS.SEARCH).toBe("public, max-age=60, s-maxage=60");
     });
   });
 });

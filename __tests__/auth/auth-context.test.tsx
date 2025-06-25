@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { signIn, signOut, signUp, getCurrentUser, fetchUserAttributes } from "aws-amplify/auth";
+import { signIn, signOut, getCurrentUser, fetchUserAttributes } from "aws-amplify/auth";
 
 // Mock AWS Amplify auth functions
 jest.mock("aws-amplify/auth", () => ({

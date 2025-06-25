@@ -4,9 +4,6 @@ import type { NextRequest } from "next/server";
 // Protected routes that require authentication
 const protectedRoutes = ["/profile", "/admin", "/my-prompts"];
 
-// Admin-only routes that require admin permissions
-const adminRoutes = ["/admin"];
-
 export function middleware(request: NextRequest) {
   const host = request.headers.get("host") || "";
   const { pathname } = request.nextUrl;
@@ -33,7 +30,6 @@ export function middleware(request: NextRequest) {
 
   if (isProtectedRoute) {
     // Check for auth-related cookies that indicate a logged-in session
-    const cognitoTokens = request.cookies.get("CognitoIdentityServiceProvider");
     const hasAuthCookies = Array.from(request.cookies.getAll()).some(
       (cookie) => cookie.name.includes("CognitoIdentityServiceProvider")
     );

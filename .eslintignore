@@ -1,0 +1,20 @@
+# Ignore CDK Lambda functions and layers
+cdk/lambda/**/*.js
+cdk/lambda-layers/**/*.js
+
+# Ignore scripts that use CommonJS
+scripts/**/*.js
+
+# Build outputs
+.next
+out
+dist
+build
+cdk.out
+
+# Dependencies
+node_modules
+
+# Generated files
+*.generated.ts
+*.d.ts

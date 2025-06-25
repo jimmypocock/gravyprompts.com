@@ -4,7 +4,7 @@ import { middleware } from "@/middleware";
 // Create a mock Request class if it doesn't exist in the test environment
 if (typeof Request === 'undefined') {
   global.Request = class Request {
-    constructor(input: RequestInfo | URL, init?: RequestInit) {
+    constructor(_input: RequestInfo | URL, _init?: RequestInit) {
       // Basic mock implementation
     }
   } as any;
@@ -37,8 +37,6 @@ jest.mock("next/server", () => ({
 }));
 
 describe("Middleware", () => {
-  const mockHeaders = new Headers();
-  const mockCookies = new Map<string, string>();
 
   const createRequest = (url: string, options: { host?: string; cookies?: Record<string, string> } = {}) => {
     const parsedUrl = new URL(url, "http://localhost");
@@ -72,7 +70,7 @@ describe("Middleware", () => {
         host: "main.d123abc.amplifyapp.com",
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -89,7 +87,7 @@ describe("Middleware", () => {
         host: "gravyprompts.com",
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -118,7 +116,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -133,7 +131,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -148,7 +146,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -176,7 +174,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -228,7 +226,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -243,7 +241,7 @@ describe("Middleware", () => {
         cookies: {},
       });
 
-      const response = middleware(request);
+      middleware(request);
 
       expect(NextResponse.redirect).toHaveBeenCalledWith(
         expect.objectContaining({
