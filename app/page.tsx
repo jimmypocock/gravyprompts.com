@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { useSearch } from "@/lib/search-context";
 import { useTemplateApi, type Template } from "@/lib/api/templates";
@@ -31,6 +32,8 @@ export default function HomePage() {
       createdAt: string;
     }>
   >([]);
+  const [filter, setFilter] = useState<"all" | "mine" | "public">("public");
+  const [sortBy, setSortBy] = useState<"createdAt" | "viewCount" | "useCount">("useCount");
 
   const popularTags = [
     "ai",
@@ -68,6 +71,13 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // React to filter or sort changes
+  useEffect(() => {
+    if (filter !== "public" || sortBy !== "useCount") {
+      searchTemplates(searchQuery, selectedTags, filter, sortBy);
+    }
+  }, [filter, sortBy]);
+
   // Handle scroll detection for search bar transition
   useEffect(() => {
     const handleScroll = () => {
@@ -103,8 +113,8 @@ export default function HomePage() {
 
   // Debounced search function
   const searchTemplates = useCallback(
-    async (query: string, tags: string[]) => {
-      if (!query && tags.length === 0) {
+    async (query: string, tags: string[], filterOption: "all" | "mine" | "public", sortOption: "createdAt" | "viewCount" | "useCount") => {
+      if (!query && tags.length === 0 && filterOption === "public") {
         setTemplates([]);
         return;
       }
@@ -116,8 +126,8 @@ export default function HomePage() {
 
         const response = await api.listTemplates({
           search: query || undefined,
-          filter: "public",
-          sortBy: "useCount",
+          filter: filterOption,
+          sortBy: sortOption,
           sortOrder: "desc",
           limit: limit,
         });
@@ -157,7 +167,7 @@ export default function HomePage() {
 
     // Set new timeout for debounced search
     searchTimeoutRef.current = setTimeout(() => {
-      searchTemplates(value, selectedTags);
+      searchTemplates(value, selectedTags, filter, sortBy);
     }, 300);
   };
 
@@ -168,12 +178,30 @@ export default function HomePage() {
       : [...selectedTags, tag];
 
     setSelectedTags(newTags);
-    searchTemplates(searchQuery, newTags);
+    searchTemplates(searchQuery, newTags, filter, sortBy);
+  };
+
+  // Handle template deletion
+  const handleDelete = async (templateId: string) => {
+    if (!confirm("Are you sure you want to delete this template?")) return;
+
+    try {
+      await api.deleteTemplate(templateId);
+      // Update both template lists
+      setTemplates(templates.filter((t) => t.templateId !== templateId));
+      setPopularTemplates(popularTemplates.filter((t) => t.templateId !== templateId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete template");
+    }
   };
 
   // Handle template selection
   const selectTemplate = async (template: Template) => {
-    // If we only have preview, fetch the full template
+    // Open quickview immediately with what we have
+    setSelectedTemplate(template);
+    setIsQuickviewOpen(true);
+    
+    // If we only have preview, fetch the full template in the background
     if (!template.content && template.templateId) {
       try {
         const fullTemplate = await api.getTemplate(template.templateId);
@@ -181,12 +209,9 @@ export default function HomePage() {
       } catch (error) {
         console.error("Failed to load template details:", error);
         alert("Failed to load template details");
-        return;
+        setIsQuickviewOpen(false);
       }
-    } else {
-      setSelectedTemplate(template);
     }
-    setIsQuickviewOpen(true);
   };
 
   // Handle save prompt
@@ -343,9 +368,66 @@ export default function HomePage() {
       {/* Main Content Area */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-7xl mx-auto">
+          {/* Filter and Sort Controls */}
+          {(searchQuery || selectedTags.length > 0 || user) && (
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setFilter("public")}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                    filter === "public"
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Public
+                </button>
+                {user && (
+                  <>
+                    <button
+                      onClick={() => setFilter("all")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        filter === "all"
+                          ? "bg-primary text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      All Templates
+                    </button>
+                    <button
+                      onClick={() => setFilter("mine")}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                        filter === "mine"
+                          ? "bg-primary text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      My Templates
+                    </button>
+                  </>
+                )}
+              </div>
+              
+              {/* Sort Dropdown */}
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "createdAt" | "viewCount" | "useCount")}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+              >
+                <option value="useCount">Most Used</option>
+                <option value="viewCount">Most Viewed</option>
+                <option value="createdAt">Newest First</option>
+              </select>
+            </div>
+          )}
+
           <h2 className="text-2xl font-bold mb-6 text-gray-900">
             {showingResults
               ? `${displayTemplates.length} Results`
+              : filter === "mine"
+              ? "My Templates"
+              : filter === "all"
+              ? "All Templates"
               : "🔥 Popular Templates"}
           </h2>
 
@@ -390,59 +472,96 @@ export default function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayTemplates.map((template) => (
-                <button
-                  key={template.templateId}
-                  onClick={() => selectTemplate(template)}
-                  className="bg-white rounded-lg shadow-md border border-gray-200 p-6 text-left transition-all hover:shadow-xl hover:border-primary hover:transform hover:-translate-y-1 group"
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <span className="text-3xl">
-                      {getCategoryIcon(template)}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
-                        {template.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {template.useCount || 0} uses •{" "}
-                        {template.variableCount || 0} variables
+              {displayTemplates.map((template) => {
+                const isOwner = user && template.authorId === user.userId;
+                
+                return (
+                  <div
+                    key={template.templateId}
+                    className="bg-white rounded-lg shadow-md border border-gray-200 p-6 transition-all hover:shadow-xl hover:border-primary group relative"
+                  >
+                    {/* Private badge */}
+                    {template.visibility === "private" && (
+                      <span className="absolute top-2 right-2 px-2 py-1 text-xs bg-gray-800 text-white rounded">
+                        Private
+                      </span>
+                    )}
+                    
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => selectTemplate(template)}
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <span className="text-3xl">
+                          {getCategoryIcon(template)}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                            {template.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {template.useCount || 0} uses •{" "}
+                            {template.variableCount || 0} variables
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Preview text */}
+                      <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                        {template.preview ||
+                          (template.content
+                            ? template.content
+                                .replace(/<[^>]*>/g, "")
+                                .substring(0, 100) + "..."
+                            : "")}
                       </p>
+
+                      {template.tags && template.tags.length > 0 && (
+                        <div className="flex gap-1 flex-wrap mb-3">
+                          {(Array.isArray(template.tags)
+                            ? template.tags
+                            : template.tags
+                            ? [template.tags]
+                            : []
+                          )
+                            .filter(tag => tag && typeof tag === 'string')
+                            .slice(0, 3)
+                            .map((tag) => (
+                              <span
+                                key={tag}
+                                className="px-2 py-1 text-xs bg-gray-100 group-hover:bg-primary/10 rounded-full transition-colors"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                        </div>
+                      )}
                     </div>
+
+                    {/* Action buttons for owner */}
+                    {isOwner && (
+                      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                        <Link
+                          href={`/editor?templateId=${template.templateId}`}
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex-1 px-3 py-1.5 text-sm text-gray-600 hover:text-primary border border-gray-300 rounded hover:border-primary transition-colors text-center"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(template.templateId);
+                          }}
+                          className="flex-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 border border-red-300 rounded hover:border-red-400 transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Preview text */}
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                    {template.preview ||
-                      (template.content
-                        ? template.content
-                            .replace(/<[^>]*>/g, "")
-                            .substring(0, 100) + "..."
-                        : "")}
-                  </p>
-
-                  {template.tags && template.tags.length > 0 && (
-                    <div className="flex gap-1 flex-wrap">
-                      {(Array.isArray(template.tags)
-                        ? template.tags
-                        : template.tags
-                        ? [template.tags]
-                        : []
-                      )
-                        .filter(tag => tag && typeof tag === 'string')
-                        .slice(0, 3)
-                        .map((tag) => (
-                          <span
-                            key={tag}
-                            className="px-2 py-1 text-xs bg-gray-100 group-hover:bg-primary/10 rounded-full transition-colors"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                    </div>
-                  )}
-                </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

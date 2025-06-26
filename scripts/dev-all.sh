@@ -44,6 +44,11 @@ else
     echo "⚠️  Sample templates file not found, skipping..."
 fi
 
+# Setup admin permissions
+echo "🔐 Setting up admin permissions..."
+npm run local:setup:admin
+echo "✅ Admin permissions configured!"
+
 # Start all services
 echo "🎯 Starting all services..."
 concurrently \

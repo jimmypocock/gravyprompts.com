@@ -48,7 +48,11 @@ echo "Setting up environment variables..."
 cat > env.json << 'EOF'
 {
   "Parameters": {
-    "AWS_ENDPOINT_URL_DYNAMODB": "http://host.docker.internal:8000"
+    "AWS_ENDPOINT_URL_DYNAMODB": "http://host.docker.internal:8000",
+    "REDIS_HOST": "host.docker.internal",
+    "REDIS_PORT": "6379",
+    "AWS_SAM_LOCAL": "true",
+    "IS_LOCAL": "true"
   }
 }
 EOF

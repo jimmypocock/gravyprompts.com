@@ -31,21 +31,39 @@ export default function TemplateQuickview({
     plainText: string;
     variables: Record<string, string>;
   } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingComplete, setLoadingComplete] = useState(false);
 
   // Reset when template changes
   useEffect(() => {
-    if (template && editorRef.current && template.content) {
-      editorRef.current.setContent(template.content);
-      setPopulatedContent(null);
+    if (template) {
+      // Check if we're loading (template exists but no content yet)
+      setIsLoading(!template.content);
+      setLoadingComplete(false);
+      
+      if (template.content) {
+        // Content is loaded, trigger completion animation
+        setLoadingComplete(true);
+        
+        if (editorRef.current) {
+          editorRef.current.setContent(template.content);
+          setPopulatedContent(null);
 
-      // Initialize variable inputs
-      const initialVars: Record<string, string> = {};
-      if (template.variables) {
-        template.variables.forEach((variable) => {
-          initialVars[variable] = "";
-        });
+          // Initialize variable inputs
+          const initialVars: Record<string, string> = {};
+          if (template.variables) {
+            template.variables.forEach((variable) => {
+              initialVars[variable] = "";
+            });
+          }
+          setVariableInputs(initialVars);
+        }
+        
+        // Remove loading state after animation completes
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 300);
       }
-      setVariableInputs(initialVars);
     }
   }, [template]);
 
@@ -134,7 +152,17 @@ export default function TemplateQuickview({
       >
         <div className="h-full flex flex-col">
           {/* Header */}
-          <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between relative">
+            {/* Loading bar */}
+            {isLoading && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-200">
+                <div 
+                  className={`h-full bg-primary ${
+                    loadingComplete ? 'animate-loading-bar-complete' : 'animate-loading-bar'
+                  }`}
+                ></div>
+              </div>
+            )}
             <div className="flex items-center gap-4">
               <h2 className="text-xl font-semibold text-gray-900">
                 {template.title}
@@ -210,21 +238,50 @@ export default function TemplateQuickview({
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-3">Template Preview</h3>
                   <div className="border border-gray-300 rounded-lg overflow-hidden">
-                    <GravyJS
-                      ref={editorRef}
-                      initialValue={template.content}
-                      placeholder="Loading template content..."
-                      className="min-h-[400px]"
-                      variablePrefix="[["
-                      variableSuffix="]]"
-                    />
+                    {!template.content ? (
+                      <div className="min-h-[400px] p-6 animate-pulse">
+                        <div className="space-y-3">
+                          <div className="h-4 bg-gray-200 rounded w-full"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                          <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+                          <div className="h-4 bg-gray-200 rounded w-full mt-6"></div>
+                          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                        </div>
+                      </div>
+                    ) : (
+                      <GravyJS
+                        ref={editorRef}
+                        initialValue={template.content}
+                        placeholder="Loading template content..."
+                        className="min-h-[400px]"
+                        variablePrefix="[["
+                        variableSuffix="]]"
+                      />
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Right Column - Variable Inputs */}
               <div>
-                {template.variables && template.variables.length > 0 ? (
+                {!template.content ? (
+                  // Loading skeleton for variables
+                  <div className="animate-pulse">
+                    <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                        <div className="h-10 bg-gray-200 rounded w-full"></div>
+                      </div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+                        <div className="h-10 bg-gray-200 rounded w-full"></div>
+                      </div>
+                    </div>
+                    <div className="h-12 bg-gray-200 rounded w-full mt-6"></div>
+                  </div>
+                ) : template.variables && template.variables.length > 0 ? (
                   <>
                     <h3 className="text-lg font-medium mb-4">
                       Fill in Variables
