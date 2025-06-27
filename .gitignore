@@ -139,6 +139,8 @@ cdk/local-test/dynamodb-data/
 # Redis data
 cdk/local-test/redis-data/
 *.rdb
+*.aof
+appendonlydir/
 
 # Claude Code configuration
 .claude/
