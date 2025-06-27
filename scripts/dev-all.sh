@@ -34,14 +34,21 @@ fi
 echo "📊 Setting up database tables..."
 node setup-local-db.js
 
-# Load sample templates
-echo "📝 Loading sample templates..."
+# Check if templates already exist
+echo "📝 Checking for existing templates..."
 cd ../..
-if [ -f "./data/sample-templates.json" ]; then
-    npm run templates:load:local -- --file ./data/sample-templates.json
-    echo "✅ Sample templates loaded!"
+TEMPLATE_COUNT=$(aws dynamodb scan --table-name local-templates --endpoint-url http://localhost:8000 --select "COUNT" --query "Count" --output text 2>/dev/null || echo "0")
+
+if [ "$TEMPLATE_COUNT" -gt "0" ]; then
+    echo "✅ Found $TEMPLATE_COUNT existing templates, skipping load..."
 else
-    echo "⚠️  Sample templates file not found, skipping..."
+    echo "📝 No templates found, loading templates..."
+    if [ -f "./data/templates.json" ]; then
+        npm run templates:load:local -- --file ./data/templates.json
+        echo "✅ Templates loaded!"
+    else
+        echo "⚠️  No template file found at ./data/templates.json"
+    fi
 fi
 
 # Setup admin permissions

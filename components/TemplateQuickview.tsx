@@ -5,7 +5,6 @@ import { Template } from "@/lib/api/templates";
 import { useAuth } from "@/lib/auth-context";
 import GravyJS from "gravyjs";
 import type { GravyJSRef } from "gravyjs";
-import "gravyjs/dist/index.css";
 import Link from "next/link";
 
 interface TemplateQuickviewProps {
@@ -42,11 +41,11 @@ export default function TemplateQuickview({
       setIsLoading(!template.content);
       setLoadingComplete(false);
       setShowVariableInputs(false);
-      
+
       if (template.content) {
         // Content is loaded, trigger completion animation
         setLoadingComplete(true);
-        
+
         if (editorRef.current) {
           editorRef.current.setContent(template.content);
           setPopulatedContent(null);
@@ -60,7 +59,7 @@ export default function TemplateQuickview({
           }
           setVariableInputs(initialVars);
         }
-        
+
         // Remove loading state after animation completes
         setTimeout(() => {
           setIsLoading(false);
@@ -158,7 +157,7 @@ export default function TemplateQuickview({
             {/* Loading bar */}
             {isLoading && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-200">
-                <div 
+                <div
                   className={`h-full bg-primary ${
                     loadingComplete ? 'animate-loading-bar-complete' : 'animate-loading-bar'
                   }`}
@@ -211,7 +210,7 @@ export default function TemplateQuickview({
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto p-8">
+            <div className="mx-auto p-6">
               {/* Template Info */}
               <div className="mb-8">
                 <p className="text-sm text-gray-600 mb-3">
@@ -329,6 +328,7 @@ export default function TemplateQuickview({
                       className="min-h-[400px] !border-0 !shadow-none"
                       variablePrefix="[["
                       variableSuffix="]]"
+                      noStyles={true}
                     />
                   </div>
                 )}

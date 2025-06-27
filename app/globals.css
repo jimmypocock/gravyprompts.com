@@ -358,7 +358,8 @@ input {
 }
 
 .gravy-toolbar {
-  @apply bg-gray-50 border-b border-gray-200 p-2;
+  /* @apply d-flex; */
+  display: flex;
 }
 
 .gravy-toolbar button {
@@ -370,7 +371,7 @@ input {
 }
 
 .gravy-content {
-  @apply p-4 min-h-[200px] focus:outline-none text-gray-900;
+  @apply py-4 min-h-[200px] focus:outline-none text-gray-900;
 }
 
 .gravy-variable {

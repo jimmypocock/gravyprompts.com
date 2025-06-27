@@ -89,7 +89,7 @@ function processCSV(data) {
     trim: true,
   });
 
-  return records.map((record) => {
+  return records.map((record, index) => {
     let content = record.content || "";
 
     // Check if content format is specified
@@ -101,9 +101,9 @@ function processCSV(data) {
 
     const variables = extractVariables(content);
 
-    // Use a specific userId for "AI Prompt Engineering Guide", stub for others
-    const isAIPromptGuide = record.title === "AI Prompt Engineering Guide";
-    const userId = isAIPromptGuide 
+    // Use LOCAL_USER_ID for the first two templates, stub for others
+    const isTopTwo = index < 2;
+    const userId = isTopTwo 
       ? process.env.LOCAL_USER_ID || "stub-user-demo" // Use env var for your user ID
       : "stub-user-" + (record.authorEmail || "demo@localhost").replace("@", "-at-");
 
@@ -134,7 +134,7 @@ function processCSV(data) {
 function processJSON(data) {
   const records = JSON.parse(data);
 
-  return records.map((record) => {
+  return records.map((record, index) => {
     let content = record.content || "";
 
     // Check if content format is specified
@@ -146,9 +146,9 @@ function processJSON(data) {
 
     const variables = record.variables || extractVariables(content);
 
-    // Use a specific userId for "AI Prompt Engineering Guide", stub for others
-    const isAIPromptGuide = record.title === "AI Prompt Engineering Guide";
-    const userId = isAIPromptGuide 
+    // Use LOCAL_USER_ID for the first two templates, stub for others
+    const isTopTwo = index < 2;
+    const userId = isTopTwo 
       ? process.env.LOCAL_USER_ID || "stub-user-demo" // Use env var for your user ID
       : "stub-user-" + (record.authorEmail || "demo@localhost").replace("@", "-at-");
 
@@ -162,8 +162,10 @@ function processJSON(data) {
       visibility: record.visibility || "public",
       tags: Array.isArray(record.tags)
         ? record.tags
-        : record.tags
-          ? [record.tags]
+        : typeof record.tags === 'string'
+          ? record.tags.includes(',') 
+            ? record.tags.split(',').map(t => t.trim().toLowerCase())
+            : [record.tags.trim().toLowerCase()]
           : [],
       authorEmail: record.authorEmail || "demo@localhost",
       authorName: record.authorName || (record.authorEmail || "demo@localhost").split('@')[0],

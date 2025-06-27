@@ -4,7 +4,6 @@ import { useRef, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import GravyJS from "gravyjs";
 import type { GravyJSRef } from "gravyjs";
-import "gravyjs/dist/index.css";
 import { useAuth } from "@/lib/auth-context";
 import { useTemplateApi, type Template } from "@/lib/api/templates";
 
@@ -348,6 +347,7 @@ export default function EditorContent() {
                   className="min-h-[300px]"
                   variablePrefix="[["
                   variableSuffix="]]"
+                  noStyles={true}
                 />
               </div>
             </div>

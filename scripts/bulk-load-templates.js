@@ -137,7 +137,13 @@ function processJSON(data) {
       variables: variables,
       variableCount: variables.length,
       visibility: record.visibility || "public",
-      tags: record.tags || [],
+      tags: Array.isArray(record.tags)
+        ? record.tags
+        : typeof record.tags === 'string'
+          ? record.tags.includes(',') 
+            ? record.tags.split(',').map(t => t.trim().toLowerCase())
+            : [record.tags.trim().toLowerCase()]
+          : [],
       authorEmail: record.authorEmail || "system@gravyprompts.com",
       authorName: record.authorName || (record.authorEmail || "system@gravyprompts.com").split('@')[0],
       createdAt: record.createdAt || new Date().toISOString(),
