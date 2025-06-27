@@ -345,6 +345,7 @@ exports.handler = async (event) => {
       tags: item.tags,
       visibility: item.visibility,
       authorEmail: item.authorEmail,
+      authorName: item.authorName || item.authorEmail?.split('@')[0] || 'Anonymous',
       createdAt: item.createdAt,
       viewCount: item.viewCount || 0,
       useCount: item.useCount || 0,

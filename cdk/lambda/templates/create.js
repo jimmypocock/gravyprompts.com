@@ -83,6 +83,13 @@ exports.handler = async (event) => {
       event.requestContext?.authorizer?.claims?.sub ||
       "Anonymous";
     template.authorEmail = userEmail;
+    
+    // Get author name from claims or derive from email
+    const authorName = 
+      event.requestContext?.authorizer?.claims?.name ||
+      event.requestContext?.authorizer?.claims?.["custom:fullname"] ||
+      userEmail.split('@')[0]; // Use email prefix as fallback
+    template.authorName = authorName;
 
     // Save to DynamoDB
     await docClient.send(

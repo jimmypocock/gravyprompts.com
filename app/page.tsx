@@ -181,19 +181,6 @@ export default function HomePage() {
     searchTemplates(searchQuery, newTags, filter, sortBy);
   };
 
-  // Handle template deletion
-  const handleDelete = async (templateId: string) => {
-    if (!confirm("Are you sure you want to delete this template?")) return;
-
-    try {
-      await api.deleteTemplate(templateId);
-      // Update both template lists
-      setTemplates(templates.filter((t) => t.templateId !== templateId));
-      setPopularTemplates(popularTemplates.filter((t) => t.templateId !== templateId));
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete template");
-    }
-  };
 
   // Handle template selection
   const selectTemplate = async (template: Template) => {
@@ -277,10 +264,10 @@ export default function HomePage() {
 
   // Display templates - either search results or popular templates
   const displayTemplates =
-    searchQuery || selectedTags.length > 0
+    searchQuery || selectedTags.length > 0 || filter !== "public"
       ? templates || []
       : popularTemplates || [];
-  const showingResults = searchQuery || selectedTags.length > 0;
+  const showingResults = searchQuery || selectedTags.length > 0 || filter !== "public";
 
   return (
     <div className="flex flex-col flex-1">
@@ -473,8 +460,14 @@ export default function HomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayTemplates.map((template) => {
-                const isOwner = user && template.authorId === user.userId;
-                
+                // Debug logging
+                if (template.title === "AI Prompt Engineering Guide") {
+                  console.log("AI Guide template:", {
+                    id: template.templateId,
+                    isOwner: template.isOwner,
+                    author: template.authorEmail
+                  });
+                }
                 return (
                   <div
                     key={template.templateId}
@@ -538,25 +531,16 @@ export default function HomePage() {
                       )}
                     </div>
 
-                    {/* Action buttons for owner */}
-                    {isOwner && (
-                      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
+                    {/* Edit button for owner only */}
+                    {template.isOwner && (
+                      <div className="mt-4 pt-4 border-t border-gray-100">
                         <Link
                           href={`/editor?templateId=${template.templateId}`}
                           onClick={(e) => e.stopPropagation()}
-                          className="flex-1 px-3 py-1.5 text-sm text-gray-600 hover:text-primary border border-gray-300 rounded hover:border-primary transition-colors text-center"
+                          className="block w-full px-3 py-1.5 text-sm text-gray-600 hover:text-primary border border-gray-300 rounded hover:border-primary transition-colors text-center"
                         >
-                          Edit
+                          Edit Template
                         </Link>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(template.templateId);
-                          }}
-                          className="flex-1 px-3 py-1.5 text-sm text-red-600 hover:text-red-700 border border-red-300 rounded hover:border-red-400 transition-colors"
-                        >
-                          Delete
-                        </button>
                       </div>
                     )}
                   </div>

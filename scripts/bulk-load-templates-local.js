@@ -10,6 +10,21 @@
 
 const fs = require("fs");
 const path = require("path");
+
+// Load .env.local file if it exists
+const dotenv = require("dotenv");
+const envPath = path.join(__dirname, "..", ".env.local");
+if (fs.existsSync(envPath)) {
+  dotenv.config({ path: envPath });
+  console.log("✅ Loaded .env.local");
+  if (process.env.LOCAL_USER_ID) {
+    console.log(`✅ Found LOCAL_USER_ID: ${process.env.LOCAL_USER_ID.substring(0, 8)}...`);
+  } else {
+    console.log("⚠️  LOCAL_USER_ID not found in .env.local");
+    console.log("   Add LOCAL_USER_ID=your-cognito-user-id to .env.local");
+  }
+}
+
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const {
   DynamoDBDocumentClient,
@@ -86,8 +101,15 @@ function processCSV(data) {
 
     const variables = extractVariables(content);
 
+    // Use a specific userId for "AI Prompt Engineering Guide", stub for others
+    const isAIPromptGuide = record.title === "AI Prompt Engineering Guide";
+    const userId = isAIPromptGuide 
+      ? process.env.LOCAL_USER_ID || "stub-user-demo" // Use env var for your user ID
+      : "stub-user-" + (record.authorEmail || "demo@localhost").replace("@", "-at-");
+
     return {
       templateId: uuidv4(),
+      userId: userId,
       title: record.title || "Untitled Template",
       content: content,
       variables: variables,
@@ -97,6 +119,7 @@ function processCSV(data) {
         ? record.tags.split(",").map((t) => t.trim().toLowerCase())
         : [],
       authorEmail: record.authorEmail || "demo@localhost",
+      authorName: record.authorName || (record.authorEmail || "demo@localhost").split('@')[0],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       viewCount: parseInt(record.viewCount) || 0,
@@ -123,8 +146,15 @@ function processJSON(data) {
 
     const variables = record.variables || extractVariables(content);
 
+    // Use a specific userId for "AI Prompt Engineering Guide", stub for others
+    const isAIPromptGuide = record.title === "AI Prompt Engineering Guide";
+    const userId = isAIPromptGuide 
+      ? process.env.LOCAL_USER_ID || "stub-user-demo" // Use env var for your user ID
+      : "stub-user-" + (record.authorEmail || "demo@localhost").replace("@", "-at-");
+
     return {
       templateId: record.templateId || uuidv4(),
+      userId: record.userId || userId,
       title: record.title || "Untitled Template",
       content: content,
       variables: variables,
@@ -136,6 +166,7 @@ function processJSON(data) {
           ? [record.tags]
           : [],
       authorEmail: record.authorEmail || "demo@localhost",
+      authorName: record.authorName || (record.authorEmail || "demo@localhost").split('@')[0],
       createdAt: record.createdAt || new Date().toISOString(),
       updatedAt: record.updatedAt || new Date().toISOString(),
       viewCount: record.viewCount || 0,

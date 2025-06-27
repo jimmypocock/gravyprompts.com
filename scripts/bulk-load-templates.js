@@ -103,6 +103,7 @@ function processCSV(data) {
         ? record.tags.split(",").map((t) => t.trim().toLowerCase())
         : [],
       authorEmail: record.authorEmail || "system@gravyprompts.com",
+      authorName: record.authorName || (record.authorEmail || "system@gravyprompts.com").split('@')[0],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       viewCount: parseInt(record.viewCount) || 0,
@@ -138,6 +139,7 @@ function processJSON(data) {
       visibility: record.visibility || "public",
       tags: record.tags || [],
       authorEmail: record.authorEmail || "system@gravyprompts.com",
+      authorName: record.authorName || (record.authorEmail || "system@gravyprompts.com").split('@')[0],
       createdAt: record.createdAt || new Date().toISOString(),
       updatedAt: record.updatedAt || new Date().toISOString(),
       viewCount: record.viewCount || 0,
