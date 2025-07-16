@@ -2,6 +2,7 @@ import * as cdk from "aws-cdk-lib";
 import * as budgets from "aws-cdk-lib/aws-budgets";
 import * as sns from "aws-cdk-lib/aws-sns";
 import * as subscriptions from "aws-cdk-lib/aws-sns-subscriptions";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 export class BudgetStack extends cdk.Stack {
@@ -22,6 +23,17 @@ export class BudgetStack extends cdk.Stack {
     const budgetTopic = new sns.Topic(this, "BudgetAlertTopic", {
       displayName: "GravyPrompts Budget Alerts",
     });
+
+    // Add resource policy to allow AWS Budgets to publish to this topic
+    budgetTopic.addToResourcePolicy(
+      new iam.PolicyStatement({
+        sid: "AllowBudgetsToPublish",
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.ServicePrincipal("budgets.amazonaws.com")],
+        actions: ["SNS:Publish"],
+        resources: [budgetTopic.topicArn],
+      }),
+    );
 
     // Add email subscription
     budgetTopic.addSubscription(

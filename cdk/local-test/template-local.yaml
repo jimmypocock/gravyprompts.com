@@ -14,9 +14,12 @@ Globals:
         USER_PROMPTS_TABLE: local-user-prompts
         USER_PERMISSIONS_TABLE: local-user-permissions
         APPROVAL_HISTORY_TABLE: local-approval-history
+        RATE_LIMITS_TABLE: local-rate-limits
         ENVIRONMENT: development
         USER_POOL_ID: local-user-pool
         AWS_ENDPOINT_URL_DYNAMODB: http://host.docker.internal:8000
+        REDIS_HOST: host.docker.internal
+        REDIS_PORT: "6379"
 
 Resources:
   SharedLayer:
