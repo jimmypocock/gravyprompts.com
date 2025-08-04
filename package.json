@@ -99,7 +99,7 @@
     "cdk:env": "source ./scripts/cdk-env.sh && env | grep -E '^(AWS_|CDK_)'"
   },
   "dependencies": {
-    "aws-amplify": "^6.15.3",
+    "aws-amplify": "^6.15.4",
     "colors": "^1.4.0",
     "date-fns": "^4.1.0",
     "gravyjs": "*",
