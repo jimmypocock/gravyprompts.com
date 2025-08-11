@@ -128,7 +128,7 @@
     "csv-stringify": "^6.6.0",
     "dotenv": "^16.5.0",
     "eslint": "^9",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "15.4.6",
     "jest-axe": "^10.0.0",
     "license-checker": "^25.0.1",
     "postcss": "^8",
