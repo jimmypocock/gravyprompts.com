@@ -112,7 +112,7 @@
     "@aws-sdk/client-cloudwatch": "^3.908.0",
     "@aws-sdk/client-cloudwatch-logs": "^3.896.0",
     "@aws-sdk/client-dynamodb": "^3.908.0",
-    "@aws-sdk/lib-dynamodb": "^3.902.0",
+    "@aws-sdk/lib-dynamodb": "^3.908.0",
     "@eslint/eslintrc": "^3",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
