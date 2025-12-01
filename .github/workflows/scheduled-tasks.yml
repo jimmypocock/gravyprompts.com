@@ -46,7 +46,7 @@ jobs:
           npm outdated > outdated-deps.txt || true
       
       - name: Create security report issue
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
@@ -191,7 +191,7 @@ jobs:
           npm run analyze:costs -- cost-report.json
       
       - name: Create cost report issue if high
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
