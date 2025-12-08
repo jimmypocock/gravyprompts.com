@@ -110,7 +110,7 @@
   },
   "devDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.946.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.936.0",
+    "@aws-sdk/client-cloudwatch-logs": "^3.946.0",
     "@aws-sdk/client-dynamodb": "^3.936.0",
     "@aws-sdk/lib-dynamodb": "^3.946.0",
     "@eslint/eslintrc": "^3",
