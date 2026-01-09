@@ -23,11 +23,12 @@ export interface Template {
   visibility: "public" | "private";
   tags: string[];
   authorEmail: string;
+  authorName?: string; // Author's display name
   createdAt: string;
   updatedAt: string;
   viewCount: number;
   useCount: number;
-  isOwner?: boolean;
+  isOwner?: boolean; // Calculated by backend based on userId comparison
   moderationStatus?: string;
   moderationDetails?: any; // Details about moderation
 }
