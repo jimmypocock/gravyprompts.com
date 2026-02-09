@@ -99,6 +99,7 @@ exports.handler = async (event) => {
       viewCount: template.viewCount,
       useCount: template.useCount,
       authorEmail: template.authorEmail,
+      authorName: template.authorName || template.authorEmail?.split('@')[0] || 'Anonymous',
       isOwner,
     };
 

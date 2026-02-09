@@ -25,6 +25,11 @@
     "test:ci:components": "jest --config jest.config.ci.js components/__tests__ --ci",
     "test:local": "jest __tests__/security __tests__/e2e __tests__/integration",
     "test:e2e": "jest __tests__/e2e --runInBand",
+    "test:health": "node scripts/test-health.js",
+    "test:local:all": "node scripts/test-local.js",
+    "test:playwright": "playwright test",
+    "test:playwright:ui": "playwright test --ui",
+    "test:playwright:debug": "playwright test --debug",
     "test:smoke:staging": "jest __tests__/deployment/smoke-tests.test.js --testNamePattern='staging'",
     "test:smoke:production": "jest __tests__/deployment/smoke-tests.test.js --testNamePattern='production'",
     "build:cdk": "cd cdk && rm -f lib/*.d.ts lib/*.js && npm run build",
@@ -37,7 +42,6 @@
     "validate:auth": "./scripts/validate-auth-setup.sh",
     "deploy:api": "./scripts/deploy-api.sh",
     "deploy:budget": "./scripts/deploy-budget.sh",
-    "deploy:dashboard": "./scripts/deploy-dashboard.sh",
     "deploy:all": "./scripts/deploy-all-amplify.sh",
     "deploy:backend": "./scripts/deploy-amplify-backend.sh",
     "deploy:cache": "node ./scripts/deploy-cache.js",
@@ -52,7 +56,6 @@
     "local:setup:admin": "node scripts/local/setup-admin-permissions.js",
     "local:logs": "docker logs gravyprompts-dynamodb-local",
     "local:cleanup": "./scripts/cleanup-local.sh",
-    "local:test:cache": "node ./scripts/test-redis-cache.js",
     "debug:auth": "node scripts/debug-auth.js",
     "test:backend": "cd cdk && npm test",
     "test:backend:watch": "cd cdk && npm run test:watch",
@@ -60,6 +63,7 @@
     "verify:local": "node scripts/verify-local-config.js",
     "fix:local-config": "node scripts/fix-local-config.js",
     "analyze:costs": "node scripts/analyze-costs.js",
+    "cloudwatch:analyze": "node scripts/analyze-cloudwatch-costs.js",
     "local:clear": "node scripts/clear-local-db.js",
     "local:clear:all": "node scripts/clear-local-db.js",
     "local:test": "cd cdk/local-test && ./test-api.sh",
@@ -114,6 +118,7 @@
     "@aws-sdk/client-dynamodb": "^3.980.0",
     "@aws-sdk/lib-dynamodb": "^3.985.0",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.53.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -131,10 +136,14 @@
     "eslint-config-next": "15.5.6",
     "jest-axe": "^10.0.0",
     "license-checker": "^25.0.1",
+    "playwright": "^1.53.2",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.21.0",
     "typescript": "^5",
     "uuid": "^11.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   }
 }
